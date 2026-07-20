@@ -1,131 +1,208 @@
 export const fallbackData = {
-  project: {
-    course: "KMS301",
-    name: "Knowledge Operations Cockpit",
-    subtitle:
-      "Không gian điều hành tri thức cho dự án: gom dữ liệu, chuẩn hóa SOP, ghi bài học kinh nghiệm và xuất báo cáo có bằng chứng.",
-    semester: "Summer 2026",
-    owner: "KMS301 Project Team"
+  user: {
+    name: "Alex Chen",
+    role: "Quản lý vận hành",
+    bureau: "Cục Chiếu sáng Đường phố LA"
   },
-  metrics: [
-    { label: "Độ sẵn sàng tri thức", value: "92%", trend: "tăng 8% sau chuẩn hóa SOP" },
-    { label: "Quy trình đang quản trị", value: "18", trend: "4 quy trình cần review" },
-    { label: "Insight có thể tái sử dụng", value: "34", trend: "7 insight mới tuần này" },
-    { label: "Dòng nhật ký/bằng chứng", value: "126", trend: "đồng bộ theo thời gian thực" }
-  ],
-  signals: [
-    { label: "Capture", value: "Live", detail: "Ghi nhận quyết định, bối cảnh, dữ liệu và minh chứng" },
-    { label: "Validate", value: "Review", detail: "Kiểm tra độ tin cậy trước khi đưa vào kho tri thức" },
-    { label: "Reuse", value: "Ready", detail: "Đưa SOP và lesson learned vào luồng vận hành" }
-  ],
-  knowledgeAreas: [
+  kpis: [
     {
-      title: "Kho tri thức dự án",
-      description: "Tập trung tài liệu, insight, quyết định và bằng chứng để nhóm không mất ngữ cảnh.",
-      pulse: "Active"
+      label: "Mục đã ghi nhận",
+      value: "124",
+      trend: "+12%",
+      detail: "Bài học mới trong tháng này",
+      tone: "good"
     },
     {
-      title: "Bộ máy SOP",
-      description: "Biến kinh nghiệm thành quy trình có đầu vào, người phụ trách, tiêu chí hoàn thành và rủi ro.",
-      pulse: "Review"
+      label: "Tỷ lệ tái sử dụng tri thức",
+      value: "52%",
+      trend: "+8%",
+      detail: "Case được xử lý bằng SOP/case cũ",
+      tone: "primary"
     },
     {
-      title: "Vòng lặp học hỏi",
-      description: "Chuyển lỗi, thay đổi và quyết định khó thành bài học có thể dùng lại ở sprint sau.",
-      pulse: "Learning"
+      label: "Đang chờ duyệt",
+      value: "8",
+      trend: "Nghiêm trọng",
+      detail: "Đang chờ xác minh",
+      tone: "warning"
     },
     {
-      title: "Báo cáo minh chứng",
-      description: "Tạo nhật ký hoạt động có ngày, owner, trạng thái và proof phục vụ thuyết trình môn học.",
-      pulse: "Audit"
+      label: "Mức giảm MTTR",
+      value: "15%",
+      trend: "+4.2h",
+      detail: "Cải thiện hiệu suất",
+      tone: "good"
     }
   ],
-  processes: [
+  recentIncidents: [
     {
-      stage: "01",
-      title: "Thu thập tri thức",
-      owner: "Research Lead",
-      status: "Đang chạy",
-      detail: "Tổng hợp phỏng vấn, tài liệu, ảnh/video minh chứng, quyết định và ghi chú thô từ hoạt động nhóm."
+      id: "SL-8921-W",
+      type: "Mất kết nối nút",
+      status: "Nghiêm trọng",
+      date: "24 Thg 10, 08:12",
+      action: "Cần SOP"
     },
     {
-      stage: "02",
-      title: "Chuẩn hóa SOP",
-      owner: "Process Owner",
-      status: "Cần review",
-      detail: "Chuyển tri thức thô thành quy trình dễ làm theo, có checklist, owner, output và điểm kiểm soát."
+      id: "SL-3345-N",
+      type: "Suy giảm tế bào quang điện",
+      status: "Đang xử lý",
+      date: "24 Thg 10, 07:45",
+      action: "Đã gán đội"
     },
     {
-      stage: "03",
-      title: "Kiểm chứng & chấm điểm",
-      owner: "Quality Reviewer",
-      status: "Ổn định",
-      detail: "Đối chiếu bằng chứng, đánh giá độ tin cậy, phát hiện lỗ hổng và ghi lại phiên bản cập nhật."
+      id: "SL-1102-E",
+      type: "Lỗi bộ điều khiển",
+      status: "Đã phân công",
+      date: "23 Thg 10, 21:10",
+      action: "Review"
     },
     {
-      stage: "04",
-      title: "Tái sử dụng",
-      owner: "Knowledge Admin",
-      status: "Sẵn sàng",
-      detail: "Đưa SOP, bài học kinh nghiệm và báo cáo vào dashboard để nhóm tra cứu và dùng lại nhanh."
+      id: "SL-4491-S",
+      type: "Ngắt thiết bị chống sét",
+      status: "Đã giải quyết",
+      date: "23 Thg 10, 19:30",
+      action: "Đóng case"
     }
   ],
-  lessons: [
+  alerts: [
+    "Cần sét đánh địa cực - Khu vực 4",
+    "Không khớp phần mềm cơ sở",
+    "Cảnh báo độ trễ thấp"
+  ],
+  knowledgeItems: [
     {
-      title: "Ghi lại bối cảnh ngay khi ra quyết định",
-      impact: "Cao",
-      source: "Sprint 02 retro",
+      id: "KMS-2042",
+      title: "Series Circuit Fault: Open Neutral at Node 42",
+      category: "Mạch nối tiếp",
+      assetType: "Cơ sở hạ tầng",
+      severity: "Lỗi nghiêm trọng",
+      status: "Đã phê duyệt",
+      symptom:
+        "Toàn bộ tuyến đèn khu vực Bắc nhấp nháy, sụt áp liên tục. Đo điện áp đầu nguồn ổn định nhưng tại cột 42 chỉ đạt 50V.",
+      rootCause:
+        "Đứt ngầm dây trung tính do thi công công trình ngầm cắt phải, gây hiện tượng điện áp nổi.",
+      repairAction:
+        "Cô lập mạch, xác nhận vị trí hở trung tính bằng megohmmeter, thay đoạn cáp và cập nhật bản đồ cáp ngầm.",
       lesson:
-        "Quyết định thường bị mất lý do sau vài ngày. Khi log có bối cảnh, giả định và bằng chứng, nhóm dễ bảo vệ lựa chọn trong báo cáo."
+        "Không kết luận lỗi driver LED khi nhiều cột cùng nhấp nháy; cần kiểm tra trung tính trước khi thay thiết bị.",
+      updated: "12/10/2023",
+      owner: "Maria Lopez"
     },
     {
-      title: "SOP phải có tiêu chí hoàn thành",
-      impact: "Trung bình",
-      source: "SOP review",
+      id: "KMS-1988",
+      title: "Mất kết nối NEMA Socket Node",
+      category: "IoT Sensor",
+      assetType: "Đèn LED",
+      severity: "Cảnh báo",
+      status: "Đã phê duyệt",
+      symptom:
+        "Hệ thống báo mất tín hiệu hàng loạt từ các node khu vực trung tâm sau mưa lớn.",
+      rootCause:
+        "Nhiễu sóng do trạm BTS mới lắp đặt gần đó gây tần số đệm mạng Zigbee.",
+      repairAction:
+        "Đổi kênh mesh, reset node theo cụm 20 thiết bị và cập nhật cấu hình gateway.",
       lesson:
-        "Một quy trình chỉ liệt kê bước làm vẫn chưa đủ. Cần nêu output cụ thể để thành viên mới biết khi nào công việc thật sự xong."
+        "Khi mất kết nối theo cụm, ưu tiên kiểm tra nhiễu mạng và gateway trước khi thay socket.",
+      updated: "05/11/2023",
+      owner: "Kenji Mori"
     },
     {
-      title: "Bài học tốt nhất đến từ lỗi nhỏ",
-      impact: "Cao",
-      source: "Weekly sync",
+      id: "KMS-1871",
+      title: "Nước rò rỉ vào móng cột điện",
+      category: "Cơ sở hạ tầng",
+      assetType: "Cột đèn",
+      severity: "Đã xử lý",
+      status: "Đã phê duyệt",
+      symptom:
+        "Aptomat nhánh nhảy liên tục khi trời mưa lớn. Phát hiện nước đọng trong hộp nối chân cột.",
+      rootCause:
+        "Gioăng cao su nắp cột bị thoái hóa, kết hợp với cốt nền đường thay đổi sau sửa chữa vỉa hè.",
+      repairAction:
+        "Ngắt nguồn, hút nước, thay gioăng, bọc đầu nối IP68 và nâng cao cổ hộp nối.",
       lesson:
-        "Các lỗi nhỏ nếu được ghi sớm sẽ trở thành cảnh báo hữu ích. Nếu chờ cuối kỳ mới tổng hợp, nhóm thường chỉ còn nhớ kết quả."
+        "Với cột ở vùng ngập cục bộ, checklist cần thêm bước kiểm tra cao độ nền sau mỗi đợt thi công đô thị.",
+      updated: "20/09/2023",
+      owner: "Ravi Patel"
     }
   ],
-  reports: [
+  reviewQueue: [
     {
-      date: "2026-06-03",
-      activity: "Khởi tạo knowledge cockpit",
-      owner: "Product Lead",
-      status: "Done",
-      evidence: "FE/BE scaffold"
+      id: "REV-771",
+      title: "Smart Controller RF Signal Interference in District 7",
+      category: "Hardware",
+      submittedBy: "Mark Chen",
+      priority: "Cao",
+      age: "6 ngày trước",
+      symptom:
+        "Node điều khiển ngắt kết nối không ổn định, dữ liệu điện áp bị trễ 12-18 phút tại cụm đường cao tốc.",
+      rootCause:
+        "Nhiễu RF từ thiết bị truyền dẫn gần trạm trung chuyển làm giảm chất lượng mesh.",
+      repairAction:
+        "Đổi kênh truyền, tách gateway dự phòng, cập nhật nhãn vị trí để đội mạng kiểm tra định kỳ.",
+      lesson:
+        "Các lỗi RF cần được tag theo địa lý để phát hiện cụm nhiễu thay vì xem từng node đơn lẻ."
     },
     {
-      date: "2026-06-04",
-      activity: "Mapping dữ liệu từ 5 template vào mô hình hệ thống",
-      owner: "Content Lead",
-      status: "In progress",
-      evidence: "Domain framework"
-    },
-    {
-      date: "2026-06-05",
-      activity: "Chuẩn hóa quy trình SOP nhóm",
-      owner: "Process Owner",
-      status: "Planned",
-      evidence: "SOP flow"
-    },
-    {
-      date: "2026-06-07",
-      activity: "Tổng hợp lesson learned và proof",
-      owner: "Quality Reviewer",
-      status: "Planned",
-      evidence: "Audit log"
+      id: "REV-772",
+      title: "Thermal Management Failure on Series 4 Fixtures",
+      category: "LED Array",
+      submittedBy: "Sarah Jenkins",
+      priority: "Trung bình",
+      age: "2 ngày trước",
+      symptom: "Độ sáng giảm mạnh sau 40 phút vận hành trong ngày nóng.",
+      rootCause: "Keo tản nhiệt lão hóa khiến driver tự hạ công suất.",
+      repairAction: "Thay pad tản nhiệt, vệ sinh khoang driver, ghi nhận lot thiết bị.",
+      lesson: "Khi lỗi chỉ xuất hiện sau khi nóng, cần chạy burn-in test trước khi đóng case."
     }
   ],
-  media: {
-    videoTitle: "Knowledge Flow Demo",
-    videoUrl: "https://videos.pexels.com/video-files/3196287/3196287-uhd_2560_1440_25fps.mp4",
-    posterHint: "Video đóng vai trò ambient background cho luồng capture, validate và reuse tri thức."
-  }
+  sops: [
+    {
+      code: "SOP-HV-2024-001",
+      title: "Bảo trì máy biến áp cao thế",
+      category: "An toàn",
+      assetType: "Máy biến áp",
+      owner: "John Doe",
+      updated: "12 tháng 10, 2023",
+      reviewCycle: "Hàng năm",
+      status: "Đang hoạt động",
+      summary:
+        "Quy trình LOTO, xả tụ, kiểm tra trực quan và tái cấp điện an toàn cho máy biến áp phục vụ mạng chiếu sáng.",
+      risk: "Cao",
+      steps: ["Cách ly & LOTO", "Xả tụ điện", "Kiểm tra bằng mắt", "Làm sạch & bảo trì", "Tái cấp điện & kiểm tra"]
+    },
+    {
+      code: "SOP-IOT-2024-014",
+      title: "Hiệu chuẩn kết nối nút thông minh",
+      category: "Kỹ thuật",
+      assetType: "Smart Node",
+      owner: "Nina Brown",
+      updated: "02 tháng 9, 2023",
+      reviewCycle: "6 tháng",
+      status: "Đang hoạt động",
+      summary:
+        "Kiểm tra gateway, reset node, đồng bộ firmware và xác minh dữ liệu telemetry sau hiệu chuẩn.",
+      risk: "Trung bình",
+      steps: ["Kiểm tra gateway", "Quét node", "Đồng bộ firmware", "Xác minh telemetry"]
+    },
+    {
+      code: "SOP-EMG-2024-006",
+      title: "Quy trình ứng phó bão khẩn cấp",
+      category: "Khẩn cấp",
+      assetType: "Khu vực sự cố",
+      owner: "Ops Center",
+      updated: "18 tháng 8, 2023",
+      reviewCycle: "Theo mùa",
+      status: "Cần đánh giá",
+      summary:
+        "Ưu tiên tuyến đường chính, phân bổ xe thang, kiểm tra nguy cơ điện giật và cập nhật 311.",
+      risk: "Cao",
+      steps: ["Phân loại khu vực", "Cô lập điện", "Điều phối đội", "Báo cáo cộng đồng"]
+    }
+  ],
+  activity: [
+    "M. Kowalski đã cập nhật SOP Bảo vệ Chống sét",
+    "Hệ thống đã lưu Tri thức #8821",
+    "J. Doe đã xác minh Bài học Smart Node V2",
+    "Reviewer yêu cầu bổ sung ảnh hiện trường cho REV-771"
+  ]
 };
