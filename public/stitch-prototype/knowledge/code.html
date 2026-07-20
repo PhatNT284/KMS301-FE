@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tra cứu tri thức - LABSL KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#f4f3f8",
+                        "on-tertiary-fixed": "#341100",
+                        "on-surface": "#1a1c1f",
+                        "on-secondary": "#ffffff",
+                        "on-background": "#1a1c1f",
+                        "primary-container": "#003366",
+                        "on-tertiary-container": "#d8885c",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "on-error": "#ffffff",
+                        "secondary-fixed": "#d5e3fc",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "surface-dim": "#dad9de",
+                        "primary-fixed": "#d5e3ff",
+                        "on-tertiary-fixed-variant": "#723610",
+                        "inverse-surface": "#2f3034",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdbca",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eeedf2",
+                        "tertiary": "#381300",
+                        "surface-container-high": "#e8e8ed",
+                        "tertiary-container": "#592300",
+                        "surface-bright": "#f9f9fe",
+                        "secondary": "#515f74",
+                        "on-surface-variant": "#43474f",
+                        "secondary-container": "#d5e3fc",
+                        "on-primary-container": "#799dd6",
+                        "outline-variant": "#c3c6d1",
+                        "surface-tint": "#3a5f94",
+                        "tertiary-fixed-dim": "#ffb690",
+                        "on-primary": "#ffffff",
+                        "primary": "#001e40",
+                        "on-primary-fixed": "#001b3c",
+                        "inverse-on-surface": "#f1f0f5",
+                        "surface": "#f9f9fe",
+                        "surface-variant": "#e2e2e7",
+                        "outline": "#737780",
+                        "background": "#f9f9fe",
+                        "on-primary-fixed-variant": "#1f477b",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#a7c8ff",
+                        "inverse-primary": "#a7c8ff",
+                        "on-secondary-container": "#57657a",
+                        "on-error-container": "#93000a",
+                        "surface-container-highest": "#e2e2e7"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "xl": "32px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "md": "16px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Inter", "sans-serif"],
+                        "mono-sm": ["JetBrains Mono", "monospace"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"]
+                    },
+                    fontSize: {
+                        "display-lg": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "mono-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "headline-lg-mobile": ["28px", { lineHeight: "34px", fontWeight: "700" }],
+                        "label-md": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", fontWeight: "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="w-[280px] h-screen flex-shrink-0 border-r border-outline-variant dark:border-outline bg-surface-container dark:bg-surface-container-low flex flex-col py-lg px-md gap-sm fixed left-0 top-0 z-40 hidden md:flex">
+<div class="mb-xl flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary dark:text-primary-fixed m-0 leading-tight">LA Bureau of Street Lighting</h1>
+<p class="font-label-md text-label-md text-on-surface-variant mt-1">Knowledge Management System</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-container transition-all cursor-pointer duration-200 flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="font-label-md text-label-md bg-primary-container text-on-primary-container rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-md p-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_books</span>
+                Knowledge Base
+            </a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-container transition-all cursor-pointer duration-200 flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">post_add</span>
+                Submit Case
+            </a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-container transition-all cursor-pointer duration-200 flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">pending_actions</span>
+                Review Queue
+            </a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high hover:bg-surface-container-highest dark:hover:bg-surface-container transition-all cursor-pointer duration-200 flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+                SOPs
+            </a>
+</nav>
+<div class="mt-auto flex flex-col gap-sm pt-md border-t border-outline-variant">
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all cursor-pointer flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+                Help Center
+            </a>
+<a class="font-label-md text-label-md text-on-surface-variant dark:text-surface-variant hover:bg-surface-container-high transition-all cursor-pointer flex items-center gap-md p-md rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Sign Out
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full h-16 bg-surface-container-lowest dark:bg-surface-container-lowest border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg sticky top-0 z-30">
+<div class="flex items-center gap-md flex-1 max-w-2xl">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full h-10 pl-10 pr-4 rounded-full bg-surface-container-high border-none font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-colors" placeholder="Tìm kiếm tài liệu, mã lỗi, triệu chứng..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors flex items-center justify-center text-on-surface-variant cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors flex items-center justify-center text-on-surface-variant cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container ml-sm overflow-hidden border border-outline-variant">
+<img alt="Operations Manager Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate operations manager in a well-lit office setting. The lighting is high-key and bright, fitting a modern light-mode interface. The subject is wearing a crisp white shirt, radiating trust and institutional reliability. The color palette is subtle, utilizing cool tones that match a corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV-RZ9zONArf-iB8xqtlShL9C3bo22D-W8p6QH5XpIftBXsSxUyC1R9RBD3FYAxse6C2cwiJ7sMz_fSrEebKlCXDWoqnWK-Sc5KFAyJWlIBBouE8rRtO0OGPhK_8u6CRyxA9QJEeC6IIviuB147bLDHS8zgyn5RS3nU7hh6sGjdXHmPnrEoIG2cjLOj-5RtrFb2HcUNT_rzyzVCcHo4ubPXnwcNe1UCRx9ufIbak0OLlzwyTXZrXc"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 p-margin-desktop flex flex-col gap-lg max-w-[1440px] mx-auto w-full">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-md">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface m-0">Cơ sở tri thức</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Tra cứu các giải pháp kỹ thuật và quy trình tiêu chuẩn.</p>
+</div>
+<div class="flex flex-wrap gap-sm">
+<select class="h-10 px-md rounded-lg bg-surface-container border border-outline-variant font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Danh mục: Tất cả</option>
+<option>Điện &amp; Mạch</option>
+<option>Cơ sở hạ tầng</option>
+<option>Phần mềm</option>
+</select>
+<select class="h-10 px-md rounded-lg bg-surface-container border border-outline-variant font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Loại tài sản: Tất cả</option>
+<option>Đèn LED</option>
+<option>Tủ điều khiển</option>
+</select>
+<select class="h-10 px-md rounded-lg bg-surface-container border border-outline-variant font-body-md text-body-md text-on-surface focus:ring-1 focus:ring-primary focus:border-primary">
+<option>Trạng thái: Đã phê duyệt</option>
+<option>Đang chờ duyệt</option>
+<option>Bản nháp</option>
+</select>
+</div>
+</div>
+<!-- Bento Grid of Knowledge Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col hover:border-primary transition-colors h-full">
+<div class="flex justify-between items-start mb-md">
+<div class="flex flex-wrap gap-xs">
+<span class="px-sm py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-md text-label-md">Mạch nối tiếp</span>
+<span class="px-sm py-xs bg-error-container text-on-error-container rounded-full font-label-md text-label-md">Lỗi nghiêm trọng</span>
+</div>
+<span class="px-sm py-xs bg-surface-container-high text-on-surface-variant rounded-full font-label-md text-label-md flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Đã phê duyệt
+                        </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-sm leading-tight">Series Circuit Fault: Open Neutral at Node 42</h3>
+<div class="flex-1 flex flex-col gap-sm mb-lg">
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1 uppercase tracking-wider">Triệu chứng</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Toàn bộ tuyến đèn khu vực Bắc nhấp nháy, sụt áp liên tục. Đo điện áp đầu nguồn ổn định nhưng tại cột 42 chỉ đạt 50V.</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-error">
+<span class="font-label-md text-label-md text-error block mb-1 uppercase tracking-wider">Nguyên nhân gốc rễ</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Đứt ngầm dây trung tính do thi công công trình ngầm cắt phải, gây hiện tượng điện áp nổi (floating neutral).</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-auto pt-md border-t border-surface-container">
+<span class="font-mono-sm text-mono-sm text-on-surface-variant">Cập nhật: 12/10/2023</span>
+<button class="bg-primary text-on-primary h-10 px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
+                            Xem chi tiết &amp; SOP <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col hover:border-primary transition-colors h-full">
+<div class="flex justify-between items-start mb-md">
+<div class="flex flex-wrap gap-xs">
+<span class="px-sm py-xs bg-tertiary-container text-on-tertiary-container rounded-full font-label-md text-label-md">IoT Sensor</span>
+<span class="px-sm py-xs bg-surface-container text-on-surface-variant rounded-full font-label-md text-label-md">Cảnh báo</span>
+</div>
+<span class="px-sm py-xs bg-surface-container-high text-on-surface-variant rounded-full font-label-md text-label-md flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Đã phê duyệt
+                        </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-sm leading-tight">Mất kết nối NEMA Socket Node</h3>
+<div class="flex-1 flex flex-col gap-sm mb-lg">
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1 uppercase tracking-wider">Triệu chứng</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Hệ thống báo mất tín hiệu hàng loạt từ các node khu vực trung tâm. Đèn chuyển sang chế độ fallback (sáng 100%).</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-tertiary-container">
+<span class="font-label-md text-label-md text-on-tertiary-container block mb-1 uppercase tracking-wider">Nguyên nhân gốc rễ</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Nhiễu sóng do trạm BTS mới lắp đặt gần đó gây tràn bộ đệm mạng Mesh.</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-auto pt-md border-t border-surface-container">
+<span class="font-mono-sm text-mono-sm text-on-surface-variant">Cập nhật: 05/11/2023</span>
+<button class="bg-primary text-on-primary h-10 px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
+                            Xem chi tiết &amp; SOP <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col hover:border-primary transition-colors h-full">
+<div class="flex justify-between items-start mb-md">
+<div class="flex flex-wrap gap-xs">
+<span class="px-sm py-xs bg-primary-container text-on-primary-container rounded-full font-label-md text-label-md">Cơ sở hạ tầng</span>
+</div>
+<span class="px-sm py-xs bg-surface-container-high text-on-surface-variant rounded-full font-label-md text-label-md flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Đã phê duyệt
+                        </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary mb-sm leading-tight">Nước rò rỉ vào móng cột điện</h3>
+<div class="flex-1 flex flex-col gap-sm mb-lg">
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1 uppercase tracking-wider">Triệu chứng</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Aptomat (CB) nhánh nhảy liên tục khi trời mưa lớn. Phát hiện nước đọng tại chân cột số 12.</p>
+</div>
+<div class="bg-surface-container-low p-sm rounded-lg border-l-2 border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant block mb-1 uppercase tracking-wider">Nguyên nhân gốc rễ</span>
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">Gioăng cao su nắp cửa cột bị thoái hóa, kết hợp với cốt nền đường nâng cao làm hướng dòng chảy bề mặt vào khe hở.</p>
+</div>
+</div>
+<div class="flex items-center justify-between mt-auto pt-md border-t border-surface-container">
+<span class="font-mono-sm text-mono-sm text-on-surface-variant">Cập nhật: 20/09/2023</span>
+<button class="bg-primary text-on-primary h-10 px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-2">
+                            Xem chi tiết &amp; SOP <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination Placeholder -->
+<div class="flex justify-center items-center gap-sm mt-lg">
+<button class="w-10 h-10 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-10 h-10 rounded-lg bg-primary text-on-primary font-body-md text-body-md flex items-center justify-center cursor-pointer">1</button>
+<button class="w-10 h-10 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md hover:bg-surface-container-high flex items-center justify-center cursor-pointer">2</button>
+<button class="w-10 h-10 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md hover:bg-surface-container-high flex items-center justify-center cursor-pointer">3</button>
+<button class="w-10 h-10 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-high flex items-center justify-center cursor-pointer">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bảng điều khiển Duyệt &amp; Phê duyệt | LABSL KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e2e7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c3c6d1; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-container": "#003366",
+                      "on-tertiary-fixed": "#341100",
+                      "error-container": "#ffdad6",
+                      "surface-bright": "#f9f9fe",
+                      "surface-container-high": "#e8e8ed",
+                      "outline-variant": "#c3c6d1",
+                      "on-background": "#1a1c1f",
+                      "surface": "#f9f9fe",
+                      "primary-fixed": "#d5e3ff",
+                      "on-surface-variant": "#43474f",
+                      "on-error": "#ffffff",
+                      "secondary-fixed": "#d5e3fc",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f4f3f8",
+                      "on-surface": "#1a1c1f",
+                      "on-secondary-container": "#57657a",
+                      "primary-fixed-dim": "#a7c8ff",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#381300",
+                      "surface-container-highest": "#e2e2e7",
+                      "secondary-fixed-dim": "#b9c7df",
+                      "on-primary-container": "#799dd6",
+                      "tertiary-fixed-dim": "#ffb690",
+                      "secondary": "#515f74",
+                      "primary": "#001e40",
+                      "on-secondary-fixed-variant": "#3a485b",
+                      "on-secondary": "#ffffff",
+                      "secondary-container": "#d5e3fc",
+                      "surface-tint": "#3a5f94",
+                      "inverse-primary": "#a7c8ff",
+                      "surface-dim": "#dad9de",
+                      "tertiary-container": "#592300",
+                      "on-tertiary-container": "#d8885c",
+                      "on-secondary-fixed": "#0d1c2e",
+                      "tertiary-fixed": "#ffdbca",
+                      "outline": "#737780",
+                      "surface-variant": "#e2e2e7",
+                      "inverse-on-surface": "#f1f0f5",
+                      "surface-container-lowest": "#ffffff",
+                      "background": "#f9f9fe",
+                      "on-primary-fixed-variant": "#1f477b",
+                      "on-tertiary-fixed-variant": "#723610",
+                      "surface-container": "#eeedf2",
+                      "error": "#ba1a1a",
+                      "inverse-surface": "#2f3034",
+                      "on-primary-fixed": "#001b3c",
+                      "on-primary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "margin-desktop": "40px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "mono-sm": ["jetbrainsMono"]
+              },
+              "fontSize": {
+                      "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "mono-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface font-body-md text-on-surface overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="flex flex-col py-lg px-md gap-sm fixed left-0 top-0 h-full w-[280px] bg-surface-container border-r border-outline-variant z-50 transition-all duration-200">
+<div class="flex items-center gap-md mb-xl px-sm">
+<div class="w-10 h-10 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary leading-tight">LABSL KMS</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Bureau of Street Lighting</p>
+</div>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-label-md text-label-md">Knowledge Base</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">post_add</span>
+<span class="font-label-md text-label-md">Submit Case</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pending_actions</span>
+<span class="font-label-md text-label-md">Review Queue</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">SOPs</span>
+</a>
+</nav>
+<div class="mt-auto pt-md border-t border-outline-variant/30 space-y-1">
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] h-screen flex flex-col">
+<!-- Header -->
+<header class="flex justify-between items-center px-lg w-full h-16 bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-40">
+<div class="flex items-center gap-lg flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-body-md focus:ring-2 focus:ring-primary-container" placeholder="Search knowledge items..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
+<div class="flex items-center gap-sm">
+<div class="text-right">
+<p class="text-label-md font-bold text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Operations Manager</p>
+</div>
+<img class="w-10 h-10 rounded-full border border-outline-variant object-cover" data-alt="Professional headshot of a Hispanic male operations manager in his 40s wearing a crisp navy polo shirt. He has a warm, confident smile and short dark hair. The background is a brightly lit, clean office with subtle city views through a window, maintaining a corporate and high-end light-mode aesthetic with soft shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgeIUi-sIgc2NNcAdZd94mS_ZayVz2gz0FUySq_E4d_h-om4FdpJwVvUlcYYZbF4a6Eht4AqZJUYRbolkyk6fhn8R8AuaHF8OybDQ8bLKA4R54PENcy8z_G2T0fOWo9p2EaTAEv0yz5PMb43mu4Lq3nM3k3DIUTsVESTpYPtMDnp6Flg3C8e0TfafEqF3zi-cpRTv5m5ULouSPiMyHZ3UrdNr_cBDalz4RUf0QBN4UVEbI8cDhMxo"/>
+</div>
+</div>
+</header>
+<!-- Split View Content -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Panel: Queue -->
+<section class="w-[380px] flex-shrink-0 flex flex-col border-r border-outline-variant bg-surface-container-low">
+<div class="p-md border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-primary">Hàng đợi <span class="text-body-md font-normal text-on-surface-variant">(12)</span></h2>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">filter_list</button>
+</div>
+<div class="flex-1 overflow-y-auto">
+<!-- Queue Item 1 (Selected) -->
+<div class="p-lg bg-surface-container-lowest border-l-4 border-primary shadow-sm cursor-pointer transition-all">
+<div class="flex justify-between items-start mb-base">
+<span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Hardware</span>
+<span class="text-[11px] font-mono-sm text-on-surface-variant">6 Days ago</span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-primary mb-sm leading-snug">Smart Controller RF Signal Interference in District 7</h3>
+<p class="text-body-md text-on-surface-variant mb-md">Được gửi bởi: <span class="font-bold text-on-surface">Mark Chen</span></p>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
+<span class="text-label-md text-on-surface-variant">Mức độ ưu tiên: Cao</span>
+</div>
+</div>
+<!-- Queue Item 2 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-base">
+<span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">LED Array</span>
+<span class="text-[11px] font-mono-sm text-on-surface-variant">2 Days ago</span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-primary mb-sm leading-snug">Thermal Management Failure on Series 4 Fixtures</h3>
+<p class="text-body-md text-on-surface-variant mb-md">Được gửi bởi: <span class="font-bold text-on-surface">Sarah Jenkins</span></p>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
+<span class="text-label-md text-on-surface-variant">Mức độ ưu tiên: Trung bình</span>
+</div>
+</div>
+<!-- Queue Item 3 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-base">
+<span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Software</span>
+<span class="text-[11px] font-mono-sm text-on-surface-variant">12 Hours ago</span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-primary mb-sm leading-snug">Update: Firmware 2.4.1 Rollback Procedures</h3>
+<p class="text-body-md text-on-surface-variant mb-md">Được gửi bởi: <span class="font-bold text-on-surface">Technical Support</span></p>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
+<span class="text-label-md text-on-surface-variant">Mức độ ưu tiên: Urgent</span>
+</div>
+</div>
+<!-- Queue Item 4 -->
+<div class="p-lg border-b border-outline-variant hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-base">
+<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">Maintenance</span>
+<span class="text-[11px] font-mono-sm text-on-surface-variant">1 Day ago</span>
+</div>
+<h3 class="font-headline-sm text-body-lg text-primary mb-sm leading-snug">Hydraulic Lift Positioning for High-Mast Service</h3>
+<p class="text-body-md text-on-surface-variant mb-md">Được gửi bởi: <span class="font-bold text-on-surface">Jim O'Malley</span></p>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm text-on-surface-variant">schedule</span>
+<span class="text-label-md text-on-surface-variant">Mức độ ưu tiên: Thấp</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Full Content -->
+<section class="flex-1 flex flex-col bg-surface overflow-y-auto relative">
+<div class="p-xl max-w-5xl mx-auto w-full pb-40">
+<div class="flex justify-between items-center mb-xl">
+<div>
+<p class="text-label-md text-on-surface-variant mb-base flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">folder</span>
+                                CASE-2023-0492 / HARDWARE / DISTRICT 7
+                            </p>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">Smart Controller RF Signal Interference</h1>
+</div>
+<div class="flex gap-sm">
+<button class="p-md hover:bg-surface-container rounded-lg border border-outline-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">print</span>
+</button>
+<button class="p-md hover:bg-surface-container rounded-lg border border-outline-variant transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">share</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg mb-xl">
+<div class="col-span-2 space-y-xl">
+<!-- Symptoms Section -->
+<div class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm border-l-4 border-primary">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary">report_problem</span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Triệu chứng</h2>
+</div>
+<p class="text-body-lg text-on-surface leading-relaxed">
+                                    Recurrent communication timeouts observed on Segment 42-A during peak hours (06:00 - 09:00). Field technicians report "No Link" status on handheld diagnostics despite line-of-sight to gateway. Error logs indicate packet loss exceeding 45% with high noise floor readings (&gt; -85dBm).
+                                </p>
+</div>
+<!-- Root Cause Section -->
+<div class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm border-l-4 border-tertiary">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Root Cause</h2>
+</div>
+<p class="text-body-lg text-on-surface leading-relaxed">
+                                    Interference identified as harmonic noise from newly installed 5G small cell infrastructure on adjacent private property. The antenna array's proximity (approx. 12 meters) to our 900MHz mesh controllers causes significant front-end overload on the receiver circuit, desensitizing the LNA (Low Noise Amplifier).
+                                </p>
+</div>
+<!-- Repair Action Section -->
+<div class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm border-l-4 border-on-secondary-container">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-on-secondary-container">build</span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Repair Action</h2>
+</div>
+<ul class="list-disc pl-lg space-y-sm text-body-lg text-on-surface">
+<li>Installation of high-rejection 900MHz bandpass filters (Part #KMS-RF-BPF-900) on all gateway-facing controllers.</li>
+<li>Orientation adjustment of the directional Yagi antennas to minimize sidelobe pickup from the 5G tower.</li>
+<li>Relocation of the Segment Gateway (G-14) to a higher elevation point (+4m) on the existing utility pole.</li>
+</ul>
+</div>
+<!-- Lessons Learned Section -->
+<div class="bg-white p-lg rounded-xl border border-outline-variant shadow-sm border-l-4 border-outline">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-outline">lightbulb</span>
+<h2 class="text-headline-sm font-headline-sm text-primary">Lessons Learned</h2>
+</div>
+<p class="text-body-lg text-on-surface leading-relaxed italic">
+                                    "Future site surveys must include a spectrum analysis for 5G harmonic overlaps, especially in mixed-use residential zones where small-cell density is increasing. We need to update the standard installation kit to include RF shielding as a baseline requirement for District 7 deployments."
+                                </p>
+</div>
+</div>
+<div class="space-y-lg">
+<div class="bg-surface-container p-lg rounded-xl border border-outline-variant">
+<h3 class="text-label-md font-bold text-on-surface-variant uppercase mb-md">Chi tiết kỹ thuật</h3>
+<div class="space-y-md">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold">Equipment Impacted</p>
+<p class="text-body-md font-bold">SmartNode 3000-X</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold">Asset ID</p>
+<p class="font-mono-sm text-body-md">SN-D7-4221A-09</p>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold">Category</p>
+<p class="text-body-md">RF Mesh Connectivity</p>
+</div>
+<div class="pt-sm">
+<img class="w-full h-40 rounded-lg object-cover border border-outline-variant mb-sm" data-alt="A high-resolution technical photograph of a silver industrial smart light controller mounted on a textured grey utility pole. The device is surrounded by a complex mesh of wires and a small black antenna. The lighting is bright and even, highlighting the metallic textures and the weathered surface of the pole in a professional, documentarian style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARA1VtKQtXCvoISIebC1PSfPzBxjZ8SuuLPOKIC8a_ZgIL0f8k2oo-GytNcdqXWYMedBUUcAdUjzofvjODP2aeDgc8fiKX1UsiuczFVmOROlSaTAeksnTd-1WbQqhjUPToDfD2o5z0isW_wGJ-wcPWCsInhJz1pjSeKj2VNxbjMmXxTB52rj332xUJYJvyrab4-0ew0Ag7yHiFDzZN6-SCYNaq-wB2mTzbaeGybnCqmBjzqTgV77I"/>
+<p class="text-[10px] text-center text-on-surface-variant">Fig 1.1: Installed Controller G-14 (Post-relocation)</p>
+</div>
+</div>
+</div>
+<!-- Feedback Section -->
+<div class="bg-surface-container-high p-lg rounded-xl border border-outline-variant">
+<h3 class="text-label-md font-bold text-on-surface-variant uppercase mb-md">Phản hồi của người duyệt</h3>
+<textarea class="w-full h-40 bg-surface-container-low border border-outline-variant rounded-lg p-md text-body-md focus:ring-2 focus:ring-primary-container resize-none" placeholder="Add your comments or reasons for revision here..."></textarea>
+<div class="mt-md flex items-center gap-sm">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" id="urgent" type="checkbox"/>
+<label class="text-label-md text-on-surface-variant" for="urgent">Flag as critical update</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Bar -->
+<div class="fixed bottom-lg right-lg left-[680px] z-50 flex justify-center">
+<div class="glass-card flex items-center gap-md px-lg py-md rounded-full shadow-2xl border border-white/20">
+<button class="flex items-center gap-sm px-lg py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-full transition-all active:scale-95 shadow-lg shadow-red-200">
+<span class="material-symbols-outlined">close</span>
+<span>Từ chối</span>
+</button>
+<button class="flex items-center gap-sm px-lg py-3 bg-amber-400 hover:bg-amber-500 text-on-tertiary-fixed font-bold rounded-full transition-all active:scale-95 shadow-lg shadow-amber-100">
+<span class="material-symbols-outlined">history</span>
+<span>Yêu cầu chỉnh sửa</span>
+</button>
+<div class="w-[1px] h-8 bg-outline-variant mx-sm"></div>
+<button class="flex items-center gap-sm px-xl py-3 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-full transition-all active:scale-95 shadow-lg shadow-green-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Phê duyệt &amp; Xuất bản</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<script>
+        // Micro-interaction: Sidebar Hover Effects
+        const navItems = document.querySelectorAll('nav a');
+        navItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                if (!item.classList.contains('bg-primary-container')) {
+                    item.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+                }
+            });
+            item.addEventListener('mouseleave', () => {
+                if (!item.classList.contains('bg-primary-container')) {
+                    item.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+                }
+            });
+        });
+
+        // Simple selection toggle for Queue items
+        const queueItems = document.querySelectorAll('section:first-of-type .overflow-y-auto > div');
+        queueItems.forEach(item => {
+            item.addEventListener('click', () => {
+                queueItems.forEach(i => {
+                    i.classList.remove('bg-surface-container-lowest', 'border-l-4', 'border-primary', 'shadow-sm');
+                    i.classList.add('border-b', 'border-outline-variant');
+                });
+                item.classList.remove('border-b', 'border-outline-variant');
+                item.classList.add('bg-surface-container-lowest', 'border-l-4', 'border-primary', 'shadow-sm');
+            });
+        });
+    </script>
+</body></html>

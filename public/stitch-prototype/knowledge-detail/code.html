@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chi tiết tri thức - LABSL KMS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#003366",
+                    "on-tertiary-fixed": "#341100",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f9f9fe",
+                    "surface-container-high": "#e8e8ed",
+                    "outline-variant": "#c3c6d1",
+                    "on-background": "#1a1c1f",
+                    "surface": "#f9f9fe",
+                    "primary-fixed": "#d5e3ff",
+                    "on-surface-variant": "#43474f",
+                    "on-error": "#ffffff",
+                    "secondary-fixed": "#d5e3fc",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#f4f3f8",
+                    "on-surface": "#1a1c1f",
+                    "on-secondary-container": "#57657a",
+                    "primary-fixed-dim": "#a7c8ff",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#381300",
+                    "surface-container-highest": "#e2e2e7",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "on-primary-container": "#799dd6",
+                    "tertiary-fixed-dim": "#ffb690",
+                    "secondary": "#515f74",
+                    "primary": "#001e40",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#d5e3fc",
+                    "surface-tint": "#3a5f94",
+                    "inverse-primary": "#a7c8ff",
+                    "surface-dim": "#dad9de",
+                    "tertiary-container": "#592300",
+                    "on-tertiary-container": "#d8885c",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "tertiary-fixed": "#ffdbca",
+                    "outline": "#737780",
+                    "surface-variant": "#e2e2e7",
+                    "inverse-on-surface": "#f1f0f5",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#f9f9fe",
+                    "on-primary-fixed-variant": "#1f477b",
+                    "on-tertiary-fixed-variant": "#723610",
+                    "surface-container": "#eeedf2",
+                    "error": "#ba1a1a",
+                    "inverse-surface": "#2f3034",
+                    "on-primary-fixed": "#001b3c",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "xs": "4px",
+                    "margin-desktop": "40px",
+                    "gutter": "16px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "mono-sm": ["jetbrainsMono"]
+            },
+            "fontSize": {
+                    "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "34px", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "mono-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .checklist-item:has(input:checked) span {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .bento-card {
+            background-color: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col py-lg px-md gap-sm fixed left-0 top-0 h-full w-[280px] bg-surface-container border-r border-outline-variant z-50">
+<div class="flex items-center gap-md mb-lg">
+<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-primary leading-tight">Cục Chiếu sáng Đường phố LA</h1>
+<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Hệ thống Quản lý Tri thức</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Bảng điều khiển</span>
+</a>
+<!-- Active State: Knowledge Base -->
+<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-label-md text-label-md">Cơ sở Tri thức</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">post_add</span>
+<span class="font-label-md text-label-md">Gửi ca</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-label-md text-label-md">Hàng đợi Xét duyệt</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-md text-label-md">SOPs</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-xs pt-lg border-t border-outline-variant/30">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-md text-label-md">Trung tâm Trợ giúp</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Đăng xuất</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex items-center gap-md">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md focus:ring-2 focus:ring-primary w-64 transition-all" placeholder="Tìm kiếm cơ sở tri thức..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<div class="flex gap-md">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-md pl-lg border-l border-outline-variant">
+<div class="text-right hidden sm:block">
+<p class="font-label-md text-label-md text-on-surface">Alex Chen</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">Giám đốc Vận hành</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-fixed" data-alt="A professional headshot of a middle-aged male operations manager with short black hair, wearing a clean navy blue polo shirt. The lighting is soft and corporate, set against a blurred background of a modern tech office. The color palette is professional with blues and neutral grays, emphasizing expertise and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr-bBtzuHou1Ao2oO02_4cYzAcFT29yj5kgmZST4BXakTgQ0ZSDTVGT0cv7tsyjv_nk8Whznu3K5uPvzYAQ71obluSi4yKAhSxREa4Y2CT3ndmPR2MoPN_53OD6YVqIZVp7z7zkA0AXn2RJKz213Q1uAAkjQ-oxTqZOFm6xEdcV9EQoqequkR6gnGacL1tEEU3jf-1fwS_cYFSLOTVyhi9KDe8Ts3NDdefM7qxG0WHjuly6XFzOjE"/>
+</div>
+</div>
+</header>
+<!-- Article Container -->
+<div class="p-lg max-w-[1400px] mx-auto w-full">
+<!-- Header Section -->
+<div class="mb-lg flex flex-col md:flex-row md:items-end justify-between gap-md border-b border-outline-variant pb-lg">
+<div>
+<div class="flex items-center gap-sm mb-base">
+<span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            Đã phê duyệt
+                        </span>
+<span class="text-on-surface-variant text-label-md">SOP-2023-442</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary">Mất đồng bộ hóa Mạng lưới Mesh Zigbee tại các Hành lang Mật độ cao</h2>
+<div class="flex items-center gap-md mt-sm text-on-surface-variant font-body-md">
+<span class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">person</span>
+                            Sarah Jenkins, Kỹ sư Hệ thống Cao cấp
+                        </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                            24 tháng 10, 2023
+                        </span>
+<span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+<span class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">update</span>
+                            Đã sửa 2 ngày trước
+                        </span>
+</div>
+</div>
+<div class="flex gap-sm">
+<button class="flex items-center gap-sm px-md py-sm border border-outline-variant hover:bg-surface-container-low transition-colors rounded-lg font-label-md">
+<span class="material-symbols-outlined">print</span> In ấn
+                    </button>
+<button class="flex items-center gap-sm px-md py-sm bg-primary text-white hover:opacity-90 transition-opacity rounded-lg font-label-md">
+<span class="material-symbols-outlined">share</span> Chia sẻ bài viết
+                    </button>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Panel: Content -->
+<div class="lg:col-span-8 space-y-lg">
+<!-- Symptoms & Alerts -->
+<section class="bento-card rounded-xl overflow-hidden">
+<div class="bg-surface-container-low px-md py-sm border-b border-outline-variant flex items-center justify-between">
+<h3 class="font-headline-sm text-primary flex items-center gap-sm">
+<span class="material-symbols-outlined text-error">warning</span>
+                                Triệu chứng &amp; Cảnh báo nút
+                            </h3>
+</div>
+<div class="p-md grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex gap-md p-sm bg-error-container/20 rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error mt-1">sensors_off</span>
+<div>
+<p class="font-bold text-on-surface">Độ trễ Không liên tục</p>
+<p class="text-body-md text-on-surface-variant">Thời gian phản hồi vượt quá 5000ms cho các lệnh làm mờ từ xa trong giờ cao điểm.</p>
+</div>
+</div>
+<div class="flex gap-md p-sm bg-error-container/20 rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error mt-1">signal_cellular_connected_no_internet_4_bar</span>
+<div>
+<p class="font-bold text-on-surface">Trạng thái Nút mồ côi</p>
+<p class="text-body-md text-on-surface-variant">CMS trung tâm báo cáo 'Thiếu nhịp tim nút' cho các cụm lớn hơn 12 đơn vị.</p>
+</div>
+</div>
+<div class="flex gap-md p-sm bg-error-container/20 rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error mt-1">bolt</span>
+<div>
+<p class="font-bold text-on-surface">Tiêu thụ Điện Năng Bất thường</p>
+<p class="text-body-md text-on-surface-variant">Biến động điện áp nhỏ được báo cáo trước khi các nút rớt mạng.</p>
+</div>
+</div>
+<div class="flex gap-md p-sm bg-error-container/20 rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error mt-1">error</span>
+<div>
+<p class="font-bold text-on-surface">Nhật ký Lỗi CRC</p>
+<p class="text-body-md text-on-surface-variant">Nhật ký cổng hiển thị khối lượng cao các gói bị hỏng trên Kênh 15.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Confirmed Root Cause -->
+<section class="p-lg bg-primary-container rounded-xl text-white border-l-[6px] border-on-primary-container shadow-md">
+<div class="flex items-center gap-md mb-sm">
+<span class="material-symbols-outlined text-[32px] text-primary-fixed">verified</span>
+<h3 class="font-headline-md">Nguyên nhân gốc rễ đã xác nhận</h3>
+</div>
+<p class="font-body-lg opacity-90 leading-relaxed">
+                            Cuộc điều tra tiết lộ rằng sự suy giảm tín hiệu là do **Nhiễu Đa Đường (MPI)** từ mặt tiền kính có độ phản chiếu cao trên các tòa nhà cao tầng mới xây dựng. Tín hiệu Zigbee 2.4GHz bật ra khỏi các bề mặt kiến trúc, tạo ra tiếng vang dịch pha làm rối loạn các bảng định tuyến dạng lưới, dẫn đến "vòng định tuyến" và cách ly nút cuối cùng.
+                        </p>
+</section>
+<!-- Lessons Learned -->
+<section class="bg-[#FFFBEB] border border-[#F59E0B] p-md rounded-xl">
+<div class="flex items-center gap-sm mb-sm text-[#B45309]">
+<span class="material-symbols-outlined">lightbulb</span>
+<h4 class="font-bold uppercase tracking-wider text-label-md">Bài học kinh nghiệm &amp; Thực hành tốt nhất</h4>
+</div>
+<ul class="list-disc pl-lg space-y-xs text-on-surface-variant font-body-md">
+<li>Tránh triển khai Kênh 15 mặc định ở các khu vực có mật độ Wi-Fi thương mại cao.</li>
+<li>Lắp đặt ăng-ten định hướng độ lợi cao trên các nút cổng đối diện với mặt tiền phản chiếu.</li>
+<li>Triển khai độ trễ 30 giây trong các kịch bản "Phục hồi Nút" để ngăn chặn bão mạng lưới.</li>
+</ul>
+</section>
+<!-- Repair Photo Gallery -->
+<section>
+<h3 class="font-headline-sm text-primary mb-md">Ảnh xác minh hiện trường</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+<div class="group relative rounded-lg overflow-hidden h-40 bento-card cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A macro close-up of a street light smart node internals, showing a slightly corroded circuit board and a small copper antenna. The image is taken in a workshop environment with bright, cool LED lighting. Technical and industrial aesthetic, emphasizing precision and maintenance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgLvVRGg0RTdFJLj-nKEYCeVs6U3YF_LwWm5yQwTQsZNH9tz4dWshpM2KyxBqTXdgrt9EdFOJNesznppc0jyzMklpCsdjecPQVraWNf3r_Lfb1DclKqVIoxzUUt05JzsdhYaqQAB1CxAcsunmcfLY_etfx59lgUcLZc_cZInbi_Iu-vOBmCF1eBqwo6l85KjiHqC6u2x-CmjTZ5iAbgtHRX4Nz7LFccByNGg5KETVjvKRTohEnlBs"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="group relative rounded-lg overflow-hidden h-40 bento-card cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A technician in high-visibility orange safety gear using a handheld diagnostic tablet to analyze a street light pole in an urban setting at dusk. The city lights are blurred in the background. Professional field work photography with a focus on modern technology integration." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClayTkiFlk2ZidPQ2d4nNZ1xvFi0HFT2LffjmMhtB2BN8tj_AnTzptMwZyBeLcA63OSO-f6B7b3jkmSA5eEWmhvBILvzfRQ3212qkPpGR90inJI1LcaogD0oujOwPICe2xgP8X-O4b8Jh-_Bgft5yyWOOlZYsLeLaGIXtu9rpNJc5Pwzfk-ktb_ID7fg7feqYKaBVpSJyKVun4D6qaYBiQVxApf1eHgt7z5RUXRaeVccWfkmg8tqM"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="group relative rounded-lg overflow-hidden h-40 bento-card cursor-pointer">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A wide angle shot of a modern glass skyscraper reflecting a bright blue sky. Red arrows and geometric overlays highlight the signal bounce paths between the building and nearby street lamps. Conceptual architectural diagram style combined with real-world photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5D_LvpesrCVsWMQ7IJWfK8u7K8ZnttBJI4De4UgNw4_ZMKi3KlNr3r7c-iRGgAysWALG0eUZlTeCZ8zchMVw_bASQXkON7ppIhorQ5DFj8_RHkCb5jZBXJk8SIajSR_sSAUF0pnAHz9J4sOAAzZzaFlvYODUqYu-MuFzjZbCSG8peYXvdR3tGTbafwtcxpePN0QUTvvj3wa_pLdE_RbZNUl4eXjFUiGTnivA48XMP774eFjJA1pM"/>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+</div>
+<div class="group relative rounded-lg overflow-hidden h-40 bento-card cursor-pointer flex items-center justify-center bg-surface-container text-on-surface-variant font-bold text-center p-sm">
+<div>
+<span class="material-symbols-outlined block text-3xl mb-1">add_a_photo</span>
+<span class="text-[10px] uppercase">Xem 12 Thêm</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Sidebar: SOP Checklist -->
+<aside class="lg:col-span-4 space-y-lg">
+<div class="sticky top-[88px]">
+<div class="bg-white border-2 border-primary-container rounded-xl overflow-hidden shadow-lg">
+<div class="bg-primary-container text-white p-md">
+<h3 class="font-headline-sm flex items-center gap-sm">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+                                    Danh mục kiểm tra SOP
+                                </h3>
+<p class="text-on-primary-container text-label-md mt-1">Các Bước Khắc phục Bắt buộc</p>
+</div>
+<div class="p-lg space-y-md">
+<label class="checklist-item flex items-start gap-md cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary mt-1 transition-all" type="checkbox"/>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Cách ly cổng bị ảnh hưởng và thực hiện chu kỳ điện cứng.</span>
+</label>
+<label class="checklist-item flex items-start gap-md cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary mt-1 transition-all" type="checkbox"/>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Quét phổ 2.4GHz sử dụng Spectrum Analyzer 400x để xác định các xung nhiễu.</span>
+</label>
+<label class="checklist-item flex items-start gap-md cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary mt-1 transition-all" type="checkbox"/>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Cấu hình lại giới hạn nhảy lưới từ 5 thành 8 để cho phép định tuyến gián tiếp.</span>
+</label>
+<label class="checklist-item flex items-start gap-md cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary mt-1 transition-all" type="checkbox"/>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Áp dụng bản vá phần mềm tĩnh v4.2.1-Z cho tất cả các nút trong bán kính 200m.</span>
+</label>
+<label class="checklist-item flex items-start gap-md cursor-pointer group">
+<input class="w-5 h-5 rounded border-outline text-primary focus:ring-primary mt-1 transition-all" type="checkbox"/>
+<span class="font-body-md text-on-surface group-hover:text-primary transition-colors">Gửi báo cáo xác minh cho Giám sát Khu vực để ký duyệt cuối cùng.</span>
+</label>
+<div class="pt-lg mt-lg border-t border-outline-variant">
+<div class="flex items-center justify-between mb-sm">
+<span class="font-label-md text-on-surface-variant">Trạng thái Hoàn thành</span>
+<span class="font-bold text-primary" id="progress-text">0%</span>
+</div>
+<div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary transition-all duration-500 w-0" id="progress-bar"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Technical Meta Info -->
+<div class="mt-lg p-md bento-card rounded-xl space-y-md">
+<div>
+<h4 class="text-label-md text-on-surface-variant uppercase font-bold mb-xs">Các Loại Tài sản Liên quan</h4>
+<div class="flex flex-wrap gap-xs">
+<span class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-bold">SMART-GATE-100</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-bold">LUMIN-LED-V2</span>
+<span class="px-2 py-1 bg-surface-container-high rounded text-[11px] font-bold">ZIGBEE-PRO</span>
+</div>
+</div>
+<div>
+<h4 class="text-label-md text-on-surface-variant uppercase font-bold mb-xs">Thẻ</h4>
+<div class="flex flex-wrap gap-xs">
+<span class="text-primary hover:underline text-body-md cursor-pointer">#network_outage</span>
+<span class="text-primary hover:underline text-body-md cursor-pointer">#mesh_sync</span>
+<span class="text-primary hover:underline text-body-md cursor-pointer">#architectural_interference</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Bottom: Related Troubleshooting Cases -->
+<section class="mt-xl">
+<div class="flex items-center justify-between mb-lg">
+<h3 class="font-headline-md text-primary">Các ca khắc phục sự cố liên quan</h3>
+<a class="text-primary font-label-md hover:underline flex items-center gap-xs" href="#">
+                        Xem Tất cả Ca <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+<div class="overflow-x-auto scrollbar-hide">
+<table class="w-full text-left border-collapse bento-card rounded-xl overflow-hidden">
+<thead class="bg-surface-container-low text-on-surface-variant font-label-md">
+<tr>
+<th class="p-md border-b border-outline-variant">ID</th>
+<th class="p-md border-b border-outline-variant">Tiêu đề Ca</th>
+<th class="p-md border-b border-outline-variant">Kỹ thuật viên</th>
+<th class="p-md border-b border-outline-variant">Ưu tiên</th>
+<th class="p-md border-b border-outline-variant">Thời gian Khắc phục</th>
+<th class="p-md border-b border-outline-variant">Hành động</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<tr class="hover:bg-surface-container-lowest transition-colors border-b border-outline-variant/30">
+<td class="p-md font-mono-sm">CAS-99812</td>
+<td class="p-md font-bold">Rớt mạng Nút Lặp lại - Sunset Blvd</td>
+<td class="p-md">M. Rodriguez</td>
+<td class="p-md"><span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-[11px] font-bold">NGHIÊM TRỌNG</span></td>
+<td class="p-md">4.5 Giờ</td>
+<td class="p-md"><button class="text-primary font-bold hover:underline">Chi tiết</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors border-b border-outline-variant/30">
+<td class="p-md font-mono-sm">CAS-99745</td>
+<td class="p-md font-bold">Quá tải Cổng trong Sự kiện Ngày lễ</td>
+<td class="p-md">J. Smith</td>
+<td class="p-md"><span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-[11px] font-bold">CAO</span></td>
+<td class="p-md">12 Giờ</td>
+<td class="p-md"><button class="text-primary font-bold hover:underline">Chi tiết</button></td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="p-md font-mono-sm">CAS-99602</td>
+<td class="p-md font-bold">Mất Tín hiệu Điện áp Thấp - Harbor Fwy</td>
+<td class="p-md">K. Tanaka</td>
+<td class="p-md"><span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[11px] font-bold">TRUNG BÌNH</span></td>
+<td class="p-md">2 Ngày</td>
+<td class="p-md"><button class="text-primary font-bold hover:underline">Chi tiết</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Footer -->
+<footer class="mt-auto py-lg px-lg border-t border-outline-variant text-center bg-surface-container-low text-on-surface-variant opacity-60">
+<p class="font-label-md text-label-md">© 2023 Cục Chiếu sáng Đường phố Los Angeles - Hệ thống Quản lý Tri thức Nội bộ</p>
+<div class="flex justify-center gap-md mt-sm text-[11px] uppercase tracking-widest font-bold">
+<a class="hover:text-primary" href="#">Quyền riêng tư Dữ liệu</a>
+<a class="hover:text-primary" href="#">Hướng dẫn SOP</a>
+<a class="hover:text-primary" href="#">Trạng thái Hệ thống</a>
+</div>
+</footer>
+</main>
+<script>
+        // Progress Bar Logic
+        const checkboxes = document.querySelectorAll('.checklist-item input');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        function updateProgress() {
+            const total = checkboxes.length;
+            const checked = Array.from(checkboxes).filter(cb => cb.checked).length;
+            const percentage = Math.round((checked / total) * 100);
+            
+            progressBar.style.width = percentage + '%';
+            progressText.innerText = percentage + '%';
+            
+            if(percentage === 100) {
+                progressBar.classList.remove('bg-primary');
+                progressBar.classList.add('bg-green-500');
+            } else {
+                progressBar.classList.add('bg-primary');
+                progressBar.classList.remove('bg-green-500');
+            }
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', updateProgress);
+        });
+
+        // Initialize tooltips/interactions
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', (e) => {
+                if(el.getAttribute('href') === '#') e.preventDefault();
+            });
+        });
+    </script>
+</body></html>
