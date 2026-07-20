@@ -104,43 +104,11 @@
 </head>
 <body class="bg-background text-on-background h-full font-body-md flex overflow-hidden">
 <!-- Side Nav Component Placeholder -->
-<nav class="w-[280px] h-screen flex-shrink-0 border-r border-outline-variant bg-surface-container flex flex-col py-lg px-md gap-sm hidden md:flex z-40 fixed left-0 top-0">
-<div class="mb-lg">
-<h1 class="font-headline-sm text-headline-sm text-primary">Cục Chiếu sáng Đường phố LA</h1>
-<p class="font-label-md text-label-md text-on-surface-variant mt-xs">Hệ thống Quản lý Kiến thức</p>
-</div>
-<ul class="flex flex-col gap-sm flex-grow"><li class="group">
-  <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer" href="#">
-    <span class="material-symbols-outlined font-label-md text-label-md group-hover:text-primary">dashboard</span>
-    <span class="font-label-md text-label-md group-hover:text-primary">Bảng điều khiển</span>
-  </a>
-</li>
-<li class="group">
-  <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer" href="#">
-    <span class="material-symbols-outlined font-label-md text-label-md group-hover:text-primary">library_books</span>
-    <span class="font-label-md text-label-md group-hover:text-primary">Cơ sở tri thức</span>
-  </a>
-</li>
-<li class="group">
-  <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer" href="#">
-    <span class="material-symbols-outlined font-label-md text-label-md group-hover:text-primary">post_add</span>
-    <span class="font-label-md text-label-md group-hover:text-primary">Gửi ca</span>
-  </a>
-</li>
-<li class="group">
-  <a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer" href="#">
-    <span class="material-symbols-outlined font-label-md text-label-md group-hover:text-primary">pending_actions</span>
-    <span class="font-label-md text-label-md group-hover:text-primary">Hàng đợi xét duyệt</span>
-  </a>
-</li>
-<li class="group">
-  <a class="flex items-center gap-sm px-md py-sm rounded-lg bg-primary-container text-on-primary-container transition-all duration-200 cursor-pointer" href="#">
-    <span class="material-symbols-outlined font-label-md text-label-md" style="font-variation-settings: 'FILL' 1;">menu_book</span>
-    <span class="font-label-md text-label-md">SOPs</span>
-  </a>
-</li></ul>
-<div class="mt-auto border-t border-outline-variant pt-sm"><a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer" href="#"><span class="material-symbols-outlined font-label-md text-label-md">help</span><span class="font-label-md text-label-md">Trung tâm Trợ giúp</span></a><a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-all duration-200 cursor-pointer mt-xs" href="#"><span class="material-symbols-outlined font-label-md text-label-md">logout</span><span class="font-label-md text-label-md">Đăng xuất</span></a></div>
-</nav>
+<aside class="w-[280px] h-screen flex-shrink-0 bg-surface-container border-r border-outline-variant flex flex-col py-lg px-md gap-sm fixed left-0 top-0 z-[60]"><div class="mb-lg px-sm"><h1 class="font-headline-sm text-headline-sm text-primary">Cục Chiếu sáng Đường phố LA</h1><p class="font-label-md text-label-md text-on-surface-variant opacity-70">Hệ thống Quản lý Tri thức</p></div><nav class="flex-grow flex flex-col gap-xs"><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="dashboard"><span class="material-symbols-outlined" data-icon="dashboard">dashboard</span><span class="font-label-md text-label-md">Bảng điều khiển</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="knowledge"><span class="material-symbols-outlined" data-icon="library_books">library_books</span><span class="font-label-md text-label-md">Cơ sở tri thức</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="submit"><span class="material-symbols-outlined" data-icon="post_add">post_add</span><span class="font-label-md text-label-md">Gửi yêu cầu</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="review"><span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span><span class="font-label-md text-label-md">Hàng đợi xét duyệt</span></a>
+<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="sops"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;" data-icon="menu_book">menu_book</span><span class="font-label-md text-label-md">Quy trình vận hành (SOP)</span></a></nav><div class="mt-auto flex flex-col gap-xs border-t border-outline-variant pt-md"><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#"><span class="material-symbols-outlined" data-icon="help">help</span><span class="font-label-md text-label-md">Trung tâm Trợ giúp</span></a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#"><span class="material-symbols-outlined" data-icon="logout">logout</span><span class="font-label-md text-label-md">Đăng xuất</span></a></div></aside>
 <!-- Main Workspace -->
 <div class="flex-grow flex flex-col md:ml-[280px] h-full overflow-hidden">
 <!-- Top App Bar Placeholder -->

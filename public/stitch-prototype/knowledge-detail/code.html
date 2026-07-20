@@ -124,50 +124,11 @@
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen flex">
 <!-- SideNavBar (Shared Component) -->
-<aside class="hidden md:flex flex-col py-lg px-md gap-sm fixed left-0 top-0 h-full w-[280px] bg-surface-container border-r border-outline-variant z-50">
-<div class="flex items-center gap-md mb-lg">
-<div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
-<span class="material-symbols-outlined">lightbulb</span>
-</div>
-<div>
-<h1 class="font-headline-sm text-headline-sm text-primary leading-tight">Cục Chiếu sáng Đường phố LA</h1>
-<p class="font-label-md text-label-md text-on-surface-variant opacity-70">Hệ thống Quản lý Tri thức</p>
-</div>
-</div>
-<nav class="flex-1 flex flex-col gap-xs">
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="font-label-md text-label-md">Bảng điều khiển</span>
-</a>
-<!-- Active State: Knowledge Base -->
-<a class="flex items-center gap-md px-md py-sm bg-primary-container text-on-primary-container rounded-lg cursor-pointer">
-<span class="material-symbols-outlined">library_books</span>
-<span class="font-label-md text-label-md">Cơ sở Tri thức</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">post_add</span>
-<span class="font-label-md text-label-md">Gửi ca</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">pending_actions</span>
-<span class="font-label-md text-label-md">Hàng đợi Xét duyệt</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">menu_book</span>
-<span class="font-label-md text-label-md">SOPs</span>
-</a>
-</nav>
-<div class="mt-auto flex flex-col gap-xs pt-lg border-t border-outline-variant/30">
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">help</span>
-<span class="font-label-md text-label-md">Trung tâm Trợ giúp</span>
-</a>
-<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all cursor-pointer rounded-lg">
-<span class="material-symbols-outlined">logout</span>
-<span class="font-label-md text-label-md">Đăng xuất</span>
-</a>
-</div>
-</aside>
+<aside class="w-[280px] h-screen flex-shrink-0 bg-surface-container border-r border-outline-variant flex flex-col py-lg px-md gap-sm fixed left-0 top-0 z-[60]"><div class="mb-lg px-sm"><h1 class="font-headline-sm text-headline-sm text-primary">Cục Chiếu sáng Đường phố LA</h1><p class="font-label-md text-label-md text-on-surface-variant opacity-70">Hệ thống Quản lý Tri thức</p></div><nav class="flex-grow flex flex-col gap-xs"><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="dashboard"><span class="material-symbols-outlined" data-icon="dashboard">dashboard</span><span class="font-label-md text-label-md">Bảng điều khiển</span></a>
+<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="knowledge"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;" data-icon="library_books">library_books</span><span class="font-label-md text-label-md">Cơ sở tri thức</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="submit"><span class="material-symbols-outlined" data-icon="post_add">post_add</span><span class="font-label-md text-label-md">Gửi yêu cầu</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="review"><span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span><span class="font-label-md text-label-md">Hàng đợi xét duyệt</span></a>
+<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#" data-prototype-route="sops"><span class="material-symbols-outlined" data-icon="menu_book">menu_book</span><span class="font-label-md text-label-md">Quy trình vận hành (SOP)</span></a></nav><div class="mt-auto flex flex-col gap-xs border-t border-outline-variant pt-md"><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#"><span class="material-symbols-outlined" data-icon="help">help</span><span class="font-label-md text-label-md">Trung tâm Trợ giúp</span></a><a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high rounded-lg cursor-pointer transition-all duration-200" href="#"><span class="material-symbols-outlined" data-icon="logout">logout</span><span class="font-label-md text-label-md">Đăng xuất</span></a></div></aside>
 <!-- Main Content Canvas -->
 <main class="flex-1 md:ml-[280px] min-h-screen flex flex-col">
 <!-- TopNavBar (Shared Component) -->
