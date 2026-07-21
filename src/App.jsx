@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 const screens = {
   dashboard: {
@@ -290,14 +290,34 @@ export default function App() {
     return requestedScreen && screens[requestedScreen] ? requestedScreen : "dashboard";
   });
   const [html, setHtml] = useState("");
+  const [isSwitching, setIsSwitching] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const htmlCacheRef = useRef({});
 
   const screen = useMemo(() => screens[activeScreen] || screens.dashboard, [activeScreen]);
 
   useEffect(() => {
     let cancelled = false;
+    let settleTimer = 0;
     setLoadError("");
-    setHtml("");
+
+    const cachedHtml = htmlCacheRef.current[activeScreen];
+    if (cachedHtml) {
+      setIsSwitching(true);
+      settleTimer = window.setTimeout(() => {
+        if (!cancelled) {
+          setHtml(cachedHtml);
+          window.requestAnimationFrame(() => setIsSwitching(false));
+        }
+      }, 120);
+
+      return () => {
+        cancelled = true;
+        window.clearTimeout(settleTimer);
+      };
+    }
+
+    setIsSwitching(true);
 
     fetch(screen.src)
       .then((response) => {
@@ -305,7 +325,12 @@ export default function App() {
         return response.text();
       })
       .then((payload) => {
-        if (!cancelled) setHtml(buildInjectedHtml(payload, activeScreen));
+        const nextHtml = buildInjectedHtml(payload, activeScreen);
+        if (!cancelled) {
+          htmlCacheRef.current[activeScreen] = nextHtml;
+          setHtml(nextHtml);
+          window.requestAnimationFrame(() => setIsSwitching(false));
+        }
       })
       .catch((error) => {
         if (!cancelled) setLoadError(error.message);
@@ -313,14 +338,39 @@ export default function App() {
 
     return () => {
       cancelled = true;
+      window.clearTimeout(settleTimer);
     };
   }, [activeScreen, screen.src]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Object.entries(screens).forEach(([screenId, targetScreen]) => {
+      if (screenId === activeScreen || htmlCacheRef.current[screenId]) return;
+
+      fetch(targetScreen.src)
+        .then((response) => {
+          if (!response.ok) throw new Error(`Unable to preload ${targetScreen.src}`);
+          return response.text();
+        })
+        .then((payload) => {
+          if (cancelled) return;
+          const injected = buildInjectedHtml(payload, screenId);
+          htmlCacheRef.current[screenId] = injected;
+        })
+        .catch(() => {});
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeScreen]);
 
   useEffect(() => {
     const onMessage = (event) => {
       if (event.data?.source !== "labs-kms-prototype") return;
       if (event.data.type === "navigate" && screens[event.data.screen]) {
-        setActiveScreen(event.data.screen);
+        setActiveScreen((currentScreen) => (currentScreen === event.data.screen ? currentScreen : event.data.screen));
       }
     };
 
@@ -335,19 +385,24 @@ export default function App() {
   }, [activeScreen]);
 
   return (
-    <main className="prototype-host">
+    <main className={isSwitching ? "prototype-host is-switching" : "prototype-host"}>
       {loadError ? (
         <section className="prototype-error">
           <h1>Không tải được màn hình prototype</h1>
           <p>{loadError}</p>
         </section>
       ) : (
-        <iframe
-          key={activeScreen}
-          className="prototype-frame"
-          srcDoc={html}
-          title={`LABSL KMS Prototype - ${screen.label}`}
-        />
+        <>
+          <iframe
+            className="prototype-frame"
+            srcDoc={html}
+            title={`LABSL KMS Prototype - ${screen.label}`}
+            onLoad={() => window.requestAnimationFrame(() => setIsSwitching(false))}
+          />
+          <div className="screen-transition" aria-hidden="true">
+            <span>{screen.label}</span>
+          </div>
+        </>
       )}
     </main>
   );
