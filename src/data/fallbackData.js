@@ -1,208 +1,323 @@
-export const fallbackData = {
-  user: {
-    name: "Alex Chen",
-    role: "Quản lý vận hành",
-    bureau: "Cục Chiếu sáng Đường phố LA"
-  },
-  kpis: [
-    {
-      label: "Mục đã ghi nhận",
-      value: "124",
-      trend: "+12%",
-      detail: "Bài học mới trong tháng này",
-      tone: "good"
-    },
-    {
-      label: "Tỷ lệ tái sử dụng tri thức",
-      value: "52%",
-      trend: "+8%",
-      detail: "Case được xử lý bằng SOP/case cũ",
-      tone: "primary"
-    },
-    {
-      label: "Đang chờ duyệt",
-      value: "8",
-      trend: "Nghiêm trọng",
-      detail: "Đang chờ xác minh",
-      tone: "warning"
-    },
-    {
-      label: "Mức giảm MTTR",
-      value: "15%",
-      trend: "+4.2h",
-      detail: "Cải thiện hiệu suất",
-      tone: "good"
-    }
+export const users = [
+  { id: "FT-001", role: "FIELD_TECHNICIAN", label: "Field Technician", name: "Minh Tran" },
+  { id: "KC-001", role: "CONTRIBUTOR", label: "Contributor", name: "Sarah Jenkins" },
+  { id: "KM-001", role: "KNOWLEDGE_MANAGER", label: "Knowledge Manager", name: "Alex Chen" },
+  { id: "AD-001", role: "ADMINISTRATOR", label: "Administrator", name: "Demo Admin" }
+];
+
+export const taxonomy = {
+  contentTypes: [
+    { value: "ALL", label: "Tất cả nội dung" },
+    { value: "SOP", label: "SOP" },
+    { value: "REPAIR_CASE", label: "Repair Case" },
+    { value: "LESSON_LEARNED", label: "Lesson Learned" },
+    { value: "ARTICLE", label: "Article" }
   ],
-  recentIncidents: [
-    {
-      id: "SL-8921-W",
-      type: "Mất kết nối nút",
-      status: "Nghiêm trọng",
-      date: "24 Thg 10, 08:12",
-      action: "Cần SOP"
-    },
-    {
-      id: "SL-3345-N",
-      type: "Suy giảm tế bào quang điện",
-      status: "Đang xử lý",
-      date: "24 Thg 10, 07:45",
-      action: "Đã gán đội"
-    },
-    {
-      id: "SL-1102-E",
-      type: "Lỗi bộ điều khiển",
-      status: "Đã phân công",
-      date: "23 Thg 10, 21:10",
-      action: "Review"
-    },
-    {
-      id: "SL-4491-S",
-      type: "Ngắt thiết bị chống sét",
-      status: "Đã giải quyết",
-      date: "23 Thg 10, 19:30",
-      action: "Đóng case"
-    }
+  assetTypes: [
+    { value: "ALL", label: "Tất cả thiết bị" },
+    { value: "CITYTOUCH_NODE", label: "CityTouch Node" },
+    { value: "SMART_NODE", label: "Smart Node" },
+    { value: "LED_FIXTURE", label: "Đèn LED" },
+    { value: "TRANSFORMER", label: "Máy biến áp" },
+    { value: "CONTROL_CABINET", label: "Tủ điều khiển" },
+    { value: "UNDERGROUND_CABLE", label: "Cáp ngầm" }
   ],
-  alerts: [
-    "Cần sét đánh địa cực - Khu vực 4",
-    "Không khớp phần mềm cơ sở",
-    "Cảnh báo độ trễ thấp"
+  faultTypes: [
+    { value: "ALL", label: "Tất cả loại lỗi" },
+    { value: "CONNECTIVITY_LOSS", label: "Mất kết nối" },
+    { value: "VOLTAGE_DROP", label: "Sụt áp" },
+    { value: "WATER_INGRESS", label: "Nước xâm nhập" },
+    { value: "RF_INTERFERENCE", label: "Nhiễu RF" },
+    { value: "THERMAL_FAILURE", label: "Lỗi nhiệt" },
+    { value: "SAFETY_HIGH_VOLTAGE", label: "An toàn cao thế" }
   ],
-  knowledgeItems: [
-    {
-      id: "KMS-2042",
-      title: "Series Circuit Fault: Open Neutral at Node 42",
-      category: "Mạch nối tiếp",
-      assetType: "Cơ sở hạ tầng",
-      severity: "Lỗi nghiêm trọng",
-      status: "Đã phê duyệt",
-      symptom:
-        "Toàn bộ tuyến đèn khu vực Bắc nhấp nháy, sụt áp liên tục. Đo điện áp đầu nguồn ổn định nhưng tại cột 42 chỉ đạt 50V.",
-      rootCause:
-        "Đứt ngầm dây trung tính do thi công công trình ngầm cắt phải, gây hiện tượng điện áp nổi.",
-      repairAction:
-        "Cô lập mạch, xác nhận vị trí hở trung tính bằng megohmmeter, thay đoạn cáp và cập nhật bản đồ cáp ngầm.",
-      lesson:
-        "Không kết luận lỗi driver LED khi nhiều cột cùng nhấp nháy; cần kiểm tra trung tính trước khi thay thiết bị.",
-      updated: "12/10/2023",
-      owner: "Maria Lopez"
-    },
-    {
-      id: "KMS-1988",
-      title: "Mất kết nối NEMA Socket Node",
-      category: "IoT Sensor",
-      assetType: "Đèn LED",
-      severity: "Cảnh báo",
-      status: "Đã phê duyệt",
-      symptom:
-        "Hệ thống báo mất tín hiệu hàng loạt từ các node khu vực trung tâm sau mưa lớn.",
-      rootCause:
-        "Nhiễu sóng do trạm BTS mới lắp đặt gần đó gây tần số đệm mạng Zigbee.",
-      repairAction:
-        "Đổi kênh mesh, reset node theo cụm 20 thiết bị và cập nhật cấu hình gateway.",
-      lesson:
-        "Khi mất kết nối theo cụm, ưu tiên kiểm tra nhiễu mạng và gateway trước khi thay socket.",
-      updated: "05/11/2023",
-      owner: "Kenji Mori"
-    },
-    {
-      id: "KMS-1871",
-      title: "Nước rò rỉ vào móng cột điện",
-      category: "Cơ sở hạ tầng",
-      assetType: "Cột đèn",
-      severity: "Đã xử lý",
-      status: "Đã phê duyệt",
-      symptom:
-        "Aptomat nhánh nhảy liên tục khi trời mưa lớn. Phát hiện nước đọng trong hộp nối chân cột.",
-      rootCause:
-        "Gioăng cao su nắp cột bị thoái hóa, kết hợp với cốt nền đường thay đổi sau sửa chữa vỉa hè.",
-      repairAction:
-        "Ngắt nguồn, hút nước, thay gioăng, bọc đầu nối IP68 và nâng cao cổ hộp nối.",
-      lesson:
-        "Với cột ở vùng ngập cục bộ, checklist cần thêm bước kiểm tra cao độ nền sau mỗi đợt thi công đô thị.",
-      updated: "20/09/2023",
-      owner: "Ravi Patel"
-    }
+  categories: [
+    { value: "ALL", label: "Tất cả danh mục" },
+    { value: "TROUBLESHOOTING", label: "Troubleshooting" },
+    { value: "MAINTENANCE", label: "Maintenance" },
+    { value: "SAFETY", label: "Safety" },
+    { value: "OPERATIONS", label: "Operations" },
+    { value: "TRAINING", label: "Training" }
   ],
-  reviewQueue: [
-    {
-      id: "REV-771",
-      title: "Smart Controller RF Signal Interference in District 7",
-      category: "Hardware",
-      submittedBy: "Mark Chen",
-      priority: "Cao",
-      age: "6 ngày trước",
-      symptom:
-        "Node điều khiển ngắt kết nối không ổn định, dữ liệu điện áp bị trễ 12-18 phút tại cụm đường cao tốc.",
-      rootCause:
-        "Nhiễu RF từ thiết bị truyền dẫn gần trạm trung chuyển làm giảm chất lượng mesh.",
-      repairAction:
-        "Đổi kênh truyền, tách gateway dự phòng, cập nhật nhãn vị trí để đội mạng kiểm tra định kỳ.",
-      lesson:
-        "Các lỗi RF cần được tag theo địa lý để phát hiện cụm nhiễu thay vì xem từng node đơn lẻ."
-    },
-    {
-      id: "REV-772",
-      title: "Thermal Management Failure on Series 4 Fixtures",
-      category: "LED Array",
-      submittedBy: "Sarah Jenkins",
-      priority: "Trung bình",
-      age: "2 ngày trước",
-      symptom: "Độ sáng giảm mạnh sau 40 phút vận hành trong ngày nóng.",
-      rootCause: "Keo tản nhiệt lão hóa khiến driver tự hạ công suất.",
-      repairAction: "Thay pad tản nhiệt, vệ sinh khoang driver, ghi nhận lot thiết bị.",
-      lesson: "Khi lỗi chỉ xuất hiện sau khi nóng, cần chạy burn-in test trước khi đóng case."
-    }
+  updatedRanges: [
+    { value: "ALL", label: "Tất cả thời gian" },
+    { value: "30", label: "30 ngày qua" },
+    { value: "90", label: "90 ngày qua" },
+    { value: "365", label: "365 ngày qua" }
   ],
-  sops: [
-    {
-      code: "SOP-HV-2024-001",
-      title: "Bảo trì máy biến áp cao thế",
-      category: "An toàn",
-      assetType: "Máy biến áp",
-      owner: "John Doe",
-      updated: "12 tháng 10, 2023",
-      reviewCycle: "Hàng năm",
-      status: "Đang hoạt động",
-      summary:
-        "Quy trình LOTO, xả tụ, kiểm tra trực quan và tái cấp điện an toàn cho máy biến áp phục vụ mạng chiếu sáng.",
-      risk: "Cao",
-      steps: ["Cách ly & LOTO", "Xả tụ điện", "Kiểm tra bằng mắt", "Làm sạch & bảo trì", "Tái cấp điện & kiểm tra"]
-    },
-    {
-      code: "SOP-IOT-2024-014",
-      title: "Hiệu chuẩn kết nối nút thông minh",
-      category: "Kỹ thuật",
-      assetType: "Smart Node",
-      owner: "Nina Brown",
-      updated: "02 tháng 9, 2023",
-      reviewCycle: "6 tháng",
-      status: "Đang hoạt động",
-      summary:
-        "Kiểm tra gateway, reset node, đồng bộ firmware và xác minh dữ liệu telemetry sau hiệu chuẩn.",
-      risk: "Trung bình",
-      steps: ["Kiểm tra gateway", "Quét node", "Đồng bộ firmware", "Xác minh telemetry"]
-    },
-    {
-      code: "SOP-EMG-2024-006",
-      title: "Quy trình ứng phó bão khẩn cấp",
-      category: "Khẩn cấp",
-      assetType: "Khu vực sự cố",
-      owner: "Ops Center",
-      updated: "18 tháng 8, 2023",
-      reviewCycle: "Theo mùa",
-      status: "Cần đánh giá",
-      summary:
-        "Ưu tiên tuyến đường chính, phân bổ xe thang, kiểm tra nguy cơ điện giật và cập nhật 311.",
-      risk: "Cao",
-      steps: ["Phân loại khu vực", "Cô lập điện", "Điều phối đội", "Báo cáo cộng đồng"]
-    }
-  ],
-  activity: [
-    "M. Kowalski đã cập nhật SOP Bảo vệ Chống sét",
-    "Hệ thống đã lưu Tri thức #8821",
-    "J. Doe đã xác minh Bài học Smart Node V2",
-    "Reviewer yêu cầu bổ sung ảnh hiện trường cho REV-771"
+  sortOptions: [
+    { value: "RELEVANCE", label: "Mức độ phù hợp" },
+    { value: "UPDATED", label: "Ngày cập nhật" },
+    { value: "HELPFUL", label: "Helpful rate" }
   ]
+};
+
+export const knowledgeItems = [
+  {
+    id: "SOP-NET-007",
+    contentType: "SOP",
+    title: "Chẩn đoán nhiều Smart Node mất kết nối đồng thời",
+    summary: "Kiểm tra gateway, mesh channel và thành phần dùng chung trước khi thay từng node.",
+    status: "PUBLISHED",
+    version: "v2.1",
+    effectiveDate: "01/06/2026",
+    reviewDate: "01/06/2027",
+    updatedDate: "18/07/2026",
+    securityLevel: "INTERNAL",
+    allowedRoles: ["FIELD_TECHNICIAN", "CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "TROUBLESHOOTING",
+    assetTypes: ["CITYTOUCH_NODE", "SMART_NODE"],
+    assetIds: ["CTN-1108", "SN-4217", "GW-D7-02"],
+    faultType: "CONNECTIVITY_LOSS",
+    knowledgeManagerName: "KM - Smart Lighting",
+    helpfulRate: 92,
+    feedbackCount: 48,
+    reuseCount: 37,
+    viewCount: 184,
+    relevanceScore: 0.94,
+    purpose: "Hướng dẫn kỹ thuật viên xác định nguyên nhân khi nhiều node mất kết nối cùng lúc.",
+    scope: "Áp dụng cho CityTouch/Interact City gateway, NEMA socket node và mesh smart node.",
+    applicableAssets: ["CityTouch Node", "Smart Node", "Gateway"],
+    intendedRoles: ["Field Technician", "Network Team"],
+    riskLevel: "Trung bình",
+    ppe: ["Găng tay cách điện", "Kính bảo hộ", "Áo phản quang"],
+    warnings: ["Không thay node hàng loạt trước khi kiểm tra gateway và RF interference."],
+    stopConditions: ["Gateway không phản hồi sau reset", "Có dấu hiệu cháy/chập điện tại tủ điều khiển"],
+    requiredTools: ["Thiết bị đo tín hiệu RF", "Laptop cấu hình gateway", "Ứng dụng Interact City"],
+    preconditions: ["Có work order hợp lệ", "Xác nhận khu vực mất kết nối trên bản đồ vận hành"],
+    steps: [
+      {
+        title: "Xác định phạm vi mất kết nối",
+        instruction: "So sánh danh sách node offline với gateway/khu vực cấp nguồn chung.",
+        expectedResult: "Biết lỗi tập trung theo gateway, theo tuyến điện hay theo từng node."
+      },
+      {
+        title: "Kiểm tra gateway và mesh channel",
+        instruction: "Ping gateway, kiểm tra firmware, kênh mesh và độ trễ telemetry.",
+        expectedResult: "Gateway phản hồi ổn định hoặc xác định được điểm nghẽn mạng."
+      },
+      {
+        title: "Loại trừ nhiễu RF",
+        instruction: "Dùng thiết bị đo RF tại 3 điểm quanh cụm node, ghi nhận mức nhiễu.",
+        expectedResult: "Có bằng chứng nếu mất kết nối do nhiễu từ thiết bị lân cận."
+      },
+      {
+        title: "Reset theo cụm và xác minh telemetry",
+        instruction: "Reset từng cụm tối đa 20 node, theo dõi dữ liệu 15 phút sau reset.",
+        expectedResult: "Node online lại và telemetry cập nhật theo chu kỳ bình thường."
+      }
+    ],
+    decisionPoints: [
+      {
+        condition: "Gateway không phản hồi sau 2 lần reset?",
+        yesAction: "Escalate cho Smart Lighting Network Team.",
+        noAction: "Tiếp tục kiểm tra mesh channel và RF interference."
+      }
+    ],
+    completionCriteria: ["Ít nhất 95% node online lại", "Telemetry cập nhật dưới 5 phút", "Work order có ảnh/bằng chứng"],
+    relatedItems: ["CASE-CABLE-042", "SOP-NET-005", "SOP-IOT-003"]
+  },
+  {
+    id: "CASE-CABLE-042",
+    contentType: "REPAIR_CASE",
+    title: "Series Circuit Fault: Open Neutral at Node 42",
+    summary: "Case thực tế về đứt dây trung tính cáp ngầm khiến cả tuyến đèn nhấp nháy và sụt áp.",
+    status: "PUBLISHED",
+    version: "v1.0",
+    effectiveDate: "12/10/2023",
+    reviewDate: "12/10/2026",
+    updatedDate: "12/10/2023",
+    securityLevel: "INTERNAL",
+    allowedRoles: ["FIELD_TECHNICIAN", "CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "TROUBLESHOOTING",
+    assetTypes: ["UNDERGROUND_CABLE", "LED_FIXTURE"],
+    assetIds: ["SL-8921-W", "NODE-42"],
+    faultType: "VOLTAGE_DROP",
+    knowledgeManagerName: "KM - Field Repair",
+    helpfulRate: 88,
+    feedbackCount: 22,
+    reuseCount: 11,
+    viewCount: 96,
+    relevanceScore: 0.86,
+    location: "North Corridor - Node 42",
+    incidentDate: "10/10/2023",
+    symptom: "Toàn bộ tuyến đèn khu vực Bắc nhấp nháy, sụt áp liên tục; tại cột 42 chỉ đạt 50V.",
+    diagnosisMethod: "Đo điện áp đầu nguồn, kiểm tra continuity trung tính và đối chiếu lịch sử thi công ngầm.",
+    rootCause: "Đứt ngầm dây trung tính do thi công công trình ngầm cắt phải.",
+    repairAction: "Cô lập mạch, thay đoạn cáp trung tính, cập nhật bản đồ cáp ngầm và kiểm tra lại tải.",
+    outcome: "Tuyến đèn ổn định sau 35 phút, không tái phát trong 7 ngày.",
+    lessonLearned: "Không kết luận lỗi driver LED khi nhiều cột cùng nhấp nháy; cần kiểm tra trung tính trước.",
+    telemetry: ["Voltage: 50V tại Node 42", "Source voltage stable", "311 calls increased 4x"],
+    evidence: ["Ảnh hộp nối cột 42", "Biên bản đo continuity", "Bản đồ tuyến cáp cập nhật"],
+    relatedItems: ["SOP-NET-007", "SOP-HV-002"]
+  },
+  {
+    id: "SOP-HV-002",
+    contentType: "SOP",
+    title: "Bảo trì máy biến áp cao thế",
+    summary: "Quy trình LOTO, xả tụ, kiểm tra trực quan và tái cấp điện an toàn cho máy biến áp.",
+    status: "PUBLISHED",
+    version: "v3.4",
+    effectiveDate: "01/01/2026",
+    reviewDate: "01/01/2027",
+    updatedDate: "02/01/2026",
+    securityLevel: "RESTRICTED",
+    allowedRoles: ["KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "SAFETY",
+    assetTypes: ["TRANSFORMER"],
+    assetIds: ["TR-HV-18"],
+    faultType: "SAFETY_HIGH_VOLTAGE",
+    knowledgeManagerName: "KM - Safety",
+    helpfulRate: 96,
+    feedbackCount: 61,
+    reuseCount: 18,
+    viewCount: 77,
+    relevanceScore: 0.8,
+    purpose: "Chuẩn hóa thao tác bảo trì máy biến áp cao thế.",
+    scope: "Chỉ dành cho nhân sự có chứng nhận cao thế.",
+    applicableAssets: ["High Voltage Transformer"],
+    intendedRoles: ["Certified Technician", "Knowledge Manager"],
+    riskLevel: "Cao",
+    ppe: ["Găng tay cách điện cao thế", "Mặt nạ hồ quang", "Bút thử điện", "Áo chống hồ quang"],
+    warnings: ["Nguy hiểm điện cao thế. Không thực hiện nếu thiếu LOTO."],
+    stopConditions: ["Không xác minh được trạng thái cô lập điện", "PPE không đạt chuẩn"],
+    requiredTools: ["Bộ LOTO", "Bút thử điện", "Megohmmeter", "Bộ xả tụ"],
+    preconditions: ["Có giấy phép công việc", "Đã cô lập nguồn", "Có người giám sát"],
+    steps: [
+      { title: "Cách ly và LOTO", instruction: "Ngắt nguồn, gắn khóa và thẻ cảnh báo.", expectedResult: "Nguồn được cô lập và ghi nhận." },
+      { title: "Xả tụ điện", instruction: "Xả tụ theo hướng dẫn OEM trước khi chạm vào thiết bị.", expectedResult: "Điện áp tồn dư về mức an toàn." },
+      { title: "Kiểm tra bằng mắt", instruction: "Kiểm tra dầu, cọc nối, vết cháy và ăn mòn.", expectedResult: "Ghi nhận bất thường trước khi bảo trì." }
+    ],
+    decisionPoints: [],
+    completionCriteria: ["Biên bản LOTO đầy đủ", "Không còn cảnh báo rò điện", "Ảnh sau bảo trì được lưu"],
+    relatedItems: ["CASE-CABLE-042"]
+  },
+  {
+    id: "SOP-IOT-003",
+    contentType: "SOP",
+    title: "Hiệu chuẩn kết nối NEMA Socket Node",
+    summary: "Quy trình cũ cho NEMA Socket Node; cần rà soát vì firmware gateway đã thay đổi.",
+    status: "OUTDATED",
+    version: "v1.8",
+    effectiveDate: "10/03/2024",
+    reviewDate: "10/03/2025",
+    updatedDate: "10/03/2024",
+    securityLevel: "INTERNAL",
+    allowedRoles: ["FIELD_TECHNICIAN", "CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "MAINTENANCE",
+    assetTypes: ["SMART_NODE"],
+    assetIds: ["NEMA-88", "SN-1044"],
+    faultType: "CONNECTIVITY_LOSS",
+    knowledgeManagerName: "KM - Smart Lighting",
+    helpfulRate: 74,
+    feedbackCount: 19,
+    reuseCount: 8,
+    viewCount: 54,
+    relevanceScore: 0.72,
+    replacementId: "SOP-NET-007",
+    purpose: "Tham khảo quy trình hiệu chuẩn cũ cho NEMA node.",
+    scope: "Không dùng làm hướng dẫn hiện hành nếu firmware gateway >= 2.4.",
+    applicableAssets: ["NEMA Socket Node"],
+    intendedRoles: ["Field Technician"],
+    riskLevel: "Thấp",
+    ppe: ["Găng tay", "Kính bảo hộ"],
+    warnings: ["Quy trình đã quá hạn review."],
+    stopConditions: ["Firmware gateway mới hơn tài liệu"],
+    requiredTools: ["Ứng dụng mobile", "Gateway console"],
+    preconditions: ["Xác định firmware gateway"],
+    steps: [
+      { title: "Kiểm tra firmware", instruction: "Đọc phiên bản firmware gateway.", expectedResult: "Biết tài liệu có còn phù hợp hay không." }
+    ],
+    decisionPoints: [],
+    completionCriteria: ["Không áp dụng nếu đã có replacement"],
+    relatedItems: ["SOP-NET-007"]
+  },
+  {
+    id: "SOP-NET-005",
+    contentType: "SOP",
+    title: "Khôi phục mesh network smart node phiên bản cũ",
+    summary: "Phiên bản cũ đã được thay bởi SOP-NET-007.",
+    status: "SUPERSEDED",
+    version: "v1.5",
+    effectiveDate: "01/04/2025",
+    reviewDate: "01/04/2026",
+    updatedDate: "01/04/2025",
+    securityLevel: "INTERNAL",
+    allowedRoles: ["FIELD_TECHNICIAN", "CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "TROUBLESHOOTING",
+    assetTypes: ["CITYTOUCH_NODE", "SMART_NODE"],
+    assetIds: ["CTN-1108"],
+    faultType: "CONNECTIVITY_LOSS",
+    knowledgeManagerName: "KM - Smart Lighting",
+    helpfulRate: 81,
+    feedbackCount: 36,
+    reuseCount: 19,
+    viewCount: 120,
+    relevanceScore: 0.64,
+    currentVersionId: "SOP-NET-007",
+    purpose: "Lưu trữ version cũ để tham chiếu.",
+    scope: "Không áp dụng thực địa.",
+    applicableAssets: ["Smart Node"],
+    intendedRoles: ["Field Technician"],
+    riskLevel: "Trung bình",
+    ppe: ["Găng tay", "Kính bảo hộ"],
+    warnings: ["Đã bị thay thế; không được mark as applied."],
+    stopConditions: ["Luôn dùng current version nếu có."],
+    requiredTools: ["Gateway console"],
+    preconditions: ["Xác nhận version hiện hành"],
+    steps: [
+      { title: "Tham khảo", instruction: "Chỉ dùng để đối chiếu thay đổi.", expectedResult: "Không áp dụng vào work order mới." }
+    ],
+    decisionPoints: [],
+    completionCriteria: ["Đã chuyển sang current version"],
+    relatedItems: ["SOP-NET-007"]
+  },
+  {
+    id: "ARTICLE-EQUITY-011",
+    contentType: "ARTICLE",
+    title: "Ưu tiên xử lý sự cố chiếu sáng tại khu vực có rủi ro an toàn cao",
+    summary: "Bài viết hướng dẫn cách đọc tín hiệu cộng đồng, dữ liệu 311 và mức độ rủi ro để ưu tiên điều phối.",
+    status: "PUBLISHED",
+    version: "v1.0",
+    effectiveDate: "15/05/2026",
+    reviewDate: "15/05/2027",
+    updatedDate: "15/05/2026",
+    securityLevel: "PUBLIC",
+    allowedRoles: ["FIELD_TECHNICIAN", "CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"],
+    categoryId: "OPERATIONS",
+    assetTypes: ["LED_FIXTURE", "CONTROL_CABINET"],
+    assetIds: ["311-LA"],
+    faultType: "WATER_INGRESS",
+    knowledgeManagerName: "KM - Operations",
+    helpfulRate: 78,
+    feedbackCount: 12,
+    reuseCount: 6,
+    viewCount: 44,
+    relevanceScore: 0.5,
+    location: "Citywide",
+    incidentDate: "15/05/2026",
+    symptom: "Nhiều yêu cầu 311 từ khu vực có mật độ người đi bộ cao.",
+    diagnosisMethod: "Đối chiếu heatmap 311, outage duration và lịch sử tai nạn.",
+    rootCause: "Không phải lỗi kỹ thuật đơn lẻ; là ưu tiên điều phối nguồn lực.",
+    repairAction: "Tăng priority work order và gán đội gần nhất.",
+    outcome: "Giảm thời gian phản hồi ở corridor ưu tiên.",
+    lessonLearned: "Dữ liệu cộng đồng cần được xem như tín hiệu vận hành bổ sung.",
+    telemetry: ["311 calls", "Outage duration", "District priority"],
+    evidence: ["Bản đồ heatmap 311"],
+    relatedItems: ["SOP-NET-007"]
+  }
+];
+
+export const dashboardStats = [
+  { label: "Search Success Rate", value: "84%", detail: "Phiên có mở detail hoặc apply" },
+  { label: "Reuse Count", value: "99", detail: "Mock tăng khi Mark as Applied" },
+  { label: "Helpful Rate", value: "88%", detail: "Từ feedback đã ghi nhận" },
+  { label: "Zero-result Rate", value: "7%", detail: "Có CTA Knowledge Request" }
+];
+
+export const fallbackData = {
+  users,
+  taxonomy,
+  knowledgeItems,
+  dashboardStats
 };
