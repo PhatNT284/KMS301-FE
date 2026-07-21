@@ -1334,6 +1334,142 @@ dd {
   margin-top: 18px;
 }
 
+.sop-library-grid,
+.task-grid,
+.version-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.sop-library-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.task-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sop-task-card {
+  display: grid;
+  gap: 14px;
+  border-left: 4px solid var(--primary);
+}
+
+.sop-row-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+}
+
+.sop-row-card h3,
+.sop-row-card p {
+  margin: 8px 0;
+}
+
+.sop-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.sop-preview {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-lowest);
+}
+
+.sop-preview > h3 {
+  margin: 0;
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.repeatable-field {
+  display: grid;
+  gap: 10px;
+}
+
+.repeatable-field .panel-head {
+  margin-bottom: 0;
+}
+
+.repeat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.repeat-row textarea {
+  min-height: 84px;
+}
+
+.procedure-editor {
+  display: grid;
+  gap: 14px;
+}
+
+.decision-edit {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.review-checklist {
+  display: grid;
+  gap: 10px;
+}
+
+.compare-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.compare-step {
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--outline);
+  border-radius: 8px;
+  background: var(--surface-low);
+}
+
+.compare-step.added {
+  border-left-color: var(--success);
+  background: var(--success-soft);
+}
+
+.compare-step span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.compare-step strong {
+  color: var(--primary);
+}
+
+.compare-step p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.version-timeline li:first-child {
+  border-left-color: var(--success);
+}
+
 @media (max-width: 1180px) {
   .metric-grid,
   .filter-grid,
@@ -1349,7 +1485,11 @@ dd {
   .capture-strip,
   .choice-grid,
   .field-entry-grid,
-  .submission-card {
+  .submission-card,
+  .sop-library-grid,
+  .task-grid,
+  .compare-layout,
+  .sop-row-card {
     grid-template-columns: 1fr;
   }
 
@@ -1406,6 +1546,7 @@ dd {
   .capture-actions,
   .mini-metrics,
   .submission-actions,
+  .sop-row-actions,
   .sticky-actions,
   .form-actions {
     justify-content: stretch;
@@ -1413,9 +1554,15 @@ dd {
 
   .capture-actions > *,
   .submission-actions > *,
+  .sop-row-actions > *,
   .sticky-actions > *,
   .form-actions > * {
     width: 100%;
+  }
+
+  .repeat-row,
+  .decision-edit {
+    grid-template-columns: 1fr;
   }
 
   .upload-box {

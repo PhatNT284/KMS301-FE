@@ -33,6 +33,20 @@ import {
 } from "lucide-react";
 import { dashboardStats, knowledgeItems, taxonomy, users } from "./data/fallbackData.js";
 import { currentWorkOrder, seedFieldSubmissions, seedSopRequests, sopCatalog } from "./data/fl02Data.js";
+import { seedSopDrafts, seedSopTasks, seedSopVersions } from "./data/fl03Data.js";
+import {
+  buildDraftFromTask,
+  buildSopTaskFromRequest,
+  createPublishedSopFromDraft,
+  createVersionFromDraft,
+  SopEditor,
+  SopReviewDetail,
+  SopSubmitSuccess,
+  SopTaskDetail,
+  SopVersionCompare,
+  SopVersionHistory,
+  SopWorkspace
+} from "./flows/FL03Flow.jsx";
 
 const ROLE_STORAGE = "labs-kms-current-role";
 const RECENT_STORAGE = "labs-kms-recent-searches";
@@ -42,6 +56,9 @@ const REQUEST_STORAGE = "labs-kms-request-draft";
 const FIELD_SUBMISSIONS_STORAGE = "labs-kms-field-submissions";
 const PUBLISHED_OUTPUT_STORAGE = "labs-kms-published-output";
 const SOP_REQUESTS_STORAGE = "labs-kms-sop-requests";
+const SOP_TASKS_STORAGE = "labs-kms-sop-tasks";
+const SOP_DRAFTS_STORAGE = "labs-kms-sop-drafts";
+const SOP_VERSIONS_STORAGE = "labs-kms-sop-versions";
 
 const DEFAULT_SEARCH = {
   query: "",
@@ -560,6 +577,9 @@ function App() {
   const [fieldSubmissions, setFieldSubmissions] = useState(() => loadJson(FIELD_SUBMISSIONS_STORAGE, seedFieldSubmissions));
   const [publishedOutputs, setPublishedOutputs] = useState(() => loadJson(PUBLISHED_OUTPUT_STORAGE, []));
   const [sopRequests, setSopRequests] = useState(() => loadJson(SOP_REQUESTS_STORAGE, seedSopRequests));
+  const [sopTasks, setSopTasks] = useState(() => loadJson(SOP_TASKS_STORAGE, seedSopTasks));
+  const [sopDrafts, setSopDrafts] = useState(() => loadJson(SOP_DRAFTS_STORAGE, seedSopDrafts));
+  const [sopVersions, setSopVersions] = useState(() => loadJson(SOP_VERSIONS_STORAGE, seedSopVersions));
   const [toast, setToast] = useState("");
   const [applyItem, setApplyItem] = useState(null);
   const [applyOutcome, setApplyOutcome] = useState("RESOLVED_FULLY");
@@ -571,17 +591,20 @@ function App() {
   const selectedSubmissionId = params.get("id");
   const currentStep = params.get("step") || "context";
   const requestTab = params.get("tab") || "hub";
+  const sopTab = params.get("tab") || "library";
   const knowledgeCatalog = useMemo(() => mergeKnowledgeItems(knowledgeItems, publishedOutputs), [publishedOutputs]);
   const selectedItem = selectedId ? knowledgeCatalog.find((item) => item.id === selectedId) : null;
   const selectedSubmission = selectedSubmissionId ? fieldSubmissions.find((item) => item.id === selectedSubmissionId) : null;
+  const selectedSopTask = selectedId ? sopTasks.find((item) => item.id === selectedId) : null;
+  const selectedSopDraft = selectedId ? sopDrafts.find((item) => item.id === selectedId) : null;
   const results = useMemo(() => searchItems(knowledgeCatalog, currentRole, searchParams), [knowledgeCatalog, currentRole, searchParams]);
-  const activeNav = screen.includes("search") || screen === "knowledge-detail" || screen === "sop-detail" || screen === "access-denied"
+  const activeNav = screen.includes("search") || screen === "knowledge-detail" || screen === "access-denied"
     ? "search"
     : ["request", "field-submission", "submission-success", "my-submissions", "submission-detail"].includes(screen)
       ? "request"
       : ["review", "review-queue", "review-detail"].includes(screen)
         ? "review"
-        : screen === "sops"
+        : ["sops", "sop-detail", "sop-task-detail", "sop-editor", "sop-submit-success", "my-sop-drafts", "sop-review-queue", "sop-review-detail", "sop-version-compare", "sop-version-history"].includes(screen)
           ? "sops"
           : "dashboard";
   const currentUser = users.find((user) => user.role === currentRole) || users[0];
@@ -617,6 +640,18 @@ function App() {
   useEffect(() => {
     saveJson(SOP_REQUESTS_STORAGE, sopRequests);
   }, [sopRequests]);
+
+  useEffect(() => {
+    saveJson(SOP_TASKS_STORAGE, sopTasks);
+  }, [sopTasks]);
+
+  useEffect(() => {
+    saveJson(SOP_DRAFTS_STORAGE, sopDrafts);
+  }, [sopDrafts]);
+
+  useEffect(() => {
+    saveJson(SOP_VERSIONS_STORAGE, sopVersions);
+  }, [sopVersions]);
 
   useEffect(() => {
     if (!toast) return;
@@ -663,6 +698,92 @@ function App() {
       const next = typeof updater === "function" ? updater(item) : { ...item, ...updater };
       return { ...next, updatedAt: nowIso() };
     }));
+  }
+
+  function updateSopDraft(id, updater) {
+    setSopDrafts((items) => items.map((item) => {
+      if (item.id !== id) return item;
+      const next = typeof updater === "function" ? updater(item) : { ...item, ...updater };
+      return { ...next, updatedAt: nowIso() };
+    }));
+  }
+
+  function startAuthoringFromTask(task) {
+    const existingDraft = sopDrafts.find((draft) => draft.taskId === task.id);
+    if (existingDraft) {
+      navigate("sop-editor", { id: existingDraft.id, step: "metadata" });
+      return;
+    }
+    const baseSop = knowledgeCatalog.find((item) => item.id === task.existingSopId);
+    const draft = buildDraftFromTask(task, currentUser, baseSop);
+    setSopDrafts((items) => [draft, ...items]);
+    setSopTasks((items) => items.map((item) => item.id === task.id ? { ...item, status: "ACCEPTED" } : item));
+    setToast("Đã tạo Draft SOP từ nhiệm vụ.");
+    navigate("sop-editor", { id: draft.id, step: "metadata" });
+  }
+
+  function startVersionFromSop(sop) {
+    const task = {
+      id: makeId("SOPTASK"),
+      type: "UPDATE_EXISTING",
+      status: "ACCEPTED",
+      priority: "MEDIUM",
+      title: `Tạo phiên bản mới cho ${sop.id}`,
+      proposedTitle: sop.title,
+      existingSopId: sop.id,
+      currentVersion: sop.version,
+      requestedVersionIntent: "MAJOR",
+      assignedTo: currentUser.id,
+      createdBy: currentUser.id,
+      sourceKnowledgeIds: [sop.id],
+      sourceSubmissionId: "",
+      relatedAssetTypes: sop.assetTypes,
+      relatedFaultType: sop.faultType,
+      businessReason: "Contributor tạo version mới từ thư viện SOP để cập nhật nội dung đã xuất bản.",
+      requestedChanges: ["Rà soát và cập nhật SOP theo feedback hoặc yêu cầu nghiệp vụ mới."],
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      createdAt: nowIso()
+    };
+    const draft = buildDraftFromTask(task, currentUser, sop);
+    setSopTasks((items) => [task, ...items]);
+    setSopDrafts((items) => [draft, ...items]);
+    setToast("Đã tạo Draft SOP version mới.");
+    navigate("sop-editor", { id: draft.id, step: "metadata" });
+  }
+
+  function ensureSopTaskFromRequest(request) {
+    const existingTask = sopTasks.find((task) => task.sourceRequestId === request.id);
+    if (existingTask) {
+      navigate("sop-task-detail", { id: existingTask.id });
+      return;
+    }
+    const task = buildSopTaskFromRequest(request, currentUser);
+    setSopTasks((items) => [task, ...items]);
+    setToast("Đã tạo nhiệm vụ chuẩn hóa SOP từ yêu cầu FL-02.");
+    navigate("sop-task-detail", { id: task.id });
+  }
+
+  function publishSopDraft(draft, publishForm) {
+    const baseSop = knowledgeCatalog.find((item) => item.id === draft.sopId);
+    const published = createPublishedSopFromDraft(draft, publishForm, currentUser, baseSop);
+    const nextVersion = createVersionFromDraft(draft, publishForm, currentUser);
+    setPublishedOutputs((items) => [published, ...items.filter((item) => item.id !== published.id)]);
+    setSopVersions((items) => [
+      nextVersion,
+      ...items.map((item) => item.sopId === draft.sopId && item.status === "PUBLISHED" ? { ...item, status: "SUPERSEDED" } : item)
+    ]);
+    updateSopDraft(draft.id, (item) => ({
+      ...item,
+      status: "PUBLISHED",
+      publishedAt: nowIso(),
+      reviewChecklist: draft.reviewChecklist,
+      history: [
+        ...(item.history || []),
+        { id: makeId("SOPD-EVT"), action: "APPROVE_AND_PUBLISH", actorId: currentUser.id, comment: `Xuất bản ${publishForm.version}.`, createdAt: nowIso() }
+      ]
+    }));
+    setToast("Đã xuất bản SOP và cập nhật FL-01/SOP Library.");
+    navigate("sop-detail", { id: draft.sopId });
   }
 
   function createFieldSubmission(prefill = {}) {
@@ -730,7 +851,7 @@ function App() {
   }
 
   function resetDemo() {
-    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE].forEach((key) => window.localStorage.removeItem(key));
+    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE, SOP_TASKS_STORAGE, SOP_DRAFTS_STORAGE, SOP_VERSIONS_STORAGE].forEach((key) => window.localStorage.removeItem(key));
     setCurrentRole("FIELD_TECHNICIAN");
     setRecentSearches([]);
     setFeedbackEvents({});
@@ -739,6 +860,9 @@ function App() {
     setFieldSubmissions(seedFieldSubmissions);
     setPublishedOutputs([]);
     setSopRequests(seedSopRequests);
+    setSopTasks(seedSopTasks);
+    setSopDrafts(seedSopDrafts);
+    setSopVersions(seedSopVersions);
     setSearchParams(DEFAULT_SEARCH);
     navigate("dashboard");
     setToast("Đã reset demo data.");
@@ -748,8 +872,8 @@ function App() {
   if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} />;
   else if (screen === "search") content = <AdvancedSearch searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} recentSearches={recentSearches} />;
   else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} />;
-  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
-  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "access-denied") content = <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "request") content = <RequestHub tab={requestTab} draft={requestDraft} setDraft={setRequestDraft} setToast={setToast} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} />;
   else if (screen === "field-submission") content = selectedSubmission ? <FieldSubmissionWizard submission={selectedSubmission} step={currentStep} updateSubmission={updateSubmission} navigate={navigate} setToast={setToast} currentRole={currentRole} setSearchParams={setSearchParams} runSearch={runSearch} /> : <Placeholder title="Không tìm thấy submission" description="Bản nháp hoặc submission này không còn trong mock data." />;
@@ -758,7 +882,15 @@ function App() {
   else if (screen === "submission-detail") content = selectedSubmission ? <SubmissionDetail submission={selectedSubmission} navigate={navigate} currentUser={currentUser} knowledgeCatalog={knowledgeCatalog} openItem={openItem} /> : <Placeholder title="Không tìm thấy submission" description="Không có submission tương ứng." />;
   else if (screen === "review" || screen === "review-queue") content = <ReviewQueue submissions={fieldSubmissions} navigate={navigate} currentRole={currentRole} />;
   else if (screen === "review-detail") content = selectedSubmission ? <ReviewDetail submission={selectedSubmission} updateSubmission={updateSubmission} currentUser={currentUser} currentRole={currentRole} navigate={navigate} setToast={setToast} setPublishedOutputs={setPublishedOutputs} setSopRequests={setSopRequests} openItem={openItem} knowledgeCatalog={knowledgeCatalog} /> : <Placeholder title="Không tìm thấy submission" description="Không có item trong hàng đợi." />;
-  else if (screen === "sops") content = <SopLibrary openItem={openItem} knowledgeCatalog={knowledgeCatalog} />;
+  else if (screen === "sops") content = <SopWorkspace tab={sopTab} navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
+  else if (screen === "sop-task-detail") content = <SopTaskDetail task={selectedSopTask} drafts={sopDrafts} navigate={navigate} knowledgeCatalog={knowledgeCatalog} startAuthoringFromTask={startAuthoringFromTask} />;
+  else if (screen === "sop-editor") content = <SopEditor draft={selectedSopDraft} step={params.get("step") || "metadata"} updateDraft={updateSopDraft} navigate={navigate} setToast={setToast} taxonomy={taxonomy} />;
+  else if (screen === "sop-submit-success") content = <SopSubmitSuccess draft={selectedSopDraft} navigate={navigate} />;
+  else if (screen === "my-sop-drafts") content = <SopWorkspace tab="drafts" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
+  else if (screen === "sop-review-queue") content = <SopWorkspace tab="review" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
+  else if (screen === "sop-review-detail") content = <SopReviewDetail draft={selectedSopDraft} updateDraft={updateSopDraft} navigate={navigate} currentUser={currentUser} currentRole={currentRole} setToast={setToast} publishDraft={publishSopDraft} />;
+  else if (screen === "sop-version-compare") content = <SopVersionCompare draft={selectedSopDraft} baseSop={selectedSopDraft ? knowledgeCatalog.find((item) => item.id === selectedSopDraft.sopId) : null} navigate={navigate} />;
+  else if (screen === "sop-version-history") content = <SopVersionHistory sopId={selectedId} versions={sopVersions} knowledgeCatalog={knowledgeCatalog} navigate={navigate} openItem={openItem} />;
   else content = <Placeholder title="Màn hình chưa hỗ trợ" description="Route này chưa có trong prototype." />;
 
   return (
@@ -1050,7 +1182,7 @@ function NoResult({ searchParams, createKnowledgeRequest }) {
   );
 }
 
-function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests }) {
+function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests, ensureSopTaskFromRequest }) {
   return (
     <section className="page detail-page">
       <BackRow navigate={navigate} />
@@ -1069,7 +1201,7 @@ function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedb
         </article>
         <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} />
       </div>
-      {item.sourceSubmissionId && <PublishedTraceability item={item} navigate={navigate} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} />}
+      {item.sourceSubmissionId && <PublishedTraceability item={item} navigate={navigate} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} />}
     </section>
   );
 }
@@ -1130,7 +1262,7 @@ function StateBanner({ item, openItem }) {
   return null;
 }
 
-function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission }) {
+function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, navigate }) {
   const applied = applicationEvents[item.id];
   const feedback = feedbackEvents[item.id]?.value;
   const canApply = item.status === "PUBLISHED" && currentRole !== "ADMINISTRATOR";
@@ -1152,6 +1284,7 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
       <article className="panel governance">
         <h3>Governance</h3>
         <InfoGrid rows={[["Security", item.securityLevel], ["Effective", item.effectiveDate], ["Review", item.reviewDate], ["Views", String(item.viewCount)], ["Reuse", String(item.reuseCount + (applied ? 1 : 0))]]} />
+        {item.contentType === "SOP" && navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("sop-version-history", { id: item.id })}><History size={16} />Lịch sử phiên bản</button>}
       </article>
       <article className="panel">
         <h3>Related</h3>
@@ -1167,7 +1300,7 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
   );
 }
 
-function PublishedTraceability({ item, navigate, fieldSubmissions, sopRequests }) {
+function PublishedTraceability({ item, navigate, fieldSubmissions, sopRequests, ensureSopTaskFromRequest }) {
   const source = fieldSubmissions.find((submission) => submission.id === item.sourceSubmissionId);
   const relatedRequests = sopRequests.filter((request) => request.sourceKnowledgeId === item.id || request.sourceSubmissionId === item.sourceSubmissionId);
   return (
@@ -1180,7 +1313,10 @@ function PublishedTraceability({ item, navigate, fieldSubmissions, sopRequests }
         ["SOP mục tiêu", item.targetSopId],
         ["Yêu cầu FL-03", relatedRequests.map((request) => request.id).join(", ")]
       ]} />
-      {source && <button className="secondary-btn" type="button" onClick={() => navigate("submission-detail", { id: source.id })}>Xem submission nguồn</button>}
+      <div className="form-actions">
+        {source && <button className="secondary-btn" type="button" onClick={() => navigate("submission-detail", { id: source.id })}>Xem submission nguồn</button>}
+        {relatedRequests[0] && <button className="primary-btn" type="button" onClick={() => ensureSopTaskFromRequest(relatedRequests[0])}>Chuẩn hóa thành SOP</button>}
+      </div>
     </article>
   );
 }
