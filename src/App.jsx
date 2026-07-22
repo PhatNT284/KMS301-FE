@@ -34,6 +34,7 @@ import {
 import { dashboardStats, knowledgeItems, taxonomy, users } from "./data/fallbackData.js";
 import { currentWorkOrder, seedFieldSubmissions, seedSopRequests, sopCatalog } from "./data/fl02Data.js";
 import { seedSopDrafts, seedSopTasks, seedSopVersions } from "./data/fl03Data.js";
+import { buildSopTaskFromKnowledgeRequest, emptyKnowledgeRequest, seedArticleDrafts, seedKnowledgeRequests } from "./data/fl04Data.js";
 import {
   buildDraftFromTask,
   buildSopTaskFromRequest,
@@ -47,6 +48,7 @@ import {
   SopVersionHistory,
   SopWorkspace
 } from "./flows/FL03Flow.jsx";
+import { FL04Flow } from "./flows/FL04Flow.jsx";
 
 const ROLE_STORAGE = "labs-kms-current-role";
 const RECENT_STORAGE = "labs-kms-recent-searches";
@@ -59,6 +61,8 @@ const SOP_REQUESTS_STORAGE = "labs-kms-sop-requests";
 const SOP_TASKS_STORAGE = "labs-kms-sop-tasks";
 const SOP_DRAFTS_STORAGE = "labs-kms-sop-drafts";
 const SOP_VERSIONS_STORAGE = "labs-kms-sop-versions";
+const KNOWLEDGE_REQUESTS_STORAGE = "labs-kms-knowledge-requests";
+const ARTICLE_DRAFTS_STORAGE = "labs-kms-article-drafts";
 
 const DEFAULT_SEARCH = {
   query: "",
@@ -580,6 +584,8 @@ function App() {
   const [sopTasks, setSopTasks] = useState(() => loadJson(SOP_TASKS_STORAGE, seedSopTasks));
   const [sopDrafts, setSopDrafts] = useState(() => loadJson(SOP_DRAFTS_STORAGE, seedSopDrafts));
   const [sopVersions, setSopVersions] = useState(() => loadJson(SOP_VERSIONS_STORAGE, seedSopVersions));
+  const [knowledgeRequests, setKnowledgeRequests] = useState(() => loadJson(KNOWLEDGE_REQUESTS_STORAGE, seedKnowledgeRequests));
+  const [articleDrafts, setArticleDrafts] = useState(() => loadJson(ARTICLE_DRAFTS_STORAGE, seedArticleDrafts));
   const [toast, setToast] = useState("");
   const [applyItem, setApplyItem] = useState(null);
   const [applyOutcome, setApplyOutcome] = useState("RESOLVED_FULLY");
@@ -600,7 +606,7 @@ function App() {
   const results = useMemo(() => searchItems(knowledgeCatalog, currentRole, searchParams), [knowledgeCatalog, currentRole, searchParams]);
   const activeNav = screen.includes("search") || screen === "knowledge-detail" || screen === "access-denied"
     ? "search"
-    : ["request", "field-submission", "submission-success", "my-submissions", "submission-detail"].includes(screen)
+    : ["request", "field-submission", "submission-success", "my-submissions", "submission-detail", "knowledge-request-success", "my-knowledge-requests", "knowledge-request-detail", "knowledge-request-queue", "knowledge-request-triage", "contributor-request-queue", "request-workspace", "knowledge-article-editor", "knowledge-article-preview", "knowledge-request-review-detail", "resolved-request"].includes(screen)
       ? "request"
       : ["review", "review-queue", "review-detail"].includes(screen)
         ? "review"
@@ -627,6 +633,7 @@ function App() {
 
   useEffect(() => {
     if (requestDraft) saveJson(REQUEST_STORAGE, requestDraft);
+    else window.localStorage.removeItem(REQUEST_STORAGE);
   }, [requestDraft]);
 
   useEffect(() => {
@@ -652,6 +659,14 @@ function App() {
   useEffect(() => {
     saveJson(SOP_VERSIONS_STORAGE, sopVersions);
   }, [sopVersions]);
+
+  useEffect(() => {
+    saveJson(KNOWLEDGE_REQUESTS_STORAGE, knowledgeRequests);
+  }, [knowledgeRequests]);
+
+  useEffect(() => {
+    saveJson(ARTICLE_DRAFTS_STORAGE, articleDrafts);
+  }, [articleDrafts]);
 
   useEffect(() => {
     if (!toast) return;
@@ -763,6 +778,20 @@ function App() {
     navigate("sop-task-detail", { id: task.id });
   }
 
+  function transferKnowledgeRequestToSop(request) {
+    const existingTask = sopTasks.find((task) => task.sourceRequestId === request.id);
+    if (existingTask) {
+      setToast("Nhiệm vụ SOP cho request này đã tồn tại.");
+      navigate("sop-task-detail", { id: existingTask.id });
+      return existingTask;
+    }
+    const task = buildSopTaskFromKnowledgeRequest(request, currentUser);
+    setSopTasks((items) => [task, ...items]);
+    setToast("Đã chuyển thành nhiệm vụ SOP (FL-03).");
+    navigate("sop-task-detail", { id: task.id });
+    return task;
+  }
+
   function publishSopDraft(draft, publishForm) {
     const baseSop = knowledgeCatalog.find((item) => item.id === draft.sopId);
     const published = createPublishedSopFromDraft(draft, publishForm, currentUser, baseSop);
@@ -794,13 +823,19 @@ function App() {
   }
 
   function createKnowledgeRequest(draftSource = searchParams) {
-    const draft = {
-      query: draftSource.query,
-      assetId: draftSource.assetId,
-      filters: draftSource,
-      requesterId: currentUser.id,
-      createdAt: new Date().toISOString()
+    const origin = draftSource.origin || "NEW_GAP";
+    const sourceContext = {
+      ...draftSource,
+      origin,
+      query: draftSource.query || draftSource.title || searchParams.query,
+      assetId: draftSource.assetId || searchParams.assetId,
+      assetType: draftSource.assetType || searchParams.assetType,
+      faultType: draftSource.faultType || searchParams.faultType,
+      filters: draftSource.filters || searchParams,
+      resultCount: draftSource.resultCount ?? 0,
+      searchedAt: draftSource.searchedAt || new Date().toISOString()
     };
+    const draft = emptyKnowledgeRequest(currentUser, sourceContext);
     setRequestDraft(draft);
     navigate("request", { tab: "knowledge-request" });
   }
@@ -851,7 +886,7 @@ function App() {
   }
 
   function resetDemo() {
-    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE, SOP_TASKS_STORAGE, SOP_DRAFTS_STORAGE, SOP_VERSIONS_STORAGE].forEach((key) => window.localStorage.removeItem(key));
+    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE, SOP_TASKS_STORAGE, SOP_DRAFTS_STORAGE, SOP_VERSIONS_STORAGE, KNOWLEDGE_REQUESTS_STORAGE, ARTICLE_DRAFTS_STORAGE].forEach((key) => window.localStorage.removeItem(key));
     setCurrentRole("FIELD_TECHNICIAN");
     setRecentSearches([]);
     setFeedbackEvents({});
@@ -863,19 +898,22 @@ function App() {
     setSopTasks(seedSopTasks);
     setSopDrafts(seedSopDrafts);
     setSopVersions(seedSopVersions);
+    setKnowledgeRequests(seedKnowledgeRequests);
+    setArticleDrafts(seedArticleDrafts);
     setSearchParams(DEFAULT_SEARCH);
     navigate("dashboard");
     setToast("Đã reset demo data.");
   }
 
+  const fl04Screens = ["request", "knowledge-request-success", "my-knowledge-requests", "knowledge-request-detail", "knowledge-request-queue", "knowledge-request-triage", "contributor-request-queue", "request-workspace", "knowledge-article-editor", "knowledge-article-preview", "knowledge-request-review-detail", "resolved-request"];
   let content;
   if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} />;
   else if (screen === "search") content = <AdvancedSearch searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} recentSearches={recentSearches} />;
   else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} />;
-  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
-  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "access-denied") content = <AccessDenied navigate={navigate} currentRole={currentRole} />;
-  else if (screen === "request") content = <RequestHub tab={requestTab} draft={requestDraft} setDraft={setRequestDraft} setToast={setToast} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} />;
+  else if (fl04Screens.includes(screen)) content = <FL04Flow screen={screen} tab={requestTab} id={selectedId} currentUser={currentUser} currentRole={currentRole} users={users} taxonomy={taxonomy} navigate={navigate} requestDraft={requestDraft} setRequestDraft={setRequestDraft} knowledgeRequests={knowledgeRequests} setKnowledgeRequests={setKnowledgeRequests} articleDrafts={articleDrafts} setArticleDrafts={setArticleDrafts} knowledgeCatalog={knowledgeCatalog} setPublishedOutputs={setPublishedOutputs} setToast={setToast} createFieldSubmission={createFieldSubmission} transferKnowledgeRequestToSop={transferKnowledgeRequestToSop} openItem={openItem} />;
   else if (screen === "field-submission") content = selectedSubmission ? <FieldSubmissionWizard submission={selectedSubmission} step={currentStep} updateSubmission={updateSubmission} navigate={navigate} setToast={setToast} currentRole={currentRole} setSearchParams={setSearchParams} runSearch={runSearch} /> : <Placeholder title="Không tìm thấy submission" description="Bản nháp hoặc submission này không còn trong mock data." />;
   else if (screen === "submission-success") content = selectedSubmission ? <SubmissionSuccess submission={selectedSubmission} navigate={navigate} /> : <Placeholder title="Không tìm thấy submission" description="Không có submission tương ứng." />;
   else if (screen === "my-submissions") content = <MySubmissions submissions={fieldSubmissions} navigate={navigate} currentUser={currentUser} knowledgeCatalog={knowledgeCatalog} openItem={openItem} />;
@@ -948,8 +986,8 @@ function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo }) {
   return (
     <header className="topbar">
       <div className="topbar-title">
-        <strong>FL-01 + FL-02</strong>
-        <span>Tìm kiếm, gửi và kiểm duyệt tri thức</span>
+        <strong>FL-01 + FL-02 + FL-03 + FL-04</strong>
+        <span>Tìm kiếm, gửi, bổ sung và chuẩn hóa tri thức</span>
       </div>
       <div className="topbar-actions">
         <label className="role-switcher">
@@ -1177,12 +1215,12 @@ function NoResult({ searchParams, createKnowledgeRequest }) {
         <li>Dùng từ khóa liên quan như CityTouch, node offline, gateway.</li>
         <li>Tạo Knowledge Request để ghi nhận khoảng trống tri thức.</li>
       </ul>
-      <button className="primary-btn" type="button" onClick={() => createKnowledgeRequest(searchParams)}>Yêu cầu bổ sung tri thức</button>
+      <button className="primary-btn" type="button" onClick={() => createKnowledgeRequest({ ...searchParams, origin: "NEW_GAP", filters: searchParams, resultCount: 0 })}>Yêu cầu bổ sung tri thức</button>
     </article>
   );
 }
 
-function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests, ensureSopTaskFromRequest }) {
+function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests, ensureSopTaskFromRequest, createKnowledgeRequest }) {
   return (
     <section className="page detail-page">
       <BackRow navigate={navigate} />
@@ -1199,7 +1237,7 @@ function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedb
           <Section title="Lesson Learned"><div className="lesson-box">{item.lessonLearned}</div></Section>
           <Section title="Evidence"><div className="evidence-grid">{[...(item.evidence || []), ...(item.telemetry || [])].map((entry) => <span key={entry}>{entry}</span>)}</div></Section>
         </article>
-        <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} />
+        <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} navigate={navigate} createKnowledgeRequest={createKnowledgeRequest} />
       </div>
       {item.sourceSubmissionId && <PublishedTraceability item={item} navigate={navigate} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} />}
     </section>
@@ -1262,10 +1300,37 @@ function StateBanner({ item, openItem }) {
   return null;
 }
 
-function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, navigate }) {
+function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, navigate, createKnowledgeRequest }) {
   const applied = applicationEvents[item.id];
   const feedback = feedbackEvents[item.id]?.value;
   const canApply = item.status === "PUBLISHED" && currentRole !== "ADMINISTRATOR";
+
+  function requestImprovement(type, label) {
+    reportItem(item, type);
+    if (!createKnowledgeRequest) return;
+    createKnowledgeRequest({
+      origin: "IMPROVEMENT_REQUEST",
+      query: item.title,
+      title: item.title,
+      assetId: item.assetIds?.[0] || "",
+      assetType: item.assetTypes?.[0] || "",
+      faultType: item.faultType,
+      knowledgeId: item.id,
+      feedbackReason: label,
+      filters: {
+        query: item.title,
+        assetId: item.assetIds?.[0] || "",
+        contentType: item.contentType,
+        assetType: item.assetTypes?.[0] || "ALL",
+        faultType: item.faultType || "ALL",
+        categoryId: item.categoryId || "ALL",
+        status: item.status,
+        sortBy: "RELEVANCE"
+      },
+      resultCount: 1
+    });
+  }
+
   return (
     <aside className="detail-aside">
       <article className="panel action-panel">
@@ -1276,10 +1341,10 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
         {applied && currentRole === "FIELD_TECHNICIAN" && <button className="secondary-btn wide" onClick={() => createFieldSubmission({ appliedItem: item })} type="button"><Plus size={16} />Ghi nhận tri thức hiện trường</button>}
         <div className="feedback-row">
           <button className={feedback === "HELPFUL" ? "feedback active" : "feedback"} onClick={() => submitFeedback(item, "HELPFUL")}><ThumbsUp size={16} />Hữu ích</button>
-          <button className={feedback === "NOT_HELPFUL" ? "feedback active" : "feedback"} onClick={() => submitFeedback(item, "NOT_HELPFUL")}><ThumbsDown size={16} />Không hữu ích</button>
+          <button className={feedback === "NOT_HELPFUL" ? "feedback active" : "feedback"} onClick={() => { submitFeedback(item, "NOT_HELPFUL"); requestImprovement("NOT_HELPFUL", "Không hữu ích"); }}><ThumbsDown size={16} />Không hữu ích</button>
         </div>
-        <button className="ghost-btn wide" onClick={() => reportItem(item, "INCORRECT")}><MessageSquareWarning size={16} />Báo nội dung chưa chính xác</button>
-        <button className="ghost-btn wide" onClick={() => reportItem(item, "OUTDATED")}><AlertTriangle size={16} />Báo nội dung lỗi thời</button>
+        <button className="ghost-btn wide" onClick={() => requestImprovement("INCORRECT", "Nội dung chưa chính xác")}><MessageSquareWarning size={16} />Báo nội dung chưa chính xác</button>
+        <button className="ghost-btn wide" onClick={() => requestImprovement("OUTDATED", "Nội dung lỗi thời")}><AlertTriangle size={16} />Báo nội dung lỗi thời</button>
       </article>
       <article className="panel governance">
         <h3>Governance</h3>

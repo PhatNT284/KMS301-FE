@@ -901,6 +901,16 @@ dd {
   gap: 16px;
 }
 
+.fl04-form {
+  max-width: 1040px;
+}
+
+.embedded-section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;

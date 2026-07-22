@@ -125,15 +125,15 @@ setWidths(intro, [18, 34, 32, 36, 36, 34]);
 
 const fl01 = sheet("01_FL01");
 title(fl01, "FL-01 - Tìm kiếm và sử dụng tri thức", "Mục tiêu: Kỹ thuật viên hiện trường tìm SOP/tình huống phù hợp, mở SOP, đánh dấu đã áp dụng và tạo đầu vào cho FL-02.", 6);
-noteBand(fl01, 4, "Vai trò dùng trong luồng này: Kỹ thuật viên hiện trường - Minh Tran. Dữ liệu trọng tâm: CTN-1108, node offline, SOP-NET-007.", 6);
+noteBand(fl01, 4, "Vai trò dùng trong luồng này: Kỹ thuật viên hiện trường - Minh Tran. Dữ liệu trọng tâm: CTN-1108, node mất kết nối, SOP-NET-007.", 6);
 table(fl01, 6, flowHeaders, [
   [1, "Bảng điều khiển", "Bấm Reset dữ liệu demo để đưa dữ liệu về trạng thái sạch.", "Không cần nhập gì.", "Sidebar vẫn là tiếng Việt, vai trò đang là Kỹ thuật viên hiện trường.", `${baseUrl}?screen=dashboard`],
-  [2, "Cơ sở tri thức", "Bấm tab Cơ sở tri thức ở thanh bên.", "Từ khóa: node offline hoặc gateway.", "Màn hình tìm kiếm nâng cao hiển thị form lọc.", `${baseUrl}?screen=search`],
-  [3, "Cơ sở tri thức", "Nhập từ khóa và Asset ID rồi bấm Tìm kiếm.", "Từ khóa: node offline gateway; Asset ID: CTN-1108.", "Danh sách kết quả có SOP liên quan đến Smart Node mất kết nối.", `${baseUrl}?screen=search-results&query=node%20offline&assetId=CTN-1108`],
-  [4, "Kết quả tìm kiếm", "Bấm Mở nội dung ở card SOP-NET-007.", "SOP-NET-007.", "Mở trang chi tiết SOP, có nhãn trạng thái Đã xuất bản và phiên bản v2.1.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
-  [5, "Chi tiết SOP", "Đọc nhanh phần Applicability, Safety/PPE và Procedure Steps.", "Chú ý các bước gateway, RF, reset cụm node.", "Người xem hiểu SOP hiện tại chưa có bước kiểm tra nguồn dùng chung rõ ràng.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
+  [2, "Cơ sở tri thức", "Bấm tab Cơ sở tri thức ở thanh bên.", "Từ khóa: node mất kết nối hoặc cổng kết nối.", "Màn hình tìm kiếm nâng cao hiển thị biểu mẫu lọc.", `${baseUrl}?screen=search`],
+  [3, "Cơ sở tri thức", "Nhập từ khóa và mã tài sản rồi bấm Tìm kiếm.", "Từ khóa: node mất kết nối cổng kết nối; mã tài sản: CTN-1108.", "Danh sách kết quả có SOP liên quan đến Smart Node mất kết nối.", `${baseUrl}?screen=search-results&query=node%20mất kết nối&assetId=CTN-1108`],
+  [4, "Kết quả tìm kiếm", "Bấm Mở nội dung ở thẻ SOP-NET-007.", "SOP-NET-007.", "Mở trang chi tiết SOP, có nhãn trạng thái Đã xuất bản và phiên bản v2.1.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
+  [5, "Chi tiết SOP", "Đọc nhanh phần Applicability, Safety/phương tiện bảo hộ và Procedure Steps.", "Chú ý các bước cổng kết nối, RF, reset cụm node.", "Người xem hiểu SOP hiện tại chưa có bước kiểm tra nguồn dùng chung rõ ràng.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
   [6, "Chi tiết SOP", "Bấm Đánh dấu đã áp dụng, chọn kết quả và xác nhận.", "Kết quả: đã xử lý; Ghi chú: Áp dụng cho WO-2026-00421.", "Thông báo ghi nhận áp dụng; màn hình hiện trạng thái đã áp dụng.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
-  [7, "Chi tiết SOP", "Bấm Ghi nhận tri thức hiện trường nếu muốn đi tiếp sang FL-02.", "Mã công việc: WO-2026-00421; Asset: CTN-1108.", "Prototype tạo draft submission hoặc mở tab gửi tri thức hiện trường.", `${baseUrl}?screen=request&tab=field-capture`],
+  [7, "Chi tiết SOP", "Bấm Ghi nhận tri thức hiện trường nếu muốn đi tiếp sang FL-02.", "Mã công việc: WO-2026-00421; Tài sản: CTN-1108.", "Prototype tạo draft submission hoặc mở tab gửi tri thức hiện trường.", `${baseUrl}?screen=request&tab=field-capture`],
   [8, "Kiểm tra sau FL-03", "Sau khi xuất bản SOP ở FL-03, quay lại SOP-NET-007.", "SOP-NET-007.", "Phiên bản đổi thành v3.0 và có bước kiểm tra nguồn/tuyến cáp dùng chung.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`]
 ], "LuongFL01");
 setWidths(fl01, [8, 24, 45, 42, 46, 42]);
@@ -142,10 +142,10 @@ const fl02 = sheet("02_FL02");
 title(fl02, "FL-02 - Gửi tri thức hiện trường và kiểm duyệt", "Mục tiêu: Kỹ thuật viên hiện trường ghi nhận tình huống thực tế, Quản lý tri thức duyệt và biến tình huống thành tri thức có thể chuyển sang FL-03.", 6);
 noteBand(fl02, 4, "Vai trò dùng: Kỹ thuật viên hiện trường để gửi, Quản lý tri thức để duyệt. Nếu demo ngắn, dùng dữ liệu mẫu SUB-2026-0043.", 6);
 table(fl02, 6, flowHeaders, [
-  [1, "Gửi yêu cầu", "Mở tab Gửi yêu cầu trên thanh bên, chọn Gửi tri thức hiện trường.", "Mã công việc gần nhất: WO-2026-00421.", "Thấy card công việc gần nhất và nút ghi nhận bài học.", `${baseUrl}?screen=request&tab=field-capture`],
-  [2, "Gửi tri thức hiện trường - Bối cảnh", "Bấm Ghi nhận bài học từ công việc này.", "Asset: CTN-1108; Loại lỗi: Mất kết nối; Severity: Cao.", "Wizard mở bước Bối cảnh với dữ liệu được điền sẵn.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=context`],
-  [3, "Bước Chẩn đoán & xử lý", "Điền nguyên nhân, hành động sửa chữa và liên kết SOP đã dùng.", "SOP đã dùng: SOP-NET-007 v2.1; bước liên quan: STEP-03, STEP-04; feedback: Incomplete.", "Form thể hiện SOP gap/deviation để làm căn cứ cập nhật SOP.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=resolution`],
-  [4, "Bước Bằng chứng & bài học", "Nhập bài học kinh nghiệm và đề xuất cập nhật SOP.", "Bài học: nhiều node cùng offline nên kiểm tra nguồn/tuyến cáp dùng chung trước khi thay node.", "Đề xuất Update Existing, target SOP-NET-007, gap summary đủ rõ.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=evidence`],
+  [1, "Gửi yêu cầu", "Mở tab Gửi yêu cầu trên thanh bên, chọn Gửi tri thức hiện trường.", "Mã công việc gần nhất: WO-2026-00421.", "Thấy thẻ công việc gần nhất và nút ghi nhận bài học.", `${baseUrl}?screen=request&tab=field-capture`],
+  [2, "Gửi tri thức hiện trường - Bối cảnh", "Bấm Ghi nhận bài học từ công việc này.", "Tài sản: CTN-1108; Loại lỗi: Mất kết nối; Severity: Cao.", "trình nhập liệu mở bước Bối cảnh với dữ liệu được điền sẵn.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=context`],
+  [3, "Bước Chẩn đoán & xử lý", "Điền nguyên nhân, hành động sửa chữa và liên kết SOP đã dùng.", "SOP đã dùng: SOP-NET-007 v2.1; bước liên quan: STEP-03, STEP-04; phản hồi: Chưa đầy đủ.", "Form thể hiện SOP gap/deviation để làm căn cứ cập nhật SOP.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=resolution`],
+  [4, "Bước Bằng chứng & bài học", "Nhập bài học kinh nghiệm và đề xuất cập nhật SOP.", "Bài học: nhiều node cùng mất kết nối nên kiểm tra nguồn/tuyến cáp dùng chung trước khi thay node.", "Đề xuất Cập nhật SOP hiện có, SOP mục tiêu SOP-NET-007, gap summary đủ rõ.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=evidence`],
   [5, "Bước Xem lại & gửi", "Tick xác nhận rồi bấm Gửi kiểm duyệt.", "Xác nhận: đã xác nhận nội dung.", "Màn hình thành công hoặc submission chuyển sang trạng thái chờ kiểm duyệt.", `${baseUrl}?screen=field-submission&id=SUB-2026-0042&step=review`],
   [6, "Hàng đợi xét duyệt", "Đổi vai trò sang Quản lý tri thức, mở submission đã gửi.", "Dùng nhanh: SUB-2026-0043.", "Màn hình duyệt hiển thị bối cảnh, chẩn đoán, bài học và đề xuất SOP.", `${baseUrl}?screen=review-detail&id=SUB-2026-0043`],
   [7, "Màn hình duyệt", "Quản lý tri thức phê duyệt và xuất bản tri thức.", "Loại xuất bản: Tình huống sửa chữa; Tiềm năng SOP: Cập nhật SOP hiện có; SOP mục tiêu: SOP-NET-007.", "Sinh tri thức đã xuất bản và yêu cầu chuyển tiếp sang FL-03.", `${baseUrl}?screen=review-detail&id=SUB-2026-0043`],
@@ -154,21 +154,21 @@ table(fl02, 6, flowHeaders, [
 setWidths(fl02, [8, 28, 46, 42, 48, 42]);
 
 const fl03 = sheet("03_FL03");
-title(fl03, "FL-03 - Tạo mới hoặc cập nhật SOP", "Mục tiêu: Người biên soạn soạn Draft SOP từ nhiệm vụ, Quản lý tri thức duyệt và xuất bản SOP phiên bản mới về FL-01.", 6);
+title(fl03, "FL-03 - Tạo mới hoặc cập nhật SOP", "Mục tiêu: Người biên soạn soạn bản nháp SOP từ nhiệm vụ, Quản lý tri thức duyệt và xuất bản SOP phiên bản mới về FL-01.", 6);
 noteBand(fl03, 4, "Vai trò dùng: Người biên soạn để soạn, Quản lý tri thức để duyệt. Dữ liệu trọng tâm: SOPTASK-2026-008, SOPD-2026-0012, SOPD-2026-0015.", 6);
 table(fl03, 6, flowHeaders, [
-  [1, "Quy trình vận hành (SOP)", "Đổi vai trò sang Người biên soạn rồi mở tab Nhiệm vụ SOP.", "Nhiệm vụ mẫu: SOPTASK-2026-008.", "Thấy card Cập nhật SOP xử lý nhiều Smart Node mất kết nối.", `${baseUrl}?screen=sops&tab=tasks`],
+  [1, "Quy trình vận hành (SOP)", "Đổi vai trò sang Người biên soạn rồi mở tab Nhiệm vụ SOP.", "Nhiệm vụ mẫu: SOPTASK-2026-008.", "Thấy thẻ Cập nhật SOP xử lý nhiều Smart Node mất kết nối.", `${baseUrl}?screen=sops&tab=tasks`],
   [2, "Chi tiết nhiệm vụ SOP", "Bấm Xem chi tiết hoặc Soạn nội dung SOP.", "Nguồn: CASE-FL02-0043, SUB-2026-0043; SOP mục tiêu: SOP-NET-007.", "Màn hình giải thích vì sao cần cập nhật SOP.", `${baseUrl}?screen=sop-task-detail&id=SOPTASK-2026-008`],
   [3, "Trình soạn - Thông tin", "Kiểm tra thông tin mô tả và phiên bản.", "SOP-NET-007; phiên bản trước v2.1; phiên bản đề xuất v3.0; loại thay đổi lớn.", "Bước 1 hợp lệ, tiêu đề/tóm tắt đã có sẵn.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=metadata`],
-  [4, "Trình soạn - Phạm vi", "Kiểm tra mục đích, phạm vi, vai trò áp dụng và tiêu chí hoàn tất.", "Vai trò áp dụng: Kỹ thuật viên hiện trường, Người biên soạn.", "Người xem hiểu SOP dùng cho nhiều node offline trong cùng gateway/tuyến.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=scope`],
-  [5, "Trình soạn - An toàn", "Kiểm tra risk HIGH, PPE, mối nguy, biện pháp kiểm soát và điều kiện dừng.", "PPE: găng tay cách điện, kính bảo hộ, áo phản quang.", "Có cảnh báo rủi ro cao và đầy đủ trường an toàn bắt buộc.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=safety`],
+  [4, "Trình soạn - Phạm vi", "Kiểm tra mục đích, phạm vi, vai trò áp dụng và tiêu chí hoàn tất.", "Vai trò áp dụng: Kỹ thuật viên hiện trường, Người biên soạn.", "Người xem hiểu SOP dùng cho nhiều node mất kết nối trong cùng cổng kết nối/tuyến.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=scope`],
+  [5, "Trình soạn - An toàn", "Kiểm tra rủi ro CAO, phương tiện bảo hộ, mối nguy, biện pháp kiểm soát và điều kiện dừng.", "phương tiện bảo hộ: găng tay cách điện, kính bảo hộ, áo phản quang.", "Có cảnh báo rủi ro cao và đầy đủ trường an toàn bắt buộc.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=safety`],
   [6, "Trình soạn - Các bước", "Mở phần các bước thực hiện và chỉ rõ bước mới được bổ sung.", "STEP-03: Kiểm tra nguồn và tuyến cáp dùng chung.", "Luồng cập nhật có thay đổi nghiệp vụ rõ ràng, không chỉ sửa chữ.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=procedure`],
   [7, "Trình soạn - Nguồn", "Kiểm tra truy vết nguồn trước khi gửi duyệt.", "Nguồn: CASE-FL02-0043, CASE-CABLE-042, SUB-2026-0043, cable-cut-01.jpg.", "Bản nháp có nguồn rõ để Quản lý tri thức kiểm tra.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=references`],
   [8, "Trình soạn - Xem lại", "Xem bản xem trước, tick xác nhận, bấm Gửi duyệt SOP.", "Xác nhận: đã xác nhận.", "Bản nháp vào hàng đợi duyệt SOP.", `${baseUrl}?screen=sop-editor&id=SOPD-2026-0012&step=review`],
-  [9, "Hàng đợi duyệt SOP", "Đổi vai trò sang Quản lý tri thức và mở queue.", "Dùng nhanh: SOPD-2026-0015 vì đã ở trạng thái Đã gửi lại.", "Hàng đợi có item để duyệt.", `${baseUrl}?screen=sops&tab=review`],
+  [9, "Hàng đợi duyệt SOP", "Đổi vai trò sang Quản lý tri thức và mở hàng đợi.", "Dùng nhanh: SOPD-2026-0015 vì đã ở trạng thái Đã gửi lại.", "Hàng đợi có mục để duyệt.", `${baseUrl}?screen=sops&tab=review`],
   [10, "Màn hình duyệt SOP", "Kiểm tra danh sách kiểm tra và phân tách nhiệm vụ.", "Danh sách kiểm tra đều đạt; Người soạn: KC-001; Người duyệt: KM-001.", "Nút Duyệt và chuẩn bị xuất bản được bật.", `${baseUrl}?screen=sop-review-detail&id=SOPD-2026-0015`],
-  [11, "Hộp thoại xuất bản", "Bấm Duyệt và chuẩn bị xuất bản, tick xác nhận, bấm Xuất bản SOP.", "Phiên bản: v3.0; Ngày hiệu lực: hôm nay; Ngày rà soát: +1 năm.", "Điều hướng về SOP Detail và nhãn trạng thái hiển thị v3.0.", `${baseUrl}?screen=sop-review-detail&id=SOPD-2026-0015`],
-  [12, "Lịch sử phiên bản", "Mở lịch sử SOP-NET-007.", "SOP-NET-007.", "Timeline có v3.0 Đã xuất bản và v2.1 Bị thay thế.", `${baseUrl}?screen=sop-version-history&id=SOP-NET-007`]
+  [11, "Hộp thoại xuất bản", "Bấm Duyệt và chuẩn bị xuất bản, tick xác nhận, bấm Xuất bản SOP.", "Phiên bản: v3.0; Ngày hiệu lực: hôm nay; Ngày rà soát: +1 năm.", "Điều hướng về Chi tiết SOP và nhãn trạng thái hiển thị v3.0.", `${baseUrl}?screen=sop-review-detail&id=SOPD-2026-0015`],
+  [12, "Lịch sử phiên bản", "Mở lịch sử SOP-NET-007.", "SOP-NET-007.", "Dòng thời gian có v3.0 Đã xuất bản và v2.1 Bị thay thế.", `${baseUrl}?screen=sop-version-history&id=SOP-NET-007`]
 ], "LuongFL03");
 setWidths(fl03, [8, 28, 46, 42, 48, 42]);
 
@@ -177,9 +177,9 @@ title(e2e, "Luồng demo tổng hợp từ FL-01 đến FL-03", "Dùng tab này 
 noteBand(e2e, 4, "Nếu thời gian ít: dùng dữ liệu mẫu SUB-2026-0043 ở FL-02 và SOPD-2026-0015 ở FL-03 để đi nhanh tới xuất bản v3.0.", 6);
 table(e2e, 6, flowHeaders, [
   [1, "Bảng điều khiển", "Reset dữ liệu demo.", "Không cần nhập.", "Dữ liệu về dữ liệu mẫu, vai trò là Kỹ thuật viên hiện trường.", `${baseUrl}?screen=dashboard`],
-  [2, "Cơ sở tri thức", "Tìm SOP cho lỗi nhiều node offline.", "Từ khóa: node offline gateway; Asset: CTN-1108.", "Có kết quả SOP-NET-007.", `${baseUrl}?screen=search-results&query=node%20offline&assetId=CTN-1108`],
+  [2, "Cơ sở tri thức", "Tìm SOP cho lỗi nhiều node mất kết nối.", "Từ khóa: node mất kết nối cổng kết nối; Tài sản: CTN-1108.", "Có kết quả SOP-NET-007.", `${baseUrl}?screen=search-results&query=node%20mất kết nối&assetId=CTN-1108`],
   [3, "Chi tiết SOP", "Mở SOP-NET-007 và đánh dấu đã áp dụng.", "Kết quả: đã xử lý; Ghi chú: WO-2026-00421.", "Apply được ghi nhận.", `${baseUrl}?screen=sop-detail&id=SOP-NET-007`],
-  [4, "Gửi yêu cầu", "Bắt đầu gửi tri thức hiện trường.", "WO-2026-00421, CTN-1108.", "Wizard FL-02 mở với dữ liệu tình huống hiện trường.", `${baseUrl}?screen=request&tab=field-capture`],
+  [4, "Gửi yêu cầu", "Bắt đầu gửi tri thức hiện trường.", "WO-2026-00421, CTN-1108.", "trình nhập liệu FL-02 mở với dữ liệu tình huống hiện trường.", `${baseUrl}?screen=request&tab=field-capture`],
   [5, "FL-02 Review", "Đổi vai trò Quản lý tri thức và mở submission mẫu.", "SUB-2026-0043.", "Thấy tình huống có đề xuất cập nhật SOP-NET-007.", `${baseUrl}?screen=review-detail&id=SUB-2026-0043`],
   [6, "FL-02 Publish", "Phê duyệt và xuất bản tình huống/bài học kinh nghiệm.", "Tình huống sửa chữa; tiềm năng SOP: Cập nhật SOP hiện có.", "Có chuyển tiếp sang FL-03.", `${baseUrl}?screen=review-detail&id=SUB-2026-0043`],
   [7, "FL-03 Task", "Đổi vai trò Người biên soạn, mở nhiệm vụ SOP.", "SOPTASK-2026-008.", "Nhiệm vụ giải thích khoảng trống SOP.", `${baseUrl}?screen=sop-task-detail&id=SOPTASK-2026-008`],
@@ -194,14 +194,14 @@ const data = sheet("05_Dữ liệu mẫu");
 title(data, "Dữ liệu mẫu cần nhớ khi demo", "Tab này gom dữ liệu thật đang có trong prototype để bạn copy nhanh khi thao tác.", 6);
 noteBand(data, 4, "Những ID dưới đây đã được chuẩn bị trong mock data/dữ liệu trình duyệt. Không cần backend.", 6);
 table(data, 6, ["Nhóm dữ liệu", "ID / Giá trị", "Dùng ở luồng", "Ý nghĩa khi demo", "Màn hình nên mở", "Ghi chú"], [
-  ["Vai trò", "Kỹ thuật viên hiện trường - FT-001 - Minh Tran", "FL-01, FL-02", "Người tìm và sử dụng tri thức, gửi tình huống hiện trường.", "Topbar vai trò switcher", "Không duyệt SOP"],
-  ["Vai trò", "Người biên soạn - KC-001 - Sarah Jenkins", "FL-03", "Người nhận nhiệm vụ và soạn Draft SOP.", "Topbar vai trò switcher", "Không tự phê duyệt draft của mình"],
-  ["Vai trò", "Quản lý tri thức - KM-001 - Alex Chen", "FL-02, FL-03", "Người kiểm duyệt, phê duyệt và xuất bản tri thức/SOP.", "Topbar vai trò switcher", "Dùng để xuất bản"],
-  ["Tài sản", "CTN-1108", "FL-01, FL-02", "Asset ID của CityTouch Node trong mã công việc.", "Tìm kiếm hoặc FL-02 Bối cảnh", "Dùng với từ khóa node offline"],
-  ["Mã công việc", "WO-2026-00421", "FL-02", "Công việc gần nhất để tạo tri thức hiện trường.", "Gửi yêu cầu > Gửi tri thức hiện trường", "Dữ liệu mẫu currentWorkOrder"],
-  ["SOP hiện tại", "SOP-NET-007 v2.1", "FL-01, FL-03", "SOP đang thiếu bước kiểm tra nguồn/tuyến cáp dùng chung.", "SOP Detail", "Sau xuất bản thành v3.0"],
+  ["Vai trò", "Kỹ thuật viên hiện trường - FT-001 - Minh Tran", "FL-01, FL-02", "Người tìm và sử dụng tri thức, gửi tình huống hiện trường.", "Bộ chọn vai trò trên thanh trên", "Không duyệt SOP"],
+  ["Vai trò", "Người biên soạn - KC-001 - Sarah Jenkins", "FL-03", "Người nhận nhiệm vụ và soạn bản nháp SOP.", "Bộ chọn vai trò trên thanh trên", "Không tự phê duyệt draft của mình"],
+  ["Vai trò", "Quản lý tri thức - KM-001 - Alex Chen", "FL-02, FL-03", "Người kiểm duyệt, phê duyệt và xuất bản tri thức/SOP.", "Bộ chọn vai trò trên thanh trên", "Dùng để xuất bản"],
+  ["Tài sản", "CTN-1108", "FL-01, FL-02", "mã tài sản của CityTouch Node trong mã công việc.", "Tìm kiếm hoặc FL-02 Bối cảnh", "Dùng với từ khóa node mất kết nối"],
+  ["Mã công việc", "WO-2026-00421", "FL-02", "Công việc gần nhất để tạo tri thức hiện trường.", "Gửi yêu cầu > Gửi tri thức hiện trường", "Dữ liệu mẫu mã công việc hiện tại"],
+  ["SOP hiện tại", "SOP-NET-007 v2.1", "FL-01, FL-03", "SOP đang thiếu bước kiểm tra nguồn/tuyến cáp dùng chung.", "Chi tiết SOP", "Sau xuất bản thành v3.0"],
   ["Tình huống tham chiếu", "CASE-CABLE-042", "FL-01, FL-03", "Tình huống sửa chữa có thể dùng làm nguồn truy vết nguồn.", "Chi tiết tri thức", "Có liên quan SOP-NET-007"],
-  ["Submission mẫu", "SUB-2026-0043", "FL-02", "Submission đã gửi, có đề xuất cập nhật SOP-NET-007.", "Màn hình duyệt", "Dùng để demo nhanh review/xuất bản"],
+  ["Bản gửi mẫu", "SUB-2026-0043", "FL-02", "Bản gửi đã gửi, có đề xuất cập nhật SOP-NET-007.", "Màn hình duyệt", "Dùng để demo nhanh duyệt/xuất bản"],
   ["Yêu cầu SOP mẫu", "SOPREQ-0007", "FL-02 → FL-03", "Chuyển tiếp từ tri thức đã duyệt sang nhiệm vụ SOP.", "Bảng truy vết nguồn", "Nút: Chuẩn hóa thành SOP"],
   ["Nhiệm vụ SOP mẫu", "SOPTASK-2026-008", "FL-03", "Nhiệm vụ cập nhật SOP từ tình huống FL-02.", "Chi tiết nhiệm vụ SOP", "Giao cho KC-001"],
   ["Bản nháp để xem trình soạn", "SOPD-2026-0012", "FL-03", "Bản nháp v3.0 có đủ nội dung nhưng chưa tick xác nhận.", "Trình soạn SOP", "Dùng để demo kiểm tra xác nhận"],
@@ -216,9 +216,9 @@ noteBand(checklist, 4, "Các cột Trạng thái có dropdown để bạn đánh
 table(checklist, 6, ["Hạng mục", "Cần kiểm tra", "Vai trò", "Trạng thái", "Dấu hiệu thành công", "Cách xử lý nếu chưa đúng"], [
   ["Setup", "Dev server đang chạy.", "Bất kỳ", "Chưa làm", "Mở được http://127.0.0.1:5173/.", "Chạy npm run dev -- --host 127.0.0.1"],
   ["Setup", "Đã bấm Reset dữ liệu demo.", "Bất kỳ", "Chưa làm", "Thông báo reset demo data.", "Bấm lại Reset dữ liệu demo trên thanh trên."],
-  ["FL-01", "Search ra SOP-NET-007.", "Kỹ thuật viên hiện trường", "Chưa làm", "Kết quả tìm kiếm có SOP mất kết nối.", "Dùng đường dẫn nhanh trong tab 01_FL01."],
+  ["FL-01", "Tìm kiếm ra SOP-NET-007.", "Kỹ thuật viên hiện trường", "Chưa làm", "Kết quả tìm kiếm có SOP mất kết nối.", "Dùng đường dẫn nhanh trong tab 01_FL01."],
   ["FL-01", "Chi tiết SOP trước xuất bản là v2.1.", "Kỹ thuật viên hiện trường", "Chưa làm", "Nhãn trạng thái v2.1.", "Reset dữ liệu demo nếu đang là v3.0 từ lần test trước."],
-  ["FL-02", "Submission có đề xuất cập nhật SOP.", "Quản lý tri thức", "Chưa làm", "Màn hình duyệt có SOP mục tiêu SOP-NET-007.", "Dùng dữ liệu mẫu SUB-2026-0043."],
+  ["FL-02", "Bản gửi có đề xuất cập nhật SOP.", "Quản lý tri thức", "Chưa làm", "Màn hình duyệt có SOP mục tiêu SOP-NET-007.", "Dùng dữ liệu mẫu SUB-2026-0043."],
   ["FL-03", "Người biên soạn thấy nhiệm vụ SOP.", "Người biên soạn", "Chưa làm", "SOPTASK-2026-008 hiển thị.", "Chọn vai trò Người biên soạn."],
   ["FL-03", "Trình soạn có đủ 6 bước.", "Người biên soạn", "Chưa làm", "Stepper Thông tin, Phạm vi, An toàn, Các bước, Nguồn, Xem lại.", "Mở SOPD-2026-0012."],
   ["FL-03", "Quản lý phê duyệt được draft.", "Quản lý tri thức", "Chưa làm", "Nút Duyệt và chuẩn bị xuất bản được bật.", "Mở SOPD-2026-0015 bằng vai trò Quản lý tri thức."],
@@ -233,7 +233,7 @@ for (const ws of [intro, fl01, fl02, fl03, e2e, data, checklist]) {
   if (used) {
     setFmt(used, { wrap: true, v: "top" });
   }
-  setFmt(ws.getRange("A1:F1"), { fill: colors.navy, font: { color: colors.white, bold: true, size: 16 }, v: "middle" });
+  setFmt(ws.getRange("A1:F1"), { font: { color: colors.navy, bold: true, size: 16 }, v: "middle" });
   ws.getRange("A1:F1").format.rowHeight = 32;
   setFmt(ws.getRange("A2:F2"), { fill: colors.blue, font: { color: colors.text, size: 10 }, v: "middle" });
   ws.getRange("A2:F2").format.rowHeight = 46;
