@@ -645,6 +645,7 @@ function searchItems(items, role, searchParams, synonymPhrases = []) {
 
 function App() {
   const [screen, setScreen] = useState(screenFromUrl);
+  const [locationSearch, setLocationSearch] = useState(() => window.location.search);
   const [searchParams, setSearchParams] = useState(searchFromUrl);
   const [currentRole, setCurrentRole] = useState(() => window.localStorage.getItem(ROLE_STORAGE) || "FIELD_TECHNICIAN");
   const [recentSearches, setRecentSearches] = useState(() => loadJson(RECENT_STORAGE, []));
@@ -676,7 +677,7 @@ function App() {
   const [applyComment, setApplyComment] = useState("");
   const [validationError, setValidationError] = useState("");
 
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(locationSearch);
   const selectedId = params.get("id");
   const selectedSubmissionId = params.get("id");
   const currentStep = params.get("step") || "context";
@@ -708,6 +709,18 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(ROLE_STORAGE, currentRole);
   }, [currentRole]);
+
+  useEffect(() => {
+    const syncRouteFromBrowser = () => {
+      setLocationSearch(window.location.search);
+      setScreen(screenFromUrl());
+      if (screenFromUrl() === "search-results") {
+        setSearchParams(searchFromUrl());
+      }
+    };
+    window.addEventListener("popstate", syncRouteFromBrowser);
+    return () => window.removeEventListener("popstate", syncRouteFromBrowser);
+  }, []);
 
   useEffect(() => {
     saveJson(RECENT_STORAGE, recentSearches);
@@ -811,7 +824,9 @@ function App() {
     Object.entries(extra).forEach(([key, value]) => {
       if (value) params.set(key, value);
     });
-    window.history.pushState(null, "", `?${params.toString()}`);
+    const nextSearch = `?${params.toString()}`;
+    window.history.pushState(null, "", nextSearch);
+    setLocationSearch(nextSearch);
     setScreen(nextScreen);
   }
 
@@ -826,6 +841,7 @@ function App() {
     setRecentSearches((items) => [label, ...items.filter((item) => item !== label)].slice(0, 5));
     const url = paramsFromSearch(nextParams);
     window.history.pushState(null, "", url);
+    setLocationSearch(url);
     setScreen("search-results");
   }
 
