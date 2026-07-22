@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
+  Archive,
   BookOpen,
   Camera,
   CheckCircle2,
@@ -9,6 +10,7 @@ import {
   ClipboardCheck,
   ClipboardList,
   Eye,
+  FileClock,
   FileQuestion,
   FileText,
   Gauge,
@@ -29,12 +31,27 @@ import {
   SlidersHorizontal,
   ThumbsDown,
   ThumbsUp,
+  UserCog,
   UserRound
 } from "lucide-react";
-import { dashboardStats, knowledgeItems, taxonomy, users } from "./data/fallbackData.js";
+import { dashboardStats, knowledgeItems, taxonomy as baseTaxonomy, users } from "./data/fallbackData.js";
 import { currentWorkOrder, seedFieldSubmissions, seedSopRequests, sopCatalog } from "./data/fl02Data.js";
 import { seedSopDrafts, seedSopTasks, seedSopVersions } from "./data/fl03Data.js";
 import { buildSopTaskFromKnowledgeRequest, emptyKnowledgeRequest, seedArticleDrafts, seedKnowledgeRequests } from "./data/fl04Data.js";
+import {
+  buildSopTaskFromLifecycleRevision,
+  lifecycleStatusLabels,
+  lifecycleStatusTones,
+  makeIssueReport,
+  makeReviewTaskFromIssue,
+  seedIssueReports,
+  seedLifecycleDecisions,
+  seedLifecycleEvents,
+  seedLifecycleItems,
+  seedLifecycleReviewTasks,
+  seedReviewPolicies,
+  seedRevisionTasks
+} from "./data/fl05Data.js";
 import {
   buildDraftFromTask,
   buildSopTaskFromRequest,
@@ -49,6 +66,20 @@ import {
   SopWorkspace
 } from "./flows/FL03Flow.jsx";
 import { FL04Flow } from "./flows/FL04Flow.jsx";
+import { FL05Flow, IssueReportForm } from "./flows/FL05Flow.jsx";
+import {
+  adminNowIso,
+  adminRoleLabels,
+  adminScreenIds,
+  buildAdminSynonymPhrases,
+  buildRuntimeTaxonomy,
+  cloneAdminAuditEvents,
+  cloneAdminConfig,
+  makeAdminId
+} from "./data/fl06Data.js";
+import { FL06Flow } from "./flows/FL06Flow.jsx";
+
+const taxonomy = baseTaxonomy;
 
 const ROLE_STORAGE = "labs-kms-current-role";
 const RECENT_STORAGE = "labs-kms-recent-searches";
@@ -63,6 +94,16 @@ const SOP_DRAFTS_STORAGE = "labs-kms-sop-drafts";
 const SOP_VERSIONS_STORAGE = "labs-kms-sop-versions";
 const KNOWLEDGE_REQUESTS_STORAGE = "labs-kms-knowledge-requests";
 const ARTICLE_DRAFTS_STORAGE = "labs-kms-article-drafts";
+const LIFECYCLE_ITEMS_STORAGE = "labs-kms-lifecycle-items";
+const LIFECYCLE_REVIEW_TASKS_STORAGE = "labs-kms-lifecycle-review-tasks";
+const LIFECYCLE_ISSUE_REPORTS_STORAGE = "labs-kms-lifecycle-issue-reports";
+const LIFECYCLE_REVISION_TASKS_STORAGE = "labs-kms-lifecycle-revision-tasks";
+const LIFECYCLE_DECISIONS_STORAGE = "labs-kms-lifecycle-decisions";
+const LIFECYCLE_EVENTS_STORAGE = "labs-kms-lifecycle-events";
+const LIFECYCLE_POLICIES_STORAGE = "labs-kms-lifecycle-policies";
+const ADMIN_CONFIG_STORAGE = "labs-kms-admin-config";
+const ADMIN_AUDIT_STORAGE = "labs-kms-admin-audit";
+const ADMIN_SIMULATION_STORAGE = "labs-kms-admin-simulation";
 
 const DEFAULT_SEARCH = {
   query: "",
@@ -81,14 +122,22 @@ const navItems = [
   { id: "search", label: "Cơ sở tri thức", icon: Library },
   { id: "request", label: "Gửi yêu cầu", icon: FileQuestion },
   { id: "review", label: "Hàng đợi xét duyệt", icon: ClipboardCheck, screen: "review-queue" },
-  { id: "sops", label: "Quy trình vận hành (SOP)", icon: BookOpen }
+  { id: "sops", label: "Quy trình vận hành (SOP)", icon: BookOpen },
+  { id: "lifecycle", label: "Vòng đời tri thức", icon: ShieldCheck, screen: "lifecycle-dashboard" },
+  { id: "admin", label: "Quản trị hệ thống", icon: UserCog, screen: "admin-dashboard", allowedRoles: ["ADMINISTRATOR"] }
 ];
 
 const statusLabels = {
   PUBLISHED: "Published",
   OUTDATED: "Outdated",
-  SUPERSEDED: "Superseded",
-  ARCHIVED: "Archived"
+  REVIEW_DUE: "Đến hạn rà soát",
+  FLAGGED: "Bị gắn cờ",
+  UNDER_REVIEW: "Đang rà soát",
+  UPDATE_REQUIRED: "Cần cập nhật",
+  UNDER_REVISION: "Đang cập nhật",
+  SUSPENDED: "Tạm ngừng",
+  SUPERSEDED: "Đã được thay thế",
+  ARCHIVED: "Đã lưu trữ"
 };
 
 const contentTypeLabels = {
@@ -204,17 +253,23 @@ function normalize(value) {
     .trim();
 }
 
-function expandQuery(value) {
-  return normalize(value)
+function expandQuery(value, synonymPhrases = []) {
+  let expanded = normalize(value)
     .replace(/\boffline\b/g, "mat ket noi connectivity loss")
     .replace(/\boutage\b/g, "mat ket noi su co")
     .replace(/\bsmartnode\b/g, "smart node")
     .replace(/\bcitytouch\b/g, "citytouch ctn")
-    .replace(/\bnode\b/g, "node nut")
-    .replace(/\s+/g, " ");
+    .replace(/\bnode\b/g, "node nut");
+  synonymPhrases.forEach((phrase) => {
+    if (phrase.from && expanded.includes(phrase.from) && !expanded.includes(phrase.to)) {
+      expanded = `${expanded} ${phrase.to}`;
+    }
+  });
+  return expanded.replace(/\s+/g, " ");
 }
 
 function statusTone(status) {
+  if (lifecycleStatusTones[status]) return lifecycleStatusTones[status];
   if (status === "PUBLISHED") return "good";
   if (status === "OUTDATED") return "warning";
   if (status === "SUPERSEDED") return "neutral";
@@ -246,8 +301,8 @@ function optionLabel(options, value) {
   return options.find((option) => option.value === value)?.label || value || "-";
 }
 
-function taxonomyLabel(group, value) {
-  return taxonomy[group]?.find((option) => option.value === value)?.label || value || "-";
+function taxonomyLabel(group, value, taxonomySource = baseTaxonomy) {
+  return taxonomySource[group]?.find((option) => option.value === value)?.label || value || "-";
 }
 
 function makeId(prefix) {
@@ -336,6 +391,21 @@ function mergeKnowledgeItems(baseItems, publishedOutputs) {
   const byId = new Map(baseItems.map((item) => [item.id, item]));
   publishedOutputs.forEach((item) => byId.set(item.id, item));
   return [...byId.values()];
+}
+
+function applyLifecycleOverlay(items, lifecycleItems) {
+  const overlay = new Map(lifecycleItems.map((item) => [item.knowledgeId, item]));
+  return items.map((item) => {
+    const lifecycle = overlay.get(item.id);
+    if (!lifecycle) return item;
+    return {
+      ...item,
+      status: lifecycle.status || item.status,
+      version: lifecycle.currentVersion || item.version,
+      reviewDate: lifecycle.nextReviewDate || item.reviewDate,
+      lifecycle
+    };
+  });
 }
 
 function makePublishedKnowledge(submission, publishForm, manager) {
@@ -505,14 +575,17 @@ function canViewItem(item, role) {
 
 function visibleForSearch(item, role, searchParams) {
   if (!canViewItem(item, role)) return false;
-  if (item.status === "ARCHIVED") return false;
-  if (role === "FIELD_TECHNICIAN" && searchParams.status === "PUBLISHED" && item.status !== "PUBLISHED") return false;
+  if (["ARCHIVED", "SUSPENDED", "SUPERSEDED"].includes(item.status) && !["KNOWLEDGE_MANAGER", "ADMINISTRATOR"].includes(role)) return false;
+  if (searchParams.status === "PUBLISHED") {
+    const defaultVisible = ["PUBLISHED", "REVIEW_DUE", "FLAGGED", "UNDER_REVIEW"];
+    if (!defaultVisible.includes(item.status)) return false;
+  }
   if (searchParams.status !== "ALL" && item.status !== searchParams.status) return false;
   return true;
 }
 
-function scoreItem(item, searchParams) {
-  const query = expandQuery(searchParams.query);
+function scoreItem(item, searchParams, synonymPhrases = []) {
+  const query = expandQuery(searchParams.query, synonymPhrases);
   const assetId = normalize(searchParams.assetId);
   let score = Math.round((item.relevanceScore || 0) * 10);
 
@@ -534,7 +607,7 @@ function scoreItem(item, searchParams) {
     item.rootCause,
     item.lessonLearned,
     item.purpose
-  ].join(" "));
+  ].join(" "), synonymPhrases);
 
   if (query) {
     const tokens = [...new Set(query.split(/\s+/).filter((token) => token.length > 2))];
@@ -547,14 +620,14 @@ function scoreItem(item, searchParams) {
   return score;
 }
 
-function searchItems(items, role, searchParams) {
+function searchItems(items, role, searchParams, synonymPhrases = []) {
   const results = items
     .filter((item) => visibleForSearch(item, role, searchParams))
     .filter((item) => searchParams.contentType === "ALL" || item.contentType === searchParams.contentType)
     .filter((item) => searchParams.assetType === "ALL" || item.assetTypes.includes(searchParams.assetType))
     .filter((item) => searchParams.faultType === "ALL" || item.faultType === searchParams.faultType)
     .filter((item) => searchParams.categoryId === "ALL" || item.categoryId === searchParams.categoryId)
-    .map((item) => ({ ...item, computedScore: scoreItem(item, searchParams) }))
+    .map((item) => ({ ...item, computedScore: scoreItem(item, searchParams, synonymPhrases) }))
     .filter((item) => {
       if (!searchParams.query.trim() && !searchParams.assetId.trim()) return true;
       return item.computedScore > 0;
@@ -586,8 +659,19 @@ function App() {
   const [sopVersions, setSopVersions] = useState(() => loadJson(SOP_VERSIONS_STORAGE, seedSopVersions));
   const [knowledgeRequests, setKnowledgeRequests] = useState(() => loadJson(KNOWLEDGE_REQUESTS_STORAGE, seedKnowledgeRequests));
   const [articleDrafts, setArticleDrafts] = useState(() => loadJson(ARTICLE_DRAFTS_STORAGE, seedArticleDrafts));
+  const [lifecycleItems, setLifecycleItems] = useState(() => loadJson(LIFECYCLE_ITEMS_STORAGE, seedLifecycleItems));
+  const [lifecycleReviewTasks, setLifecycleReviewTasks] = useState(() => loadJson(LIFECYCLE_REVIEW_TASKS_STORAGE, seedLifecycleReviewTasks));
+  const [lifecycleIssueReports, setLifecycleIssueReports] = useState(() => loadJson(LIFECYCLE_ISSUE_REPORTS_STORAGE, seedIssueReports));
+  const [lifecycleRevisionTasks, setLifecycleRevisionTasks] = useState(() => loadJson(LIFECYCLE_REVISION_TASKS_STORAGE, seedRevisionTasks));
+  const [lifecycleDecisions, setLifecycleDecisions] = useState(() => loadJson(LIFECYCLE_DECISIONS_STORAGE, seedLifecycleDecisions));
+  const [lifecycleEvents, setLifecycleEvents] = useState(() => loadJson(LIFECYCLE_EVENTS_STORAGE, seedLifecycleEvents));
+  const [reviewPolicies, setReviewPolicies] = useState(() => loadJson(LIFECYCLE_POLICIES_STORAGE, seedReviewPolicies));
+  const [adminConfig, setAdminConfig] = useState(() => loadJson(ADMIN_CONFIG_STORAGE, cloneAdminConfig()));
+  const [adminAuditEvents, setAdminAuditEvents] = useState(() => loadJson(ADMIN_AUDIT_STORAGE, cloneAdminAuditEvents()));
+  const [adminSimulation, setAdminSimulation] = useState(() => loadJson(ADMIN_SIMULATION_STORAGE, null));
   const [toast, setToast] = useState("");
   const [applyItem, setApplyItem] = useState(null);
+  const [issueReportItem, setIssueReportItem] = useState(null);
   const [applyOutcome, setApplyOutcome] = useState("RESOLVED_FULLY");
   const [applyComment, setApplyComment] = useState("");
   const [validationError, setValidationError] = useState("");
@@ -598,12 +682,14 @@ function App() {
   const currentStep = params.get("step") || "context";
   const requestTab = params.get("tab") || "hub";
   const sopTab = params.get("tab") || "library";
-  const knowledgeCatalog = useMemo(() => mergeKnowledgeItems(knowledgeItems, publishedOutputs), [publishedOutputs]);
+  const runtimeTaxonomy = useMemo(() => buildRuntimeTaxonomy(baseTaxonomy, adminConfig), [adminConfig]);
+  const adminSynonymPhrases = useMemo(() => buildAdminSynonymPhrases(adminConfig), [adminConfig]);
+  const knowledgeCatalog = useMemo(() => applyLifecycleOverlay(mergeKnowledgeItems(knowledgeItems, publishedOutputs), lifecycleItems), [publishedOutputs, lifecycleItems]);
   const selectedItem = selectedId ? knowledgeCatalog.find((item) => item.id === selectedId) : null;
   const selectedSubmission = selectedSubmissionId ? fieldSubmissions.find((item) => item.id === selectedSubmissionId) : null;
   const selectedSopTask = selectedId ? sopTasks.find((item) => item.id === selectedId) : null;
   const selectedSopDraft = selectedId ? sopDrafts.find((item) => item.id === selectedId) : null;
-  const results = useMemo(() => searchItems(knowledgeCatalog, currentRole, searchParams), [knowledgeCatalog, currentRole, searchParams]);
+  const results = useMemo(() => searchItems(knowledgeCatalog, currentRole, searchParams, adminSynonymPhrases), [knowledgeCatalog, currentRole, searchParams, adminSynonymPhrases]);
   const activeNav = screen.includes("search") || screen === "knowledge-detail" || screen === "access-denied"
     ? "search"
     : ["request", "field-submission", "submission-success", "my-submissions", "submission-detail", "knowledge-request-success", "my-knowledge-requests", "knowledge-request-detail", "knowledge-request-queue", "knowledge-request-triage", "contributor-request-queue", "request-workspace", "knowledge-article-editor", "knowledge-article-preview", "knowledge-request-review-detail", "resolved-request"].includes(screen)
@@ -612,7 +698,11 @@ function App() {
         ? "review"
         : ["sops", "sop-detail", "sop-task-detail", "sop-editor", "sop-submit-success", "my-sop-drafts", "sop-review-queue", "sop-review-detail", "sop-version-compare", "sop-version-history"].includes(screen)
           ? "sops"
-          : "dashboard";
+          : screen.startsWith("lifecycle") || screen === "my-revision-tasks"
+            ? "lifecycle"
+            : screen.startsWith("admin")
+              ? "admin"
+              : "dashboard";
   const currentUser = users.find((user) => user.role === currentRole) || users[0];
 
   useEffect(() => {
@@ -669,6 +759,47 @@ function App() {
   }, [articleDrafts]);
 
   useEffect(() => {
+    saveJson(LIFECYCLE_ITEMS_STORAGE, lifecycleItems);
+  }, [lifecycleItems]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_REVIEW_TASKS_STORAGE, lifecycleReviewTasks);
+  }, [lifecycleReviewTasks]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_ISSUE_REPORTS_STORAGE, lifecycleIssueReports);
+  }, [lifecycleIssueReports]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_REVISION_TASKS_STORAGE, lifecycleRevisionTasks);
+  }, [lifecycleRevisionTasks]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_DECISIONS_STORAGE, lifecycleDecisions);
+  }, [lifecycleDecisions]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_EVENTS_STORAGE, lifecycleEvents);
+  }, [lifecycleEvents]);
+
+  useEffect(() => {
+    saveJson(ADMIN_CONFIG_STORAGE, adminConfig);
+  }, [adminConfig]);
+
+  useEffect(() => {
+    saveJson(ADMIN_AUDIT_STORAGE, adminAuditEvents);
+  }, [adminAuditEvents]);
+
+  useEffect(() => {
+    if (adminSimulation) saveJson(ADMIN_SIMULATION_STORAGE, adminSimulation);
+    else window.localStorage.removeItem(ADMIN_SIMULATION_STORAGE);
+  }, [adminSimulation]);
+
+  useEffect(() => {
+    saveJson(LIFECYCLE_POLICIES_STORAGE, reviewPolicies);
+  }, [reviewPolicies]);
+
+  useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(""), 2400);
     return () => window.clearTimeout(timer);
@@ -696,6 +827,10 @@ function App() {
     const url = paramsFromSearch(nextParams);
     window.history.pushState(null, "", url);
     setScreen("search-results");
+  }
+
+  function verifySearchFromAdmin(query) {
+    runSearch({ ...DEFAULT_SEARCH, query });
   }
 
   function openItem(item) {
@@ -792,6 +927,40 @@ function App() {
     return task;
   }
 
+  function startLifecycleSopRevision(revisionTask, reviewTask, knowledgeItem) {
+    const existingTask = sopTasks.find((task) => task.sourceRevisionTaskId === revisionTask.revisionTaskId || task.sourceLifecycleReviewId === revisionTask.sourceReviewTaskId);
+    if (existingTask) {
+      setToast("Nhiệm vụ SOP từ FL-05 đã tồn tại.");
+      navigate("sop-task-detail", { id: existingTask.id });
+      return existingTask;
+    }
+    const task = buildSopTaskFromLifecycleRevision(revisionTask, reviewTask, knowledgeItem, currentUser);
+    setSopTasks((items) => [task, ...items]);
+    setToast("Đã tạo nhiệm vụ SOP từ FL-05 và chuyển sang FL-03.");
+    navigate("sop-task-detail", { id: task.id });
+    return task;
+  }
+
+  function publishLifecycleArticleRevision(revisionTask, baseItem) {
+    const published = {
+      ...baseItem,
+      id: makeId("LC-KN"),
+      title: revisionTask.draft?.title || baseItem.title,
+      summary: revisionTask.draft?.summary || baseItem.summary,
+      status: "PUBLISHED",
+      version: revisionTask.targetVersion || "v1.1",
+      updatedDate: new Date().toLocaleDateString("vi-VN"),
+      effectiveDate: new Date().toLocaleDateString("vi-VN"),
+      reviewDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString("vi-VN"),
+      replacementId: "",
+      currentVersionId: "",
+      sourceLifecycleRevisionId: revisionTask.revisionTaskId,
+      relatedItems: [...new Set([...(baseItem.relatedItems || []), baseItem.id])]
+    };
+    setPublishedOutputs((items) => [published, ...items]);
+    return published;
+  }
+
   function publishSopDraft(draft, publishForm) {
     const baseSop = knowledgeCatalog.find((item) => item.id === draft.sopId);
     const published = createPublishedSopFromDraft(draft, publishForm, currentUser, baseSop);
@@ -885,8 +1054,52 @@ function App() {
     setToast(type === "OUTDATED" ? "Đã mô phỏng báo cáo nội dung lỗi thời." : "Đã mô phỏng báo cáo nội dung chưa chính xác.");
   }
 
+  function submitIssueReport(item, payload) {
+    const issue = makeIssueReport(item, currentUser, payload);
+    const existingTask = lifecycleReviewTasks.find((task) => task.knowledgeId === item.id && task.version === item.version && ["OPEN", "IN_PROGRESS"].includes(task.status));
+    let linkedTask = existingTask;
+    setLifecycleIssueReports((items) => [issue, ...items]);
+    if (existingTask) {
+      linkedTask = {
+        ...existingTask,
+        priority: issue.severity === "CRITICAL" ? "CRITICAL" : existingTask.priority,
+        risk: issue.severity === "CRITICAL" ? "CRITICAL" : existingTask.risk,
+        triggerEvidenceIds: [...new Set([...(existingTask.triggerEvidenceIds || []), issue.issueReportId])]
+      };
+      setLifecycleReviewTasks((items) => items.map((task) => task.reviewTaskId === existingTask.reviewTaskId ? linkedTask : task));
+    } else {
+      linkedTask = makeReviewTaskFromIssue(item, issue);
+      setLifecycleReviewTasks((items) => [linkedTask, ...items]);
+    }
+    setLifecycleItems((items) => {
+      const existing = items.find((entry) => entry.knowledgeId === item.id);
+      const next = {
+        ...(existing || {
+          knowledgeId: item.id,
+          currentVersion: item.version,
+          knowledgeManagerId: "KM-001",
+          authorId: "KC-001",
+          nextReviewDate: item.reviewDate,
+          reviewPolicyId: item.contentType === "SOP" ? "RP-SOP-HIGH" : "RP-CASE-MEDIUM",
+          usageStats: { views: item.viewCount, reuseCount: item.reuseCount, helpfulRate: item.helpfulRate },
+          relations: []
+        }),
+        status: issue.severity === "CRITICAL" ? "FLAGGED" : "UNDER_REVIEW"
+      };
+      return [next, ...items.filter((entry) => entry.knowledgeId !== item.id)];
+    });
+    setLifecycleEvents((events) => [
+      { eventId: makeId("LC-EVT"), entityType: "ISSUE_REPORT", entityId: issue.issueReportId, action: "ISSUE_SUBMITTED", actorId: currentUser.id, timestamp: nowIso(), metadata: { knowledgeId: item.id, issueType: issue.issueType } },
+      { eventId: makeId("LC-EVT"), entityType: "REVIEW_TASK", entityId: linkedTask.reviewTaskId, action: existingTask ? "ISSUE_LINKED_TO_TASK" : "TASK_CREATED", actorId: "SYSTEM", timestamp: nowIso(), metadata: { knowledgeId: item.id, issueReportId: issue.issueReportId } },
+      ...events
+    ]);
+    setIssueReportItem(null);
+    setToast("Đã tạo Issue Report và Review Task FL-05.");
+    navigate("lifecycle-review-detail", { id: linkedTask.reviewTaskId });
+  }
+
   function resetDemo() {
-    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE, SOP_TASKS_STORAGE, SOP_DRAFTS_STORAGE, SOP_VERSIONS_STORAGE, KNOWLEDGE_REQUESTS_STORAGE, ARTICLE_DRAFTS_STORAGE].forEach((key) => window.localStorage.removeItem(key));
+    [ROLE_STORAGE, RECENT_STORAGE, FEEDBACK_STORAGE, APPLICATION_STORAGE, REQUEST_STORAGE, FIELD_SUBMISSIONS_STORAGE, PUBLISHED_OUTPUT_STORAGE, SOP_REQUESTS_STORAGE, SOP_TASKS_STORAGE, SOP_DRAFTS_STORAGE, SOP_VERSIONS_STORAGE, KNOWLEDGE_REQUESTS_STORAGE, ARTICLE_DRAFTS_STORAGE, LIFECYCLE_ITEMS_STORAGE, LIFECYCLE_REVIEW_TASKS_STORAGE, LIFECYCLE_ISSUE_REPORTS_STORAGE, LIFECYCLE_REVISION_TASKS_STORAGE, LIFECYCLE_DECISIONS_STORAGE, LIFECYCLE_EVENTS_STORAGE, LIFECYCLE_POLICIES_STORAGE].forEach((key) => window.localStorage.removeItem(key));
     setCurrentRole("FIELD_TECHNICIAN");
     setRecentSearches([]);
     setFeedbackEvents({});
@@ -900,21 +1113,69 @@ function App() {
     setSopVersions(seedSopVersions);
     setKnowledgeRequests(seedKnowledgeRequests);
     setArticleDrafts(seedArticleDrafts);
+    setLifecycleItems(seedLifecycleItems);
+    setLifecycleReviewTasks(seedLifecycleReviewTasks);
+    setLifecycleIssueReports(seedIssueReports);
+    setLifecycleRevisionTasks(seedRevisionTasks);
+    setLifecycleDecisions(seedLifecycleDecisions);
+    setLifecycleEvents(seedLifecycleEvents);
+    setReviewPolicies(seedReviewPolicies);
+    setIssueReportItem(null);
     setSearchParams(DEFAULT_SEARCH);
     navigate("dashboard");
     setToast("Đã reset demo data.");
   }
 
+  function exitSimulation() {
+    const targetRole = adminSimulation?.baseRole || "ADMINISTRATOR";
+    setCurrentRole(targetRole);
+    setAdminSimulation(null);
+    setToast("Đã thoát mô phỏng role.");
+    navigate("admin-dashboard");
+  }
+
+  function resetAdminSeed() {
+    const resetAt = adminNowIso();
+    const nextConfig = cloneAdminConfig();
+    nextConfig.seedState.lastResetAt = resetAt;
+    const event = {
+      eventId: makeAdminId("ADM-EVT"),
+      actorId: currentUser.id,
+      actorRole: "ADMINISTRATOR",
+      action: "RESET_SEED",
+      objectType: "DemoSeedState",
+      objectId: nextConfig.seedState.seedVersion,
+      result: "SUCCESS",
+      reason: "Reset FL-06 seed data từ Admin Console.",
+      before: adminConfig.seedState.checksum,
+      after: nextConfig.seedState.checksum,
+      createdAt: resetAt
+    };
+    window.localStorage.removeItem(ADMIN_CONFIG_STORAGE);
+    window.localStorage.removeItem(ADMIN_AUDIT_STORAGE);
+    window.localStorage.removeItem(ADMIN_SIMULATION_STORAGE);
+    setAdminConfig(nextConfig);
+    setAdminAuditEvents([event, ...cloneAdminAuditEvents()]);
+    setAdminSimulation(null);
+    setCurrentRole("ADMINISTRATOR");
+    setToast("Đã reset FL-06 seed và đưa role về Quản trị viên.");
+    navigate("admin-operation-result", { id: event.eventId });
+  }
+
   const fl04Screens = ["request", "knowledge-request-success", "my-knowledge-requests", "knowledge-request-detail", "knowledge-request-queue", "knowledge-request-triage", "contributor-request-queue", "request-workspace", "knowledge-article-editor", "knowledge-article-preview", "knowledge-request-review-detail", "resolved-request"];
+  const fl05Screens = ["lifecycle-entry", "lifecycle-dashboard", "lifecycle-review-queue", "lifecycle-review-detail", "lifecycle-checklist", "lifecycle-reconfirm", "lifecycle-create-revision", "my-revision-tasks", "lifecycle-revision-workspace", "lifecycle-version-compare", "lifecycle-rereview", "lifecycle-suspend", "lifecycle-supersede", "lifecycle-archive", "lifecycle-success", "lifecycle-history", "lifecycle-policy-settings"];
+  const fl06Screens = adminScreenIds;
   let content;
   if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} />;
-  else if (screen === "search") content = <AdvancedSearch searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} recentSearches={recentSearches} />;
-  else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} />;
-  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
-  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "search") content = <AdvancedSearch searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} recentSearches={recentSearches} taxonomySource={runtimeTaxonomy} />;
+  else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} />;
+  else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
+  else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "access-denied") content = <AccessDenied navigate={navigate} currentRole={currentRole} />;
-  else if (fl04Screens.includes(screen)) content = <FL04Flow screen={screen} tab={requestTab} id={selectedId} currentUser={currentUser} currentRole={currentRole} users={users} taxonomy={taxonomy} navigate={navigate} requestDraft={requestDraft} setRequestDraft={setRequestDraft} knowledgeRequests={knowledgeRequests} setKnowledgeRequests={setKnowledgeRequests} articleDrafts={articleDrafts} setArticleDrafts={setArticleDrafts} knowledgeCatalog={knowledgeCatalog} setPublishedOutputs={setPublishedOutputs} setToast={setToast} createFieldSubmission={createFieldSubmission} transferKnowledgeRequestToSop={transferKnowledgeRequestToSop} openItem={openItem} />;
-  else if (screen === "field-submission") content = selectedSubmission ? <FieldSubmissionWizard submission={selectedSubmission} step={currentStep} updateSubmission={updateSubmission} navigate={navigate} setToast={setToast} currentRole={currentRole} setSearchParams={setSearchParams} runSearch={runSearch} /> : <Placeholder title="Không tìm thấy submission" description="Bản nháp hoặc submission này không còn trong mock data." />;
+  else if (fl04Screens.includes(screen)) content = <FL04Flow screen={screen} tab={requestTab} id={selectedId} currentUser={currentUser} currentRole={currentRole} users={users} taxonomy={runtimeTaxonomy} navigate={navigate} requestDraft={requestDraft} setRequestDraft={setRequestDraft} knowledgeRequests={knowledgeRequests} setKnowledgeRequests={setKnowledgeRequests} articleDrafts={articleDrafts} setArticleDrafts={setArticleDrafts} knowledgeCatalog={knowledgeCatalog} setPublishedOutputs={setPublishedOutputs} setToast={setToast} createFieldSubmission={createFieldSubmission} transferKnowledgeRequestToSop={transferKnowledgeRequestToSop} openItem={openItem} />;
+  else if (fl05Screens.includes(screen)) content = <FL05Flow screen={screen} id={params.get("taskId") || selectedId || params.get("eventId")} currentUser={currentUser} currentRole={currentRole} users={users} taxonomy={runtimeTaxonomy} navigate={navigate} knowledgeCatalog={knowledgeCatalog} lifecycleItems={lifecycleItems} setLifecycleItems={setLifecycleItems} reviewTasks={lifecycleReviewTasks} setReviewTasks={setLifecycleReviewTasks} issueReports={lifecycleIssueReports} setIssueReports={setLifecycleIssueReports} revisionTasks={lifecycleRevisionTasks} setRevisionTasks={setLifecycleRevisionTasks} lifecycleDecisions={lifecycleDecisions} setLifecycleDecisions={setLifecycleDecisions} lifecycleEvents={lifecycleEvents} setLifecycleEvents={setLifecycleEvents} reviewPolicies={reviewPolicies} setReviewPolicies={setReviewPolicies} createFieldSubmission={createFieldSubmission} startLifecycleSopRevision={startLifecycleSopRevision} publishLifecycleArticleRevision={publishLifecycleArticleRevision} openItem={openItem} setToast={setToast} />;
+  else if (fl06Screens.includes(screen)) content = <FL06Flow screen={screen} id={selectedId} currentRole={currentRole} currentUser={currentUser} config={adminConfig} setConfig={setAdminConfig} auditEvents={adminAuditEvents} setAuditEvents={setAdminAuditEvents} navigate={navigate} verifySearch={verifySearchFromAdmin} setToast={setToast} setCurrentRole={setCurrentRole} adminSimulation={adminSimulation} setAdminSimulation={setAdminSimulation} resetAdminSeed={resetAdminSeed} />;
+  else if (screen === "field-submission") content = selectedSubmission ? <FieldSubmissionWizard submission={selectedSubmission} step={currentStep} updateSubmission={updateSubmission} navigate={navigate} setToast={setToast} currentRole={currentRole} setSearchParams={setSearchParams} runSearch={runSearch} taxonomySource={runtimeTaxonomy} /> : <Placeholder title="Không tìm thấy submission" description="Bản nháp hoặc submission này không còn trong mock data." />;
   else if (screen === "submission-success") content = selectedSubmission ? <SubmissionSuccess submission={selectedSubmission} navigate={navigate} /> : <Placeholder title="Không tìm thấy submission" description="Không có submission tương ứng." />;
   else if (screen === "my-submissions") content = <MySubmissions submissions={fieldSubmissions} navigate={navigate} currentUser={currentUser} knowledgeCatalog={knowledgeCatalog} openItem={openItem} />;
   else if (screen === "submission-detail") content = selectedSubmission ? <SubmissionDetail submission={selectedSubmission} navigate={navigate} currentUser={currentUser} knowledgeCatalog={knowledgeCatalog} openItem={openItem} /> : <Placeholder title="Không tìm thấy submission" description="Không có submission tương ứng." />;
@@ -922,7 +1183,7 @@ function App() {
   else if (screen === "review-detail") content = selectedSubmission ? <ReviewDetail submission={selectedSubmission} updateSubmission={updateSubmission} currentUser={currentUser} currentRole={currentRole} navigate={navigate} setToast={setToast} setPublishedOutputs={setPublishedOutputs} setSopRequests={setSopRequests} openItem={openItem} knowledgeCatalog={knowledgeCatalog} /> : <Placeholder title="Không tìm thấy submission" description="Không có item trong hàng đợi." />;
   else if (screen === "sops") content = <SopWorkspace tab={sopTab} navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
   else if (screen === "sop-task-detail") content = <SopTaskDetail task={selectedSopTask} drafts={sopDrafts} navigate={navigate} knowledgeCatalog={knowledgeCatalog} startAuthoringFromTask={startAuthoringFromTask} />;
-  else if (screen === "sop-editor") content = <SopEditor draft={selectedSopDraft} step={params.get("step") || "metadata"} updateDraft={updateSopDraft} navigate={navigate} setToast={setToast} taxonomy={taxonomy} />;
+  else if (screen === "sop-editor") content = <SopEditor draft={selectedSopDraft} step={params.get("step") || "metadata"} updateDraft={updateSopDraft} navigate={navigate} setToast={setToast} taxonomy={runtimeTaxonomy} />;
   else if (screen === "sop-submit-success") content = <SopSubmitSuccess draft={selectedSopDraft} navigate={navigate} />;
   else if (screen === "my-sop-drafts") content = <SopWorkspace tab="drafts" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
   else if (screen === "sop-review-queue") content = <SopWorkspace tab="review" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
@@ -933,9 +1194,9 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Sidebar activeNav={activeNav} navigate={navigate} />
+      <Sidebar activeNav={activeNav} navigate={navigate} currentRole={currentRole} />
       <main className="workspace">
-        <TopBar currentRole={currentRole} setCurrentRole={setCurrentRole} currentUser={currentUser} resetDemo={resetDemo} />
+        <TopBar currentRole={currentRole} setCurrentRole={setCurrentRole} currentUser={currentUser} resetDemo={resetDemo} roleOptions={adminConfig.roles} adminSimulation={adminSimulation} exitSimulation={exitSimulation} />
         {content}
       </main>
       {applyItem && (
@@ -949,12 +1210,20 @@ function App() {
           confirm={submitApply}
         />
       )}
+      {issueReportItem && (
+        <IssueReportForm
+          item={issueReportItem}
+          currentUser={currentUser}
+          submitIssueReport={submitIssueReport}
+          close={() => setIssueReportItem(null)}
+        />
+      )}
       <div className={toast ? "toast show" : "toast"} aria-live="polite">{toast}</div>
     </div>
   );
 }
 
-function Sidebar({ activeNav, navigate }) {
+function Sidebar({ activeNav, navigate, currentRole }) {
   return (
     <aside className="sidebar">
       <div className="brand-block">
@@ -965,7 +1234,7 @@ function Sidebar({ activeNav, navigate }) {
         </div>
       </div>
       <nav className="side-nav" aria-label="Điều hướng chính">
-        {navItems.map((item) => {
+        {navItems.filter((item) => !item.allowedRoles || item.allowedRoles.includes(currentRole)).map((item) => {
           const Icon = item.icon;
           return (
             <button key={item.id} className={activeNav === item.id ? "nav-item active" : "nav-item"} onClick={() => navigate(item.screen || (item.id === "search" ? "search" : item.id))} type="button">
@@ -982,20 +1251,21 @@ function Sidebar({ activeNav, navigate }) {
   );
 }
 
-function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo }) {
+function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo, roleOptions, adminSimulation, exitSimulation }) {
   return (
     <header className="topbar">
       <div className="topbar-title">
-        <strong>FL-01 + FL-02 + FL-03 + FL-04</strong>
-        <span>Tìm kiếm, gửi, bổ sung và chuẩn hóa tri thức</span>
+        <strong>FL-01 đến FL-06</strong>
+        <span>{adminSimulation ? `Đang mô phỏng ${adminRoleLabels[currentRole] || currentRole}` : "Tìm kiếm, gửi, chuẩn hóa, vòng đời và quản trị tri thức"}</span>
       </div>
       <div className="topbar-actions">
         <label className="role-switcher">
           <UserRound size={16} />
           <select value={currentRole} onChange={(event) => setCurrentRole(event.target.value)}>
-            {users.map((user) => <option key={user.id} value={user.role}>{user.label}</option>)}
+            {(roleOptions || users.map((user) => ({ roleId: user.role, name: user.label }))).map((role) => <option key={role.roleId} value={role.roleId}>{role.name}</option>)}
           </select>
         </label>
+        {adminSimulation && <button className="secondary-btn" onClick={exitSimulation} type="button"><ShieldCheck size={16} />Thoát mô phỏng</button>}
         <button className="ghost-btn" onClick={resetDemo} type="button"><RotateCcw size={16} />Reset Demo</button>
         <div className="profile-chip">{currentUser.name}</div>
       </div>
@@ -1093,11 +1363,11 @@ function CardList({ title, items, openItem }) {
   );
 }
 
-function AdvancedSearch({ searchParams, setSearchParams, runSearch, validationError, recentSearches }) {
+function AdvancedSearch({ searchParams, setSearchParams, runSearch, validationError, recentSearches, taxonomySource }) {
   return (
     <section className="page">
       <PageHeader title="Tìm kiếm nâng cao" description="Thu thập query và filter có cấu trúc trước khi render kết quả." />
-      <SearchForm searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} />
+      <SearchForm searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} taxonomySource={taxonomySource} />
       {recentSearches.length > 0 && (
         <article className="panel">
           <h3>Tìm kiếm gần đây</h3>
@@ -1110,7 +1380,7 @@ function AdvancedSearch({ searchParams, setSearchParams, runSearch, validationEr
   );
 }
 
-function SearchForm({ searchParams, setSearchParams, runSearch, validationError, compact = false }) {
+function SearchForm({ searchParams, setSearchParams, runSearch, validationError, compact = false, taxonomySource = baseTaxonomy }) {
   return (
     <form className={compact ? "search-form compact" : "search-form"} onSubmit={(event) => { event.preventDefault(); runSearch(searchParams); }}>
       <div className="form-main">
@@ -1124,12 +1394,22 @@ function SearchForm({ searchParams, setSearchParams, runSearch, validationError,
         </label>
       </div>
       <div className="filter-grid">
-        <SelectField label="Loại nội dung" value={searchParams.contentType} field="contentType" options={taxonomy.contentTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Loại thiết bị" value={searchParams.assetType} field="assetType" options={taxonomy.assetTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Loại lỗi" value={searchParams.faultType} field="faultType" options={taxonomy.faultTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Danh mục" value={searchParams.categoryId} field="categoryId" options={taxonomy.categories} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Trạng thái" value={searchParams.status} field="status" options={[{ value: "PUBLISHED", label: "Published" }, { value: "OUTDATED", label: "Outdated" }, { value: "SUPERSEDED", label: "Superseded" }, { value: "ALL", label: "Tất cả trạng thái" }]} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Sắp xếp" value={searchParams.sortBy} field="sortBy" options={taxonomy.sortOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Loại nội dung" value={searchParams.contentType} field="contentType" options={taxonomySource.contentTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Loại thiết bị" value={searchParams.assetType} field="assetType" options={taxonomySource.assetTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Loại lỗi" value={searchParams.faultType} field="faultType" options={taxonomySource.faultTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Danh mục" value={searchParams.categoryId} field="categoryId" options={taxonomySource.categories} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Trạng thái" value={searchParams.status} field="status" options={[
+          { value: "PUBLISHED", label: "Đang hiệu lực" },
+          { value: "REVIEW_DUE", label: "Đến hạn rà soát" },
+          { value: "FLAGGED", label: "Bị gắn cờ" },
+          { value: "UNDER_REVIEW", label: "Đang rà soát" },
+          { value: "SUSPENDED", label: "Tạm ngừng" },
+          { value: "SUPERSEDED", label: "Đã thay thế" },
+          { value: "ARCHIVED", label: "Đã lưu trữ" },
+          { value: "OUTDATED", label: "Outdated" },
+          { value: "ALL", label: "Tất cả trạng thái" }
+        ]} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Sắp xếp" value={searchParams.sortBy} field="sortBy" options={taxonomySource.sortOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
       </div>
       {validationError && <div className="validation-error">{validationError}</div>}
       <div className="form-actions">
@@ -1151,7 +1431,7 @@ function SelectField({ label, value, field, options, searchParams, setSearchPara
   );
 }
 
-function SearchResults({ searchParams, setSearchParams, runSearch, results, openItem, createKnowledgeRequest, currentRole }) {
+function SearchResults({ searchParams, setSearchParams, runSearch, results, openItem, createKnowledgeRequest, currentRole, taxonomySource }) {
   return (
     <section className="page">
       <PageHeader
@@ -1159,7 +1439,7 @@ function SearchResults({ searchParams, setSearchParams, runSearch, results, open
         title="Kết quả tìm kiếm"
         description={`${results.length} kết quả cho ${searchParams.query || searchParams.assetId || "bộ lọc hiện tại"}. Visibility được lọc trước khi render.`}
       />
-      <SearchForm compact searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} />
+      <SearchForm compact searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} taxonomySource={taxonomySource} />
       {results.length === 0 ? (
         <NoResult searchParams={searchParams} createKnowledgeRequest={createKnowledgeRequest} />
       ) : (
@@ -1220,7 +1500,7 @@ function NoResult({ searchParams, createKnowledgeRequest }) {
   );
 }
 
-function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests, ensureSopTaskFromRequest, createKnowledgeRequest }) {
+function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, knowledgeCatalog, fieldSubmissions, sopRequests, ensureSopTaskFromRequest, createKnowledgeRequest, setIssueReportItem }) {
   return (
     <section className="page detail-page">
       <BackRow navigate={navigate} />
@@ -1237,7 +1517,7 @@ function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedb
           <Section title="Lesson Learned"><div className="lesson-box">{item.lessonLearned}</div></Section>
           <Section title="Evidence"><div className="evidence-grid">{[...(item.evidence || []), ...(item.telemetry || [])].map((entry) => <span key={entry}>{entry}</span>)}</div></Section>
         </article>
-        <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} navigate={navigate} createKnowledgeRequest={createKnowledgeRequest} />
+        <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} navigate={navigate} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} />
       </div>
       {item.sourceSubmissionId && <PublishedTraceability item={item} navigate={navigate} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} />}
     </section>
@@ -1291,6 +1571,21 @@ function DetailHeader({ item }) {
 }
 
 function StateBanner({ item, openItem }) {
+  if (item.status === "REVIEW_DUE") {
+    return <div className="warning-banner"><FileClock size={20} /><span>Nội dung đã đến hạn rà soát vòng đời. Có thể tiếp tục xem nhưng cần Knowledge Manager xác nhận lại.</span></div>;
+  }
+  if (item.status === "FLAGGED") {
+    return <div className="warning-banner"><ShieldAlert size={20} /><span>Nội dung đang bị gắn cờ do issue report hoặc feedback. Cần rà soát trước khi sử dụng cho tình huống rủi ro.</span></div>;
+  }
+  if (item.status === "UNDER_REVIEW" || item.status === "UPDATE_REQUIRED" || item.status === "UNDER_REVISION") {
+    return <div className="warning-banner neutral"><History size={20} /><span>{lifecycleStatusLabels[item.status]}. Nội dung đang trong quy trình FL-05.</span></div>;
+  }
+  if (item.status === "SUSPENDED") {
+    return <div className="warning-banner"><ShieldAlert size={20} /><span>Nội dung đã bị tạm ngừng. Không dùng cho tác nghiệp thông thường cho đến khi có bản cập nhật.</span>{item.lifecycle?.replacementKnowledgeId && <button onClick={() => openItem(knowledgeItems.find((x) => x.id === item.lifecycle.replacementKnowledgeId))}>Xem nội dung thay thế</button>}</div>;
+  }
+  if (item.status === "ARCHIVED") {
+    return <div className="warning-banner neutral"><Archive size={20} /><span>Nội dung đã lưu trữ, chỉ dùng để truy vết lịch sử.</span></div>;
+  }
   if (item.status === "OUTDATED") {
     return <div className="warning-banner"><AlertTriangle size={20} /><span>Quá ngày review: {item.reviewDate}. Nội dung có thể không còn phù hợp.</span>{item.replacementId && <button onClick={() => openItem(knowledgeItems.find((x) => x.id === item.replacementId))}>Xem nội dung thay thế</button>}</div>;
   }
@@ -1300,7 +1595,7 @@ function StateBanner({ item, openItem }) {
   return null;
 }
 
-function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, navigate, createKnowledgeRequest }) {
+function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportItem, setApplyItem, applicationEvents, currentRole, createFieldSubmission, navigate, createKnowledgeRequest, setIssueReportItem }) {
   const applied = applicationEvents[item.id];
   const feedback = feedbackEvents[item.id]?.value;
   const canApply = item.status === "PUBLISHED" && currentRole !== "ADMINISTRATOR";
@@ -1343,13 +1638,15 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
           <button className={feedback === "HELPFUL" ? "feedback active" : "feedback"} onClick={() => submitFeedback(item, "HELPFUL")}><ThumbsUp size={16} />Hữu ích</button>
           <button className={feedback === "NOT_HELPFUL" ? "feedback active" : "feedback"} onClick={() => { submitFeedback(item, "NOT_HELPFUL"); requestImprovement("NOT_HELPFUL", "Không hữu ích"); }}><ThumbsDown size={16} />Không hữu ích</button>
         </div>
-        <button className="ghost-btn wide" onClick={() => requestImprovement("INCORRECT", "Nội dung chưa chính xác")}><MessageSquareWarning size={16} />Báo nội dung chưa chính xác</button>
-        <button className="ghost-btn wide" onClick={() => requestImprovement("OUTDATED", "Nội dung lỗi thời")}><AlertTriangle size={16} />Báo nội dung lỗi thời</button>
+        <button className="ghost-btn wide" onClick={() => setIssueReportItem ? setIssueReportItem(item) : requestImprovement("INCORRECT", "Nội dung chưa chính xác")}><MessageSquareWarning size={16} />Báo nội dung chưa chính xác</button>
+        <button className="ghost-btn wide" onClick={() => setIssueReportItem ? setIssueReportItem(item) : requestImprovement("OUTDATED", "Nội dung lỗi thời")}><AlertTriangle size={16} />Báo nội dung lỗi thời</button>
+        <button className="ghost-btn wide" onClick={() => setIssueReportItem?.(item)}><ShieldAlert size={16} />Báo không an toàn</button>
       </article>
       <article className="panel governance">
         <h3>Governance</h3>
         <InfoGrid rows={[["Security", item.securityLevel], ["Effective", item.effectiveDate], ["Review", item.reviewDate], ["Views", String(item.viewCount)], ["Reuse", String(item.reuseCount + (applied ? 1 : 0))]]} />
         {item.contentType === "SOP" && navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("sop-version-history", { id: item.id })}><History size={16} />Lịch sử phiên bản</button>}
+        {navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("lifecycle-history", { id: item.id })}><ShieldCheck size={16} />Lifecycle history</button>}
       </article>
       <article className="panel">
         <h3>Related</h3>

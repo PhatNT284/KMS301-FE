@@ -911,6 +911,28 @@ dd {
   gap: 18px;
 }
 
+.lifecycle-health-grid,
+.compare-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.lifecycle-health-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compare-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-card.warning {
+  border-left-color: var(--warning);
+}
+
+.metric-card.danger {
+  border-left-color: var(--danger);
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1480,6 +1502,166 @@ dd {
   border-left-color: var(--success);
 }
 
+.admin-page {
+  gap: 18px;
+}
+
+.admin-tabs {
+  position: sticky;
+  top: 64px;
+  z-index: 15;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.admin-tab {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.admin-tab.active,
+.admin-tab:hover {
+  color: white;
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.admin-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.action-card {
+  min-height: 132px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 16px;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--primary);
+  border-radius: 8px;
+  background: white;
+  text-align: left;
+}
+
+.action-card:hover {
+  border-color: var(--primary);
+  background: var(--surface-low);
+}
+
+.action-card svg,
+.admin-role-card svg {
+  color: var(--primary);
+}
+
+.action-card strong {
+  color: var(--primary);
+  font-size: 16px;
+}
+
+.action-card span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.admin-role-card {
+  display: grid;
+  gap: 12px;
+}
+
+.permission-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.permission-preview.compact {
+  min-height: 64px;
+}
+
+.permission-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.permission-table {
+  width: 100%;
+  min-width: 1120px;
+  border-collapse: collapse;
+}
+
+.permission-table th,
+.permission-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.permission-table th {
+  color: var(--primary);
+  background: var(--surface-low);
+  font-size: 12px;
+}
+
+.permission-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.permission-chip {
+  min-height: 28px;
+  padding: 4px 7px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: white;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.permission-chip.allowed {
+  color: var(--success);
+  border-color: rgba(19, 115, 51, 0.35);
+  background: var(--success-soft);
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.impact-list li {
+  align-items: flex-start;
+}
+
+.audit-detail {
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+}
+
 @media (max-width: 1180px) {
   .metric-grid,
   .filter-grid,
@@ -1499,7 +1681,8 @@ dd {
   .sop-library-grid,
   .task-grid,
   .compare-layout,
-  .sop-row-card {
+  .sop-row-card,
+  .admin-card-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1544,7 +1727,8 @@ dd {
   .info-grid,
   .evidence-grid,
   .stepper,
-  .compact-metrics {
+  .compact-metrics,
+  .checkbox-grid {
     grid-template-columns: 1fr;
   }
 
