@@ -55,9 +55,9 @@ const changeLevelOptions = [
 ];
 
 const roleOptions = [
-  { value: "FIELD_TECHNICIAN", label: "Field Technician" },
-  { value: "CONTRIBUTOR", label: "Knowledge Contributor" },
-  { value: "KNOWLEDGE_MANAGER", label: "Knowledge Manager" }
+  { value: "FIELD_TECHNICIAN", label: "Kỹ thuật viên hiện trường" },
+  { value: "CONTRIBUTOR", label: "Người đóng góp tri thức" },
+  { value: "KNOWLEDGE_MANAGER", label: "Quản lý tri thức" }
 ];
 
 function nowIso() {
@@ -108,7 +108,7 @@ export function buildSopTaskFromRequest(request, currentUser) {
     sourceSubmissionId: request.sourceSubmissionId || "",
     relatedAssetTypes: ["CITYTOUCH_NODE", "SMART_NODE"],
     relatedFaultType: "CONNECTIVITY_LOSS",
-    businessReason: request.gapSummary || request.proposedChange || "Yêu cầu cập nhật SOP được chuyển tiếp từ FL-02.",
+    businessReason: request.gapSummary || request.proposedChange || "Yêu cầu cập nhật SOP được chuyển tiếp từ bản gửi hiện trường.",
     requestedChanges: [request.gapSummary, request.proposedChange].filter(Boolean),
     dueDate: reviewDateInput(),
     createdAt: nowIso()
@@ -154,7 +154,7 @@ export function buildDraftFromTask(task, currentUser, baseSop) {
     ppe: baseSop?.ppe || ["Găng tay bảo hộ", "Kính bảo hộ"],
     hazards: baseSop?.warnings || ["Nguy cơ thao tác sai khi chưa xác định phạm vi lỗi"],
     controls: ["Xác minh điều kiện an toàn trước khi thao tác", "Dừng nếu phát hiện nguy cơ ngoài phạm vi SOP"],
-    emergencyAction: "Dừng thao tác và báo Knowledge Manager hoặc đội an toàn nếu xuất hiện rủi ro bất thường.",
+    emergencyAction: "Dừng thao tác và báo quản lý tri thức hoặc đội an toàn nếu xuất hiện rủi ro bất thường.",
     riskLevel: baseSop?.riskLevel === "Cao" ? "HIGH" : "MEDIUM",
     stopConditions: baseSop?.stopConditions || ["Không đủ điều kiện an toàn để tiếp tục"],
     procedureSteps: baseSteps.map((step, index) => ({
@@ -162,7 +162,7 @@ export function buildDraftFromTask(task, currentUser, baseSop) {
       title: step.title,
       instruction: step.instruction,
       expectedResult: step.expectedResult,
-      responsibleRole: "Field Technician",
+      responsibleRole: "Kỹ thuật viên hiện trường",
       warning: ""
     })),
     decisionPoints: baseSop?.decisionPoints?.map((point, index) => ({
@@ -276,7 +276,7 @@ export function SopWorkspace({
   const canAuthor = ["CONTRIBUTOR", "KNOWLEDGE_MANAGER"].includes(currentRole);
   return (
     <section className="page">
-      <PageHeader eyebrow="FL-03" title="Quy trình vận hành (SOP)" description="Không gian chung cho thư viện SOP, nhiệm vụ biên soạn, bản nháp, duyệt SOP và lịch sử phiên bản.">
+      <PageHeader title="Quy trình vận hành (SOP)" description="Không gian chung cho thư viện SOP, nhiệm vụ biên soạn, bản nháp, duyệt SOP và lịch sử phiên bản.">
         {canAuthor && <button className="primary-btn" type="button" onClick={startNewSop}><Plus size={16} />Tạo SOP mới</button>}
         <button className="secondary-btn" type="button" onClick={() => navigate("sops", { tab: "tasks" })}><FileClock size={16} />Nhiệm vụ SOP</button>
       </PageHeader>
@@ -297,10 +297,11 @@ export function SopWorkspace({
 }
 
 function PageHeader({ eyebrow, title, description, children }) {
+  const visibleEyebrow = eyebrow && !/^FL-\d/i.test(String(eyebrow)) ? eyebrow : "";
   return (
     <header className="page-header">
       <div>
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        {visibleEyebrow && <p className="eyebrow">{visibleEyebrow}</p>}
         <h2>{title}</h2>
         {description && <p>{description}</p>}
       </div>
@@ -345,7 +346,7 @@ function SopLibraryPanel({ sops, openItem, navigate, currentRole, startVersionFr
 
 function SopTasksPanel({ tasks, drafts, currentUser, currentRole, navigate, startAuthoringFromTask }) {
   const visibleTasks = tasks.filter((task) => task.assignedTo === currentUser.id || currentRole === "KNOWLEDGE_MANAGER");
-  if (!visibleTasks.length) return <EmptyState icon={<FileClock size={34} />} title="Chưa có nhiệm vụ SOP" description="Khi FL-02 hoặc Knowledge Manager tạo yêu cầu chuẩn hóa, task sẽ hiển thị ở đây." />;
+  if (!visibleTasks.length) return <EmptyState icon={<FileClock size={34} />} title="Chưa có nhiệm vụ SOP" description="Khi quản lý tri thức tạo yêu cầu chuẩn hóa, nhiệm vụ sẽ hiển thị ở đây." />;
   return (
     <div className="task-grid">
       {visibleTasks.map((task) => {
@@ -406,9 +407,9 @@ function MySopDraftsPanel({ drafts, navigate }) {
 
 function SopReviewQueuePanel({ drafts, navigate, currentRole }) {
   if (!["KNOWLEDGE_MANAGER", "ADMINISTRATOR"].includes(currentRole)) {
-    return <EmptyState icon={<ShieldAlert size={34} />} title="Chỉ Knowledge Manager xử lý hàng đợi duyệt SOP" description="Bạn vẫn có thể đổi role ở thanh trên để demo bước duyệt." />;
+    return <EmptyState icon={<ShieldAlert size={34} />} title="Chỉ quản lý tri thức xử lý hàng đợi duyệt SOP" description="Bạn vẫn có thể đổi vai trò ở thanh trên để demo bước duyệt." />;
   }
-  if (!drafts.length) return <EmptyState icon={<ClipboardCheck size={34} />} title="Không có SOP đang chờ duyệt" description="Khi Contributor submit hoặc resubmit, draft sẽ xuất hiện ở đây." />;
+  if (!drafts.length) return <EmptyState icon={<ClipboardCheck size={34} />} title="Không có SOP đang chờ duyệt" description="Khi người biên soạn gửi hoặc gửi lại, bản nháp sẽ xuất hiện ở đây." />;
   return (
     <div className="result-list">
       {drafts.map((draft) => (
@@ -471,7 +472,7 @@ export function SopTaskDetail({ task, drafts, navigate, knowledgeCatalog, startA
               ["SOP mục tiêu", task.existingSopId || "Tạo SOP mới"],
               ["Version hiện tại", task.currentVersion],
               ["Loại version đề xuất", task.requestedVersionIntent],
-              ["Nguồn FL-02", [task.sourceRequestId, task.sourceSubmissionId].filter(Boolean).join(", ")],
+              ["Nguồn hiện trường", [task.sourceRequestId, task.sourceSubmissionId].filter(Boolean).join(", ")],
               ["Hạn demo", task.dueDate]
             ]} />
           </Section>
@@ -479,7 +480,7 @@ export function SopTaskDetail({ task, drafts, navigate, knowledgeCatalog, startA
             <ul className="checklist">{(task.requestedChanges || []).map((item) => <li key={item}><CheckCircle2 size={16} />{item}</li>)}</ul>
           </Section>
           <Section title="Nguồn liên quan">
-            {sources.length ? sources.map((item) => <SourceCard key={item.id} item={item} navigate={navigate} />) : <p className="hint">Nguồn có thể được tạo từ FL-02 trong session demo.</p>}
+            {sources.length ? sources.map((item) => <SourceCard key={item.id} item={item} navigate={navigate} />) : <p className="hint">Nguồn có thể được tạo từ bản gửi hiện trường trong phiên demo.</p>}
           </Section>
         </article>
         <aside className="detail-aside">
@@ -640,7 +641,7 @@ function ProcedureStep({ draft, change, errors }) {
   }
   function addStep() {
     const index = draft.procedureSteps.length + 1;
-    change("procedureSteps", [...draft.procedureSteps, { id: `STEP-${String(index).padStart(2, "0")}`, title: "", responsibleRole: "Field Technician", instruction: "", expectedResult: "", warning: "" }]);
+    change("procedureSteps", [...draft.procedureSteps, { id: `STEP-${String(index).padStart(2, "0")}`, title: "", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "", expectedResult: "", warning: "" }]);
   }
   function removeStep(index) {
     change("procedureSteps", draft.procedureSteps.filter((_, itemIndex) => itemIndex !== index));
@@ -719,12 +720,12 @@ function SopPreviewStep({ draft, change, errors, navigate }) {
   return (
     <article className="panel form-panel">
       <h3>Bước 6/6 - Preview và xác nhận gửi duyệt</h3>
-      {Object.keys(allErrors).length ? <ErrorSummary errors={allErrors} /> : <p className="success-note">Draft đã đạt validation mock của FL-03.</p>}
+      {Object.keys(allErrors).length ? <ErrorSummary errors={allErrors} /> : <p className="success-note">Bản nháp đã đạt kiểm tra hợp lệ.</p>}
       <SopPreview draft={draft} />
       <div className="form-actions">
         <button className="secondary-btn" type="button" onClick={() => navigate("sop-version-compare", { id: draft.id })}>Xem version compare</button>
       </div>
-      <label className="check-row confirmation-row"><input type="checkbox" checked={draft.confirmation} onChange={(event) => change("confirmation", event.target.checked)} />Tôi xác nhận Draft SOP có đủ nguồn, cấu trúc và điều kiện an toàn để gửi Knowledge Manager duyệt.</label>
+      <label className="check-row confirmation-row"><input type="checkbox" checked={draft.confirmation} onChange={(event) => change("confirmation", event.target.checked)} />Tôi xác nhận bản nháp SOP có đủ nguồn, cấu trúc và điều kiện an toàn để gửi quản lý tri thức duyệt.</label>
       <FieldError id="confirmation" errors={errors} />
     </article>
   );
@@ -761,7 +762,7 @@ export function SopReviewDetail({ draft, updateDraft, navigate, currentUser, cur
   });
 
   if (!draft) return <Placeholder title="Không tìm thấy Draft SOP" description="Không có item trong hàng đợi duyệt SOP." />;
-  if (!["KNOWLEDGE_MANAGER", "ADMINISTRATOR"].includes(currentRole)) return <Placeholder title="Chỉ Knowledge Manager được duyệt SOP" description="Prototype cho phép đổi role ở thanh trên để demo bước duyệt." />;
+  if (!["KNOWLEDGE_MANAGER", "ADMINISTRATOR"].includes(currentRole)) return <Placeholder title="Chỉ quản lý tri thức được duyệt SOP" description="Prototype cho phép đổi vai trò ở thanh trên để demo bước duyệt." />;
 
   const checklist = { ...defaultChecklist, ...(draft.reviewChecklist || {}) };
   const allChecklistPass = Object.values(checklist).every(Boolean);
@@ -776,7 +777,7 @@ export function SopReviewDetail({ draft, updateDraft, navigate, currentUser, cur
     updateDraft(draft.id, (item) => ({
       ...item,
       status: "IN_REVIEW",
-      history: [...(item.history || []), { id: makeId("SOPD-EVT"), action: "IN_REVIEW", actorId: currentUser.id, comment: "Knowledge Manager bắt đầu kiểm duyệt.", createdAt: nowIso() }]
+      history: [...(item.history || []), { id: makeId("SOPD-EVT"), action: "IN_REVIEW", actorId: currentUser.id, comment: "Quản lý tri thức bắt đầu kiểm duyệt.", createdAt: nowIso() }]
     }));
     setToast("Đã chuyển SOP sang trạng thái đang duyệt.");
   }
@@ -793,7 +794,7 @@ export function SopReviewDetail({ draft, updateDraft, navigate, currentUser, cur
       history: [...(item.history || []), { id: makeId("SOPD-EVT"), action: "REQUEST_CHANGES", actorId: currentUser.id, comment: decisionComment, createdAt: nowIso() }],
       updatedAt: nowIso()
     }));
-    setToast("Đã gửi yêu cầu chỉnh sửa cho Contributor.");
+    setToast("Đã gửi yêu cầu chỉnh sửa cho người biên soạn.");
     navigate("sops", { tab: "review" });
   }
 

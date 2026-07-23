@@ -1,17 +1,17 @@
 export const users = [
-  { id: "FT-001", role: "FIELD_TECHNICIAN", label: "Field Technician", name: "Minh Tran" },
-  { id: "KC-001", role: "CONTRIBUTOR", label: "Contributor", name: "Sarah Jenkins" },
-  { id: "KM-001", role: "KNOWLEDGE_MANAGER", label: "Knowledge Manager", name: "Alex Chen" },
-  { id: "AD-001", role: "ADMINISTRATOR", label: "Administrator", name: "Demo Admin" }
+  { id: "FT-001", role: "FIELD_TECHNICIAN", label: "Kỹ thuật viên hiện trường", name: "Minh Tran" },
+  { id: "KC-001", role: "CONTRIBUTOR", label: "Người đóng góp tri thức", name: "Sarah Jenkins" },
+  { id: "KM-001", role: "KNOWLEDGE_MANAGER", label: "Quản lý tri thức", name: "Alex Chen" },
+  { id: "AD-001", role: "ADMINISTRATOR", label: "Quản trị viên", name: "Demo Admin" }
 ];
 
 export const taxonomy = {
   contentTypes: [
     { value: "ALL", label: "Tất cả nội dung" },
     { value: "SOP", label: "SOP" },
-    { value: "REPAIR_CASE", label: "Repair Case" },
-    { value: "LESSON_LEARNED", label: "Lesson Learned" },
-    { value: "ARTICLE", label: "Article" }
+    { value: "REPAIR_CASE", label: "Ca sửa chữa" },
+    { value: "LESSON_LEARNED", label: "Bài học kinh nghiệm" },
+    { value: "ARTICLE", label: "Bài viết" }
   ],
   assetTypes: [
     { value: "ALL", label: "Tất cả thiết bị" },
@@ -33,11 +33,11 @@ export const taxonomy = {
   ],
   categories: [
     { value: "ALL", label: "Tất cả danh mục" },
-    { value: "TROUBLESHOOTING", label: "Troubleshooting" },
-    { value: "MAINTENANCE", label: "Maintenance" },
-    { value: "SAFETY", label: "Safety" },
-    { value: "OPERATIONS", label: "Operations" },
-    { value: "TRAINING", label: "Training" }
+    { value: "TROUBLESHOOTING", label: "Xử lý sự cố" },
+    { value: "MAINTENANCE", label: "Bảo trì" },
+    { value: "SAFETY", label: "An toàn" },
+    { value: "OPERATIONS", label: "Vận hành" },
+    { value: "TRAINING", label: "Đào tạo" }
   ],
   updatedRanges: [
     { value: "ALL", label: "Tất cả thời gian" },
@@ -48,7 +48,7 @@ export const taxonomy = {
   sortOptions: [
     { value: "RELEVANCE", label: "Mức độ phù hợp" },
     { value: "UPDATED", label: "Ngày cập nhật" },
-    { value: "HELPFUL", label: "Helpful rate" }
+    { value: "HELPFUL", label: "Mức hữu ích" }
   ]
 };
 
@@ -78,7 +78,7 @@ export const knowledgeItems = [
     purpose: "Hướng dẫn kỹ thuật viên xác định nguyên nhân khi nhiều node mất kết nối cùng lúc.",
     scope: "Áp dụng cho CityTouch/Interact City gateway, NEMA socket node và mesh smart node.",
     applicableAssets: ["CityTouch Node", "Smart Node", "Gateway"],
-    intendedRoles: ["Field Technician", "Network Team"],
+    intendedRoles: ["Kỹ thuật viên hiện trường", "Đội mạng"],
     riskLevel: "Trung bình",
     ppe: ["Găng tay cách điện", "Kính bảo hộ", "Áo phản quang"],
     warnings: ["Không thay node hàng loạt trước khi kiểm tra gateway và RF interference."],
@@ -120,7 +120,7 @@ export const knowledgeItems = [
   {
     id: "CASE-CABLE-042",
     contentType: "REPAIR_CASE",
-    title: "Series Circuit Fault: Open Neutral at Node 42",
+    title: "Lỗi mạch nối tiếp: đứt dây trung tính tại Node 42",
     summary: "Case thực tế về đứt dây trung tính cáp ngầm khiến cả tuyến đèn nhấp nháy và sụt áp.",
     status: "PUBLISHED",
     version: "v1.0",
@@ -147,7 +147,7 @@ export const knowledgeItems = [
     repairAction: "Cô lập mạch, thay đoạn cáp trung tính, cập nhật bản đồ cáp ngầm và kiểm tra lại tải.",
     outcome: "Tuyến đèn ổn định sau 35 phút, không tái phát trong 7 ngày.",
     lessonLearned: "Không kết luận lỗi driver LED khi nhiều cột cùng nhấp nháy; cần kiểm tra trung tính trước.",
-    telemetry: ["Voltage: 50V tại Node 42", "Source voltage stable", "311 calls increased 4x"],
+    telemetry: ["Điện áp: 50V tại Node 42", "Điện áp nguồn ổn định", "Cuộc gọi phản ánh tăng 4 lần"],
     evidence: ["Ảnh hộp nối cột 42", "Biên bản đo continuity", "Bản đồ tuyến cáp cập nhật"],
     relatedItems: ["SOP-NET-007", "SOP-HV-002"]
   },
@@ -175,8 +175,8 @@ export const knowledgeItems = [
     relevanceScore: 0.8,
     purpose: "Chuẩn hóa thao tác bảo trì máy biến áp cao thế.",
     scope: "Chỉ dành cho nhân sự có chứng nhận cao thế.",
-    applicableAssets: ["High Voltage Transformer"],
-    intendedRoles: ["Certified Technician", "Knowledge Manager"],
+    applicableAssets: ["Máy biến áp cao thế"],
+    intendedRoles: ["Kỹ thuật viên có chứng nhận", "Quản lý tri thức"],
     riskLevel: "Cao",
     ppe: ["Găng tay cách điện cao thế", "Mặt nạ hồ quang", "Bút thử điện", "Áo chống hồ quang"],
     warnings: ["Nguy hiểm điện cao thế. Không thực hiện nếu thiếu LOTO."],
@@ -218,7 +218,7 @@ export const knowledgeItems = [
     purpose: "Tham khảo quy trình hiệu chuẩn cũ cho NEMA node.",
     scope: "Không dùng làm hướng dẫn hiện hành nếu firmware gateway >= 2.4.",
     applicableAssets: ["NEMA Socket Node"],
-    intendedRoles: ["Field Technician"],
+    intendedRoles: ["Kỹ thuật viên hiện trường"],
     riskLevel: "Thấp",
     ppe: ["Găng tay", "Kính bảo hộ"],
     warnings: ["Quy trình đã quá hạn review."],
@@ -258,7 +258,7 @@ export const knowledgeItems = [
     purpose: "Lưu trữ version cũ để tham chiếu.",
     scope: "Không áp dụng thực địa.",
     applicableAssets: ["Smart Node"],
-    intendedRoles: ["Field Technician"],
+    intendedRoles: ["Kỹ thuật viên hiện trường"],
     riskLevel: "Trung bình",
     ppe: ["Găng tay", "Kính bảo hộ"],
     warnings: ["Đã bị thay thế; không được mark as applied."],
@@ -309,7 +309,7 @@ export const knowledgeItems = [
 ];
 
 export const dashboardStats = [
-  { label: "Search Success Rate", value: "84%", detail: "Phiên có mở detail hoặc apply" },
+  { label: "Tỷ lệ tìm kiếm thành công", value: "84%", detail: "Phiên có mở chi tiết hoặc áp dụng" },
   { label: "Reuse Count", value: "99", detail: "Mock tăng khi Mark as Applied" },
   { label: "Helpful Rate", value: "88%", detail: "Từ feedback đã ghi nhận" },
   { label: "Zero-result Rate", value: "7%", detail: "Có CTA Knowledge Request" }

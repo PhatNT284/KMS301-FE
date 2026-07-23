@@ -9,7 +9,7 @@ export const knowledgeRequestStatusLabels = {
   IN_REVIEW: "Chờ duyệt bài viết",
   CHANGES_REQUESTED: "Cần chỉnh sửa",
   APPROVED: "Đã phê duyệt",
-  TRANSFERRED_FL03: "Đã chuyển FL-03",
+  TRANSFERRED_FL03: "Đã chuyển SOP",
   RESOLVED: "Đã hoàn tất",
   REJECTED: "Từ chối",
   CANCELLED: "Đã hủy"
@@ -33,10 +33,10 @@ export const knowledgeRequestStatusTones = {
 };
 
 export const knowledgeRequestOriginLabels = {
-  NEW_GAP: "Không có kết quả FL-01",
-  IMPROVEMENT_REQUEST: "Cải thiện nội dung FL-01",
+  NEW_GAP: "Không có kết quả tìm kiếm",
+  IMPROVEMENT_REQUEST: "Cải thiện nội dung",
   DIRECT_REQUEST: "Tạo thủ công",
-  ARTICLE_OR_SOP: "Nguồn từ FL-02"
+  ARTICLE_OR_SOP: "Nguồn từ hiện trường"
 };
 
 export const deliverableLabels = {
@@ -64,10 +64,10 @@ export const articleDraftStatusLabels = {
 };
 
 export const requestOrigins = [
-  { value: "NEW_GAP", label: "Không có kết quả FL-01" },
-  { value: "IMPROVEMENT_REQUEST", label: "Cải thiện nội dung FL-01" },
+  { value: "NEW_GAP", label: "Không có kết quả tìm kiếm" },
+  { value: "IMPROVEMENT_REQUEST", label: "Cải thiện nội dung" },
   { value: "DIRECT_REQUEST", label: "Tạo thủ công" },
-  { value: "ARTICLE_OR_SOP", label: "Nguồn từ FL-02" }
+  { value: "ARTICLE_OR_SOP", label: "Nguồn từ hiện trường" }
 ];
 
 export const deliverableOptions = [
@@ -165,7 +165,7 @@ export const seedKnowledgeRequests = [
     status: "ASSIGNED",
     origin: "NEW_GAP",
     title: "Cần hướng dẫn xử lý CityTouch Node offline sau cập nhật firmware",
-    description: "FL-01 không có kết quả đủ rõ cho query về CityTouch node offline sau firmware 2.4.",
+    description: "Tìm kiếm không có kết quả đủ rõ cho từ khóa CityTouch node offline sau firmware 2.4.",
     expectedOutcome: "Có bài viết tri thức nêu triệu chứng, nguyên nhân thường gặp và các bước kiểm tra nhanh trước khi escalte.",
     requesterId: "FT-001",
     requesterRole: "FIELD_TECHNICIAN",
@@ -207,8 +207,8 @@ export const seedKnowledgeRequests = [
     attachments: ["telemetry-ctn-1108.png"],
     confirmation: true,
     events: [
-      { id: "KR-EVT-001", action: "SUBMITTED", actorId: "FT-001", comment: "Gửi yêu cầu từ no-result FL-01.", createdAt: "2026-07-22T08:42:00+07:00" },
-      { id: "KR-EVT-002", action: "ASSIGNED", actorId: "KM-001", comment: "Giao Contributor soạn bài viết tri thức.", createdAt: "2026-07-22T09:15:00+07:00" }
+      { id: "KR-EVT-001", action: "SUBMITTED", actorId: "FT-001", comment: "Gửi yêu cầu từ kết quả tìm kiếm rỗng.", createdAt: "2026-07-22T08:42:00+07:00" },
+      { id: "KR-EVT-002", action: "ASSIGNED", actorId: "KM-001", comment: "Giao người biên soạn soạn bài viết tri thức.", createdAt: "2026-07-22T09:15:00+07:00" }
     ],
     createdAt: "2026-07-22T08:42:00+07:00",
     updatedAt: "2026-07-22T09:15:00+07:00"
@@ -249,7 +249,7 @@ export const seedKnowledgeRequests = [
     attachments: [],
     confirmation: true,
     events: [
-      { id: "KR-EVT-003", action: "SUBMITTED", actorId: "FT-001", comment: "Gửi yêu cầu từ no-result FL-01.", createdAt: "2026-07-21T17:12:00+07:00" },
+      { id: "KR-EVT-003", action: "SUBMITTED", actorId: "FT-001", comment: "Gửi yêu cầu từ kết quả tìm kiếm rỗng.", createdAt: "2026-07-21T17:12:00+07:00" },
       { id: "KR-EVT-004", action: "DUPLICATE_RESOLVED", actorId: "KM-001", comment: "Liên kết SOP-NET-007 và đóng yêu cầu.", createdAt: "2026-07-21T17:40:00+07:00" }
     ],
     createdAt: "2026-07-21T17:12:00+07:00",
@@ -304,7 +304,7 @@ export const seedKnowledgeRequests = [
     origin: "ARTICLE_OR_SOP",
     title: "Chuẩn hóa quy trình kiểm tra nước xâm nhập trong tủ điều khiển",
     description: "Nhiều case lặp lại yêu cầu có SOP an toàn thay vì chỉ là bài viết tri thức.",
-    expectedOutcome: "Tạo nhiệm vụ SOP mới cho FL-03, có traceability về request FL-04.",
+    expectedOutcome: "Tạo nhiệm vụ SOP mới, có truy vết về yêu cầu nguồn.",
     requesterId: "KM-001",
     requesterRole: "KNOWLEDGE_MANAGER",
     requesterName: "Alex Chen",
@@ -334,7 +334,7 @@ export const seedKnowledgeRequests = [
     attachments: ["field-photo-cabinet-water.jpg"],
     confirmation: true,
     events: [
-      { id: "KR-EVT-007", action: "TRANSFERRED_FL03", actorId: "KM-001", comment: "Chuyển thành nhiệm vụ SOP FL-03.", createdAt: "2026-07-22T11:20:00+07:00" }
+      { id: "KR-EVT-007", action: "TRANSFERRED_FL03", actorId: "KM-001", comment: "Chuyển thành nhiệm vụ SOP.", createdAt: "2026-07-22T11:20:00+07:00" }
     ],
     createdAt: "2026-07-22T11:00:00+07:00",
     updatedAt: "2026-07-22T11:20:00+07:00"
@@ -501,7 +501,7 @@ export function buildSopTaskFromKnowledgeRequest(request, currentUser) {
     type: request.relatedKnowledgeIds?.length ? "UPDATE_EXISTING" : "NEW_SOP",
     status: "OPEN",
     priority: request.priority || "HIGH",
-    title: `Chuyển FL-04 thành nhiệm vụ SOP: ${request.title}`,
+    title: `Chuyển yêu cầu thành nhiệm vụ SOP: ${request.title}`,
     proposedTitle: request.title.replace(/^Cần\s+/i, ""),
     existingSopId: request.relatedKnowledgeIds?.find((id) => id.startsWith("SOP-")) || "",
     currentVersion: "",

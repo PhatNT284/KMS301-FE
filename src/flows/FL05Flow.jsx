@@ -223,7 +223,7 @@ export function FL05Flow({
       revisionTaskId: revision.revisionTaskId
     });
     addEvent("REVISION_TASK", revision.revisionTaskId, "REVISION_TASK_CREATED", { targetFlow: revision.targetFlow });
-    setToast(item?.contentType === "SOP" ? "Đã tạo revision task SOP, Contributor sẽ mở FL-03." : "Đã tạo revision task cho Contributor.");
+    setToast(item?.contentType === "SOP" ? "Đã tạo nhiệm vụ chỉnh sửa SOP cho người biên soạn." : "Đã tạo nhiệm vụ chỉnh sửa cho người biên soạn.");
     navigate("lifecycle-success", { eventId: revision.revisionTaskId });
   }
 
@@ -235,7 +235,7 @@ export function FL05Flow({
       suspensionWarning: form.warning,
       replacementKnowledgeId: form.replacementKnowledgeId
     });
-    setToast("Đã tạm ngừng nội dung và cập nhật visibility FL-01.");
+    setToast("Đã tạm ngừng nội dung và cập nhật quyền hiển thị.");
     navigate("lifecycle-success", { eventId: task.reviewTaskId });
   }
 
@@ -288,7 +288,7 @@ export function FL05Flow({
     });
     patchReviewTask(task.sourceReviewTaskId, { status: "IN_REVIEW" });
     addEvent("REVISION_TASK", task.revisionTaskId, "REVISION_SUBMITTED", { knowledgeId: task.knowledgeId });
-    setToast("Đã gửi revision để Knowledge Manager tái duyệt.");
+    setToast("Đã gửi bản chỉnh sửa để quản lý tri thức tái duyệt.");
     navigate("lifecycle-rereview", { taskId: task.revisionTaskId });
   }
 
@@ -314,7 +314,7 @@ export function FL05Flow({
       authorId: task.assignedContributorId,
       relations: [{ type: "replaces", id: task.knowledgeId }]
     });
-    setToast("Đã publish bản revision và cập nhật FL-01.");
+    setToast("Đã xuất bản bản chỉnh sửa và cập nhật kho tri thức.");
     navigate("lifecycle-success", { eventId: task.revisionTaskId });
   }
 
@@ -325,7 +325,7 @@ export function FL05Flow({
     });
     patchReviewTask(task.sourceReviewTaskId, { status: "CHANGES_REQUESTED" });
     addEvent("REVISION_TASK", task.revisionTaskId, "CHANGES_REQUESTED", { note });
-    setToast("Đã yêu cầu Contributor chỉnh sửa revision.");
+    setToast("Đã yêu cầu người biên soạn chỉnh sửa lại.");
   }
 
   if (screen === "lifecycle-dashboard" || screen === "lifecycle-entry") {
@@ -379,7 +379,7 @@ export function IssueReportForm({ item, currentUser, submitIssueReport, close })
   const [showErrors, setShowErrors] = useState(false);
   const errors = {};
   if (!form.description.trim()) errors.description = "Nhập mô tả vấn đề.";
-  if (form.issueType === "UNSAFE" && form.severity !== "CRITICAL") errors.severity = "Vấn đề không an toàn nên dùng mức Nghiêm trọng để demo FL-05.";
+  if (form.issueType === "UNSAFE" && form.severity !== "CRITICAL") errors.severity = "Vấn đề không an toàn nên dùng mức Nghiêm trọng.";
 
   function submit(event) {
     event.preventDefault();
@@ -394,7 +394,7 @@ export function IssueReportForm({ item, currentUser, submitIssueReport, close })
     <div className="modal-backdrop" role="presentation">
       <section className="modal large-modal" role="dialog" aria-modal="true" aria-labelledby="issue-title">
         <h2 id="issue-title">Báo vấn đề nội dung</h2>
-        <p>{item.id} - {item.title} - phiên bản {item.version}. Báo cáo này sẽ tạo Issue Report và Review Task trong FL-05.</p>
+        <p>{item.id} - {item.title} - phiên bản {item.version}. Báo cáo này sẽ tạo báo cáo vấn đề và nhiệm vụ rà soát.</p>
         {showErrors && Object.keys(errors).length > 0 && <ErrorBox errors={errors} />}
         <form className="submission-form" onSubmit={submit}>
           <div className="form-main">
@@ -407,7 +407,7 @@ export function IssueReportForm({ item, currentUser, submitIssueReport, close })
           <label><span>Tác động quan sát được</span><textarea value={form.observedImpact} onChange={(event) => setForm({ ...form, observedImpact: event.target.value })} placeholder="Ví dụ: có nguy cơ kỹ thuật viên thao tác trong điều kiện không an toàn." /></label>
           <div className="form-actions">
             <button className="ghost-btn" type="button" onClick={close}>Đóng</button>
-            <button className="primary-btn" type="submit"><Send size={16} />Gửi issue report</button>
+            <button className="primary-btn" type="submit"><Send size={16} />Gửi báo cáo vấn đề</button>
           </div>
         </form>
       </section>
@@ -425,13 +425,13 @@ function LifecycleDashboard({ currentRole, knowledgeCatalog, lifecycleItems, rev
 
   return (
     <section className="page">
-      <PageHeading eyebrow="FL-05" title="Vòng đời tri thức" description="Theo dõi review date, issue report, nội dung bị gắn cờ và quyết định vòng đời sau khi tri thức đã publish.">
+      <PageHeading title="Vòng đời tri thức" description="Theo dõi ngày rà soát, báo cáo vấn đề, nội dung bị gắn cờ và quyết định vòng đời sau khi tri thức đã xuất bản.">
         <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-review-queue")}><ListChecks size={16} />Mở hàng đợi rà soát</button>
       </PageHeading>
-      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Prototype vẫn cho xem dashboard, nhưng quyết định vòng đời thuộc vai trò Knowledge Manager.</span></div>}
+      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Prototype vẫn cho xem bảng điều khiển, nhưng quyết định vòng đời thuộc vai trò quản lý tri thức.</span></div>}
       <div className="metric-grid">
-        <Metric label="Task đang mở" value={openTasks.length} detail="Review task chưa hoàn tất" />
-        <Metric label="Critical" value={criticalTasks} detail="Cần xử lý rủi ro an toàn" tone="danger" />
+        <Metric label="Nhiệm vụ đang mở" value={openTasks.length} detail="Nhiệm vụ rà soát chưa hoàn tất" />
+        <Metric label="Nghiêm trọng" value={criticalTasks} detail="Cần xử lý rủi ro an toàn" tone="danger" />
         <Metric label="Quá hạn" value={overdueTasks} detail="Due date trước hôm nay" tone="warning" />
         <Metric label="Tạm ngừng" value={suspended} detail="Ẩn khỏi search mặc định" tone="danger" />
       </div>
@@ -460,7 +460,7 @@ function LifecycleDashboard({ currentRole, knowledgeCatalog, lifecycleItems, rev
               <div>
                 <div className="card-badges"><StatusBadge status={item.status} /><Badge>{item.knowledge.contentType}</Badge></div>
                 <h3>{item.knowledge.title}</h3>
-                <p>Review tiếp theo: {item.nextReviewDate || item.knowledge.reviewDate}. Helpful: {item.usageStats?.helpfulRate || item.knowledge.helpfulRate}%.</p>
+                <p>Rà soát tiếp theo: {item.nextReviewDate || item.knowledge.reviewDate}. Hữu ích: {item.usageStats?.helpfulRate || item.knowledge.helpfulRate}%.</p>
               </div>
               <div className="submission-actions">
                 <button className="secondary-btn" type="button" onClick={() => navigate("lifecycle-history", { id: item.knowledgeId })}>History</button>
@@ -478,8 +478,8 @@ function LifecycleReviewQueue({ tasks, lifecycleItems, knowledgeCatalog, users, 
   const queue = tasks.filter((item) => activeReviewStatuses.includes(item.status));
   return (
     <section className="page">
-      <PageHeading eyebrow="FL-05" title="Hàng đợi rà soát vòng đời" description="Knowledge Manager xử lý review task từ review date, issue report, source change hoặc tín hiệu FL-02/FL-04." />
-      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner"><AlertTriangle size={18} /><span>Chỉ Knowledge Manager được thực hiện Reconfirm, Revise, Suspend, Supersede hoặc Archive.</span></div>}
+      <PageHeading title="Hàng đợi rà soát vòng đời" description="Quản lý tri thức xử lý nhiệm vụ rà soát từ ngày rà soát, báo cáo vấn đề, thay đổi nguồn hoặc tín hiệu liên quan." />
+      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner"><AlertTriangle size={18} /><span>Chỉ quản lý tri thức được xác nhận lại, yêu cầu chỉnh sửa, tạm ngừng, thay thế hoặc lưu trữ.</span></div>}
       <div className="queue-filters">
         <span>Đang mở <strong>{queue.length}</strong></span>
         <span>Critical <strong>{queue.filter((item) => item.priority === "CRITICAL").length}</strong></span>
@@ -527,7 +527,7 @@ function LifecycleReviewDetail({ task, knowledgeItem, lifecycleItem, issueReport
     warning: "Không sử dụng nội dung này cho tác nghiệp hiện trường cho đến khi có bản cập nhật.",
     replacementKnowledgeId: ""
   });
-  const [supersedeForm, setSupersedeForm] = useState({ reason: "Đã có nội dung Published thay thế chính thức.", replacementKnowledgeId: knowledgeCatalog.find((item) => item.id !== knowledgeItem.id && item.status === "PUBLISHED")?.id || "" });
+  const [supersedeForm, setSupersedeForm] = useState({ reason: "Đã có nội dung đang hiệu lực thay thế chính thức.", replacementKnowledgeId: knowledgeCatalog.find((item) => item.id !== knowledgeItem.id && item.status === "PUBLISHED")?.id || "" });
   const [archiveForm, setArchiveForm] = useState({ reason: "Nội dung không còn dùng trong vận hành hiện tại và không có dependency đang mở." });
   const canDecide = currentRole === "KNOWLEDGE_MANAGER" || currentRole === "ADMINISTRATOR";
 
@@ -566,8 +566,8 @@ function LifecycleReviewDetail({ task, knowledgeItem, lifecycleItem, issueReport
           </Section>
           <Section title="Hành động hỗ trợ">
             <div className="form-actions">
-              <button className="secondary-btn" type="button" onClick={() => createFieldSubmission({ appliedItem: knowledgeItem, symptom: `Xác minh hiện trường cho ${task.reviewTaskId}` })}>Yêu cầu xác minh hiện trường (FL-02)</button>
-              <button className="ghost-btn" type="button" onClick={() => navigate("lifecycle-history", { id: knowledgeItem.id })}>Xem lifecycle history</button>
+              <button className="secondary-btn" type="button" onClick={() => createFieldSubmission({ appliedItem: knowledgeItem, symptom: `Xác minh hiện trường cho ${task.reviewTaskId}` })}>Yêu cầu xác minh hiện trường</button>
+              <button className="ghost-btn" type="button" onClick={() => navigate("lifecycle-history", { id: knowledgeItem.id })}>Xem lịch sử vòng đời</button>
             </div>
           </Section>
         </article>
@@ -578,22 +578,22 @@ function LifecycleReviewDetail({ task, knowledgeItem, lifecycleItem, issueReport
             {hasCriticalFail && <div className="warning-banner"><ShieldAlert size={18} /><span>Checklist có FAIL critical. Không nên Reconfirm; hãy Suspend hoặc tạo Revision.</span></div>}
             <label><span>Lý do Reconfirm</span><textarea value={reconfirmForm.reason} onChange={(event) => setReconfirmForm({ ...reconfirmForm, reason: event.target.value })} /></label>
             <label><span>Ngày review tiếp theo</span><input type="date" value={reconfirmForm.nextReviewDate} onChange={(event) => setReconfirmForm({ ...reconfirmForm, nextReviewDate: event.target.value })} /></label>
-            <button className="secondary-btn wide" disabled={!canDecide || hasCriticalFail} type="button" onClick={() => reconfirm(task, reconfirmForm)}>Reconfirm</button>
+            <button className="secondary-btn wide" disabled={!canDecide || hasCriticalFail} type="button" onClick={() => reconfirm(task, reconfirmForm)}>Xác nhận còn hiệu lực</button>
           </article>
           <article className="panel action-panel">
             <h3>Tạo revision</h3>
             <SelectField label="Change type" value={revisionForm.changeType} onChange={(value) => setRevisionForm({ ...revisionForm, changeType: value })} options={changeTypeOptions} />
-            <SelectField label="Contributor" value={revisionForm.assignedContributorId} onChange={(value) => setRevisionForm({ ...revisionForm, assignedContributorId: value })} options={users.filter((user) => user.role === "CONTRIBUTOR").map((user) => ({ value: user.id, label: user.name }))} />
+            <SelectField label="Người biên soạn" value={revisionForm.assignedContributorId} onChange={(value) => setRevisionForm({ ...revisionForm, assignedContributorId: value })} options={users.filter((user) => user.role === "CONTRIBUTOR").map((user) => ({ value: user.id, label: user.name }))} />
             <SelectField label="Visibility bản cũ" value={revisionForm.visibilityAction} onChange={(value) => setRevisionForm({ ...revisionForm, visibilityAction: value })} options={visibilityActionOptions} />
             <label><span>Target version</span><input value={revisionForm.targetVersion} onChange={(event) => setRevisionForm({ ...revisionForm, targetVersion: event.target.value })} /></label>
             <label><span>Required changes</span><textarea value={revisionForm.requiredChanges} onChange={(event) => setRevisionForm({ ...revisionForm, requiredChanges: event.target.value })} /></label>
-            <button className="primary-btn wide" disabled={!canDecide} type="button" onClick={() => createRevision(task, revisionForm)}>Tạo Revision Task</button>
+            <button className="primary-btn wide" disabled={!canDecide} type="button" onClick={() => createRevision(task, revisionForm)}>Tạo nhiệm vụ chỉnh sửa</button>
           </article>
           <article className="panel action-panel">
             <h3>Suspend / Supersede / Archive</h3>
             <label><span>Warning khi suspend</span><textarea value={suspendForm.warning} onChange={(event) => setSuspendForm({ ...suspendForm, warning: event.target.value })} /></label>
             <button className="primary-btn danger-btn wide" disabled={!canDecide} type="button" onClick={() => suspend(task, suspendForm)}>Suspend ngay</button>
-            <SelectField label="Replacement Published" value={supersedeForm.replacementKnowledgeId} onChange={(value) => setSupersedeForm({ ...supersedeForm, replacementKnowledgeId: value })} options={knowledgeCatalog.filter((item) => item.id !== knowledgeItem.id && item.status === "PUBLISHED").map((item) => ({ value: item.id, label: `${item.id} - ${item.title}` }))} />
+            <SelectField label="Nội dung thay thế đang hiệu lực" value={supersedeForm.replacementKnowledgeId} onChange={(value) => setSupersedeForm({ ...supersedeForm, replacementKnowledgeId: value })} options={knowledgeCatalog.filter((item) => item.id !== knowledgeItem.id && item.status === "PUBLISHED").map((item) => ({ value: item.id, label: `${item.id} - ${item.title}` }))} />
             <button className="secondary-btn wide" disabled={!canDecide || !supersedeForm.replacementKnowledgeId} type="button" onClick={() => supersede(task, supersedeForm)}>Supersede</button>
             <label><span>Lý do archive</span><textarea value={archiveForm.reason} onChange={(event) => setArchiveForm({ reason: event.target.value })} /></label>
             <button className="ghost-btn wide" disabled={!canDecide} type="button" onClick={() => archiveContent(task, archiveForm)}>Archive</button>
@@ -608,7 +608,7 @@ function ContributorRevisionQueue({ tasks, reviewTasks, knowledgeCatalog, curren
   const mine = tasks.filter((item) => item.assignedContributorId === currentUser.id || currentUser.role === "ADMINISTRATOR");
   return (
     <section className="page">
-      <PageHeading eyebrow="FL-05" title="Revision task của tôi" description="Contributor xử lý revision từ lifecycle review. SOP sẽ mở sang FL-03, Article/Case xử lý trong workspace FL-05." />
+      <PageHeading title="Nhiệm vụ chỉnh sửa của tôi" description="Người biên soạn xử lý yêu cầu chỉnh sửa từ rà soát vòng đời. SOP sẽ mở thành nhiệm vụ SOP, bài viết hoặc ca sửa chữa xử lý trong không gian làm việc." />
       <div className="submission-list">
         {mine.map((task) => {
           const item = knowledgeCatalog.find((entry) => entry.id === task.knowledgeId);
@@ -616,14 +616,14 @@ function ContributorRevisionQueue({ tasks, reviewTasks, knowledgeCatalog, curren
           return (
             <article className="submission-card" key={task.revisionTaskId}>
               <div>
-                <div className="card-badges"><Badge>{task.targetFlow}</Badge><Badge>{task.status}</Badge><Badge tone={task.changeType === "MAJOR" ? "warning" : "neutral"}>{task.changeType}</Badge></div>
+                <div className="card-badges"><Badge>{task.targetFlow === "FL-03" ? "SOP" : "Nội dung"}</Badge><Badge>{task.status}</Badge><Badge tone={task.changeType === "MAJOR" ? "warning" : "neutral"}>{task.changeType}</Badge></div>
                 <h3>{item?.title || task.knowledgeId}</h3>
                 <p>{task.requiredChanges.join("; ")}</p>
-                <small>{task.revisionTaskId} - Review {review?.reviewTaskId} - Assignee {personName(users, task.assignedContributorId)}</small>
+                <small>{task.revisionTaskId} - Rà soát {review?.reviewTaskId} - Người nhận {personName(users, task.assignedContributorId)}</small>
               </div>
               <div className="submission-actions">
                 <button className="secondary-btn" type="button" onClick={() => startRevisionWork(task)}>Bắt đầu</button>
-                {task.targetFlow === "FL-03" ? <button className="primary-btn" type="button" onClick={() => openSopRevision(task)}>Mở FL-03</button> : <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-revision-workspace", { taskId: task.revisionTaskId })}>Mở workspace</button>}
+                {task.targetFlow === "FL-03" ? <button className="primary-btn" type="button" onClick={() => openSopRevision(task)}>Mở nhiệm vụ SOP</button> : <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-revision-workspace", { taskId: task.revisionTaskId })}>Mở không gian làm việc</button>}
               </div>
             </article>
           );
@@ -641,8 +641,8 @@ function RevisionWorkspace({ task, knowledgeItem, users, navigate, startRevision
   });
   return (
     <section className="page detail-page">
-      <BackButton label="Quay lại revision tasks" onClick={() => navigate("my-revision-tasks")} />
-      <PageHeading eyebrow={`Revision - ${task.revisionTaskId}`} title={knowledgeItem.title} description={`Target: ${task.targetVersion} - ${task.targetFlow}`}>
+      <BackButton label="Quay lại nhiệm vụ chỉnh sửa" onClick={() => navigate("my-revision-tasks")} />
+      <PageHeading eyebrow={`Chỉnh sửa - ${task.revisionTaskId}`} title={knowledgeItem.title} description={`Phiên bản mục tiêu: ${task.targetVersion}`}>
         <Badge>{task.status}</Badge>
       </PageHeading>
       <div className="detail-layout">
@@ -651,15 +651,15 @@ function RevisionWorkspace({ task, knowledgeItem, users, navigate, startRevision
             <Checklist items={task.requiredChanges} />
           </Section>
           {task.targetFlow === "FL-03" ? (
-            <Section title="Route SOP sang FL-03">
-              <div className="trace-note"><strong>SOP không sửa trực tiếp trong FL-05.</strong> Bấm mở FL-03 để tạo SOP task và soạn version mới.</div>
-              <button className="primary-btn" type="button" onClick={() => openSopRevision(task)}><BookOpen size={16} />Mở FL-03 SOP Update</button>
+            <Section title="Chuyển sang nhiệm vụ SOP">
+              <div className="trace-note"><strong>SOP không sửa trực tiếp trong màn rà soát vòng đời.</strong> Bấm mở nhiệm vụ SOP để soạn phiên bản mới.</div>
+              <button className="primary-btn" type="button" onClick={() => openSopRevision(task)}><BookOpen size={16} />Mở nhiệm vụ cập nhật SOP</button>
             </Section>
           ) : (
-            <Section title="Revision editor">
+            <Section title="Trình chỉnh sửa">
               <label><span>Tiêu đề</span><input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} /></label>
               <label><span>Tóm tắt</span><textarea value={form.summary} onChange={(event) => setForm({ ...form, summary: event.target.value })} /></label>
-              <label><span>Change summary</span><textarea value={form.changeSummary} onChange={(event) => setForm({ ...form, changeSummary: event.target.value })} /></label>
+              <label><span>Tóm tắt thay đổi</span><textarea value={form.changeSummary} onChange={(event) => setForm({ ...form, changeSummary: event.target.value })} /></label>
               <div className="form-actions">
                 <button className="secondary-btn" type="button" onClick={() => startRevisionWork(task)}>Lưu tiến độ</button>
                 <button className="primary-btn" type="button" onClick={() => submitArticleRevision(task, form)}>Gửi tái duyệt</button>
@@ -669,10 +669,10 @@ function RevisionWorkspace({ task, knowledgeItem, users, navigate, startRevision
         </article>
         <aside className="detail-aside">
           <article className="panel">
-            <h3>Traceability</h3>
+            <h3>Truy vết</h3>
             <InfoGrid rows={[
-              ["Review task", task.sourceReviewTaskId],
-              ["Contributor", personName(users, task.assignedContributorId)],
+              ["Nhiệm vụ rà soát", task.sourceReviewTaskId],
+              ["Người biên soạn", personName(users, task.assignedContributorId)],
               ["Visibility bản cũ", task.visibilityAction],
               ["SOP task", task.sopTaskId]
             ]} />
@@ -689,7 +689,7 @@ function LifecycleRereview({ task, knowledgeItem, users, currentUser, navigate, 
   return (
     <section className="page detail-page">
       <BackButton label="Quay lại hàng đợi" onClick={() => navigate("lifecycle-review-queue")} />
-      <PageHeading eyebrow={`Re-review - ${task.revisionTaskId}`} title={knowledgeItem.title} description={`Contributor: ${personName(users, task.assignedContributorId)} - ${task.targetVersion}`}>
+      <PageHeading eyebrow={`Tái duyệt - ${task.revisionTaskId}`} title={knowledgeItem.title} description={`Người biên soạn: ${personName(users, task.assignedContributorId)} - ${task.targetVersion}`}>
         <Badge>{task.status}</Badge>
       </PageHeading>
       <div className="detail-layout">
@@ -763,7 +763,7 @@ function LifecycleHistory({ id, knowledgeCatalog, lifecycleItems, reviewTasks, r
             ["Issue reports", relatedIssues.map((issue) => issue.issueReportId).join(", ")],
             ["Decisions", relatedDecisions.map((decision) => decision.decisionType).join(", ")]
           ]} />
-          {item && <button className="primary-btn" type="button" onClick={() => openItem(item)}>Mở nội dung trong FL-01</button>}
+          {item && <button className="primary-btn" type="button" onClick={() => openItem(item)}>Mở nội dung trong kho tri thức</button>}
         </article>
         <article className="panel">
           <h3>Audit Trail</h3>
@@ -781,13 +781,13 @@ function LifecyclePolicySettings({ policies, setPolicies, currentRole, navigate,
   }
   function save() {
     setPolicies(localPolicies);
-    setToast("Đã lưu policy mock cho FL-05.");
+    setToast("Đã lưu chính sách rà soát mẫu.");
   }
   return (
     <section className="page">
-      <BackButton label="Quay lại Lifecycle Dashboard" onClick={() => navigate("lifecycle-dashboard")} />
-      <PageHeading eyebrow="Admin" title="Review Policy Settings" description="Cấu hình mock policy phục vụ demo, không phải scheduler thật." />
-      {currentRole !== "ADMINISTRATOR" && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Chỉ Administrator được xem đây là màn hình cấu hình. Prototype vẫn cho chỉnh để demo.</span></div>}
+      <BackButton label="Quay lại bảng vòng đời" onClick={() => navigate("lifecycle-dashboard")} />
+      <PageHeading eyebrow="Quản trị" title="Cấu hình chính sách rà soát" description="Cấu hình chính sách mẫu phục vụ demo, không phải bộ lập lịch thật." />
+      {currentRole !== "ADMINISTRATOR" && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Chỉ quản trị viên được xem đây là màn hình cấu hình. Prototype vẫn cho chỉnh để demo.</span></div>}
       <div className="submission-list">
         {localPolicies.map((policy, index) => (
           <article className="submission-card" key={policy.policyId}>
@@ -817,7 +817,7 @@ function LifecycleSuccess({ id, navigate }) {
         <h2>Đã ghi nhận quyết định vòng đời</h2>
         <p>Event/Task: {id}. Mock data đã được lưu trong localStorage và sẽ giữ sau khi reload.</p>
         <div className="form-actions">
-          <button className="secondary-btn" type="button" onClick={() => navigate("lifecycle-dashboard")}>Lifecycle Dashboard</button>
+          <button className="secondary-btn" type="button" onClick={() => navigate("lifecycle-dashboard")}>Bảng vòng đời</button>
           <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-review-queue")}>Hàng đợi rà soát</button>
         </div>
       </div>
@@ -843,10 +843,11 @@ function Metric({ label, value, detail, tone }) {
 }
 
 function PageHeading({ eyebrow, title, description, children }) {
+  const visibleEyebrow = eyebrow && !/^FL-\d/i.test(String(eyebrow)) ? eyebrow : "";
   return (
     <div className="page-header">
       <div>
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        {visibleEyebrow && <p className="eyebrow">{visibleEyebrow}</p>}
         <h2>{title}</h2>
         {description && <p>{description}</p>}
       </div>
@@ -864,7 +865,7 @@ function InfoGrid({ rows }) {
 }
 
 function Timeline({ events = [] }) {
-  if (!events.length) return <p className="hint">Chưa có event lifecycle.</p>;
+  if (!events.length) return <p className="hint">Chưa có sự kiện vòng đời.</p>;
   return <ol className="timeline">{events.map((event) => <li key={event.eventId || event.id}><strong>{event.action}</strong><span>{displayDateTime(event.timestamp || event.createdAt)} - {event.actorId}</span><p>{event.metadata ? Object.entries(event.metadata).map(([key, value]) => `${key}: ${value}`).join("; ") : event.comment}</p></li>)}</ol>;
 }
 
@@ -910,8 +911,8 @@ function MissingLifecycle({ navigate, title }) {
       <article className="empty-state">
         <FileClock size={34} />
         <h3>{title}</h3>
-        <p>Object này không còn trong mock data hoặc localStorage đã được reset.</p>
-        <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-dashboard")}>Lifecycle Dashboard</button>
+        <p>Đối tượng này không còn trong dữ liệu mẫu hoặc localStorage đã được đặt lại.</p>
+        <button className="primary-btn" type="button" onClick={() => navigate("lifecycle-dashboard")}>Bảng vòng đời</button>
       </article>
     </section>
   );

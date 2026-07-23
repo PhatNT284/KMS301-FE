@@ -126,7 +126,7 @@ const searchStatusOptions = [
   { value: "SUSPENDED", label: "Tạm ngừng" },
   { value: "SUPERSEDED", label: "Đã thay thế" },
   { value: "ARCHIVED", label: "Đã lưu trữ" },
-  { value: "OUTDATED", label: "Outdated" }
+  { value: "OUTDATED", label: "Lỗi thời" }
 ];
 
 const navItems = [
@@ -140,8 +140,8 @@ const navItems = [
 ];
 
 const statusLabels = {
-  PUBLISHED: "Published",
-  OUTDATED: "Outdated",
+  PUBLISHED: "Đang hiệu lực",
+  OUTDATED: "Lỗi thời",
   REVIEW_DUE: "Đến hạn rà soát",
   FLAGGED: "Bị gắn cờ",
   UNDER_REVIEW: "Đang rà soát",
@@ -154,9 +154,9 @@ const statusLabels = {
 
 const contentTypeLabels = {
   SOP: "SOP",
-  REPAIR_CASE: "Repair Case",
-  LESSON_LEARNED: "Lesson Learned",
-  ARTICLE: "Article"
+  REPAIR_CASE: "Ca sửa chữa",
+  LESSON_LEARNED: "Bài học kinh nghiệm",
+  ARTICLE: "Bài viết"
 };
 
 const roleLabels = Object.fromEntries(users.map((user) => [user.role, user.label]));
@@ -926,7 +926,7 @@ function App() {
       sourceSubmissionId: "",
       relatedAssetTypes: sop.assetTypes,
       relatedFaultType: sop.faultType,
-      businessReason: "Contributor tạo version mới từ thư viện SOP để cập nhật nội dung đã xuất bản.",
+      businessReason: "Người biên soạn tạo phiên bản mới từ thư viện SOP để cập nhật nội dung đã xuất bản.",
       requestedChanges: ["Rà soát và cập nhật SOP theo feedback hoặc yêu cầu nghiệp vụ mới."],
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       createdAt: nowIso()
@@ -934,13 +934,13 @@ function App() {
     const draft = buildDraftFromTask(task, currentUser, sop);
     setSopTasks((items) => [task, ...items]);
     setSopDrafts((items) => [draft, ...items]);
-    setToast("Đã tạo Draft SOP version mới.");
+    setToast("Đã tạo bản nháp phiên bản SOP mới.");
     navigate("sop-editor", { id: draft.id, step: "metadata" });
   }
 
   function startNewSop() {
     if (!["CONTRIBUTOR", "KNOWLEDGE_MANAGER"].includes(currentRole)) {
-      setToast("Chỉ Contributor hoặc Knowledge Manager được khởi tạo SOP mới.");
+      setToast("Chỉ người đóng góp tri thức hoặc quản lý tri thức được khởi tạo SOP mới.");
       return;
     }
     const task = {
@@ -949,7 +949,7 @@ function App() {
       type: "NEW_SOP",
       status: "OPEN",
       priority: "MEDIUM",
-      title: "Đề xuất SOP mới từ FL-03",
+      title: "Đề xuất SOP mới",
       proposedTitle: "SOP mới cần chuẩn hóa",
       existingSopId: "",
       currentVersion: "",
@@ -960,11 +960,11 @@ function App() {
       sourceSubmissionId: "",
       relatedAssetTypes: ["CITYTOUCH_NODE"],
       relatedFaultType: "CONNECTIVITY_LOSS",
-      businessReason: "Khởi tạo từ CTA Tạo SOP mới theo đặc tả FL-03 v1.1. Người biên soạn cần bổ sung nguồn traceability trước khi gửi duyệt.",
+      businessReason: "Khởi tạo từ nút Tạo SOP mới. Người biên soạn cần bổ sung nguồn truy vết trước khi gửi duyệt.",
       requestedChanges: [
         "Mô tả business reason và phạm vi áp dụng của SOP mới.",
         "Bổ sung source knowledge, source submission hoặc nguồn ngoài trước khi submit.",
-        "Hoàn thiện metadata, safety, procedure và review checklist theo quy trình FL-03."
+        "Hoàn thiện metadata, an toàn, quy trình thực hiện và danh sách kiểm tra trước khi gửi duyệt."
       ],
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
       createdAt: nowIso()
@@ -982,7 +982,7 @@ function App() {
     }
     const task = buildSopTaskFromRequest(request, currentUser);
     setSopTasks((items) => [task, ...items]);
-    setToast("Đã tạo nhiệm vụ chuẩn hóa SOP từ yêu cầu FL-02.");
+    setToast("Đã tạo nhiệm vụ chuẩn hóa SOP từ yêu cầu hiện trường.");
     navigate("sop-task-detail", { id: task.id });
   }
 
@@ -995,7 +995,7 @@ function App() {
     }
     const task = buildSopTaskFromKnowledgeRequest(request, currentUser);
     setSopTasks((items) => [task, ...items]);
-    setToast("Đã chuyển thành nhiệm vụ SOP (FL-03).");
+    setToast("Đã chuyển thành nhiệm vụ SOP.");
     navigate("sop-task-detail", { id: task.id });
     return task;
   }
@@ -1003,13 +1003,13 @@ function App() {
   function startLifecycleSopRevision(revisionTask, reviewTask, knowledgeItem) {
     const existingTask = sopTasks.find((task) => task.sourceRevisionTaskId === revisionTask.revisionTaskId || task.sourceLifecycleReviewId === revisionTask.sourceReviewTaskId);
     if (existingTask) {
-      setToast("Nhiệm vụ SOP từ FL-05 đã tồn tại.");
+      setToast("Nhiệm vụ SOP từ rà soát vòng đời đã tồn tại.");
       navigate("sop-task-detail", { id: existingTask.id });
       return existingTask;
     }
     const task = buildSopTaskFromLifecycleRevision(revisionTask, reviewTask, knowledgeItem, currentUser);
     setSopTasks((items) => [task, ...items]);
-    setToast("Đã tạo nhiệm vụ SOP từ FL-05 và chuyển sang FL-03.");
+    setToast("Đã tạo nhiệm vụ SOP từ rà soát vòng đời.");
     navigate("sop-task-detail", { id: task.id });
     return task;
   }
@@ -1053,7 +1053,7 @@ function App() {
         { id: makeId("SOPD-EVT"), action: "APPROVE_AND_PUBLISH", actorId: currentUser.id, comment: `Xuất bản ${publishForm.version}.`, createdAt: nowIso() }
       ]
     }));
-    setToast("Đã xuất bản SOP và cập nhật FL-01/SOP Library.");
+    setToast("Đã xuất bản SOP và cập nhật kho tri thức.");
     navigate("sop-detail", { id: draft.sopId });
   }
 
@@ -1167,7 +1167,7 @@ function App() {
       ...events
     ]);
     setIssueReportItem(null);
-    setToast("Đã tạo Issue Report và Review Task FL-05.");
+    setToast("Đã tạo báo cáo vấn đề và nhiệm vụ rà soát.");
     navigate("lifecycle-review-detail", { id: linkedTask.reviewTaskId });
   }
 
@@ -1219,7 +1219,7 @@ function App() {
       objectType: "DemoSeedState",
       objectId: nextConfig.seedState.seedVersion,
       result: "SUCCESS",
-      reason: "Reset FL-06 seed data từ Admin Console.",
+      reason: "Đặt lại dữ liệu mẫu từ bảng quản trị.",
       before: adminConfig.seedState.checksum,
       after: nextConfig.seedState.checksum,
       createdAt: resetAt
@@ -1231,7 +1231,7 @@ function App() {
     setAdminAuditEvents([event, ...cloneAdminAuditEvents()]);
     setAdminSimulation(null);
     setCurrentRole("ADMINISTRATOR");
-    setToast("Đã reset FL-06 seed và đưa role về Quản trị viên.");
+    setToast("Đã đặt lại dữ liệu quản trị và đưa vai trò về Quản trị viên.");
     navigate("admin-operation-result", { id: event.eventId });
   }
 
@@ -1302,8 +1302,8 @@ function Sidebar({ activeNav, navigate, currentRole }) {
       <div className="brand-block">
         <div className="brand-icon"><Lightbulb size={22} /></div>
         <div>
-          <h1>Cục Chiếu sáng Đường phố LA</h1>
-          <p>Hệ thống Quản lý Tri thức</p>
+          <h1>Quản lý tri thức</h1>
+          <p>Hệ thống vận hành chiếu sáng</p>
         </div>
       </div>
       <nav className="side-nav" aria-label="Điều hướng chính">
@@ -1328,7 +1328,7 @@ function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo, roleOptio
   return (
     <header className="topbar">
       <div className="topbar-title">
-        <strong>FL-01 đến FL-06</strong>
+        <strong>Hệ thống quản lý tri thức</strong>
         <span>{adminSimulation ? `Đang mô phỏng ${adminRoleLabels[currentRole] || currentRole}` : "Tìm kiếm, gửi, chuẩn hóa, vòng đời và quản trị tri thức"}</span>
       </div>
       <div className="topbar-actions">
@@ -1339,7 +1339,7 @@ function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo, roleOptio
           </select>
         </label>
         {adminSimulation && <button className="secondary-btn" onClick={exitSimulation} type="button"><ShieldCheck size={16} />Thoát mô phỏng</button>}
-        <button className="ghost-btn" onClick={resetDemo} type="button"><RotateCcw size={16} />Reset Demo</button>
+        <button className="ghost-btn" onClick={resetDemo} type="button"><RotateCcw size={16} />Đặt lại dữ liệu</button>
         <div className="profile-chip">{currentUser.name}</div>
       </div>
     </header>
@@ -1347,10 +1347,11 @@ function TopBar({ currentRole, setCurrentRole, currentUser, resetDemo, roleOptio
 }
 
 function PageHeader({ eyebrow, title, description, children }) {
+  const visibleEyebrow = eyebrow && !/^FL-\d/i.test(String(eyebrow)) ? eyebrow : "";
   return (
     <div className="page-header">
       <div>
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        {visibleEyebrow && <p className="eyebrow">{visibleEyebrow}</p>}
         <h2>{title}</h2>
         {description && <p>{description}</p>}
       </div>
@@ -1367,16 +1368,16 @@ function Dashboard({ searchParams, setSearchParams, runSearch, openItem, navigat
 
   return (
     <section className="page">
-      <PageHeader title="Tìm kiếm tri thức LABSL" description="Điểm vào nhanh cho Field Technician tìm SOP, repair case và bài học đã kiểm chứng." />
+      <PageHeader title="Tìm kiếm tri thức" description="Điểm vào nhanh cho kỹ thuật viên tìm SOP, ca sửa chữa và bài học đã kiểm chứng." />
       <div className="capture-strip">
         <article>
-          <span>FL-02</span>
+          <span>Ghi nhận hiện trường</span>
           <h3>Gửi tri thức hiện trường</h3>
-          <p>Ghi lại case vừa xử lý, SOP đã dùng, bằng chứng và bài học để Knowledge Manager kiểm duyệt.</p>
+          <p>Ghi lại ca vừa xử lý, SOP đã dùng, bằng chứng và bài học để quản lý tri thức kiểm duyệt.</p>
         </article>
         <div className="capture-actions">
           <button className="primary-btn" type="button" onClick={() => createFieldSubmission({})}><Plus size={17} />Gửi tri thức hiện trường</button>
-          <button className="secondary-btn" type="button" onClick={() => navigate("my-submissions")}><ClipboardList size={17} />Submission của tôi</button>
+          <button className="secondary-btn" type="button" onClick={() => navigate("my-submissions")}><ClipboardList size={17} />Bản gửi của tôi</button>
           {currentRole === "KNOWLEDGE_MANAGER" && <button className="ghost-btn" type="button" onClick={() => navigate("review-queue")}>Mở hàng đợi xét duyệt</button>}
         </div>
         <div className="mini-metrics">
@@ -1387,7 +1388,7 @@ function Dashboard({ searchParams, setSearchParams, runSearch, openItem, navigat
       <div className="hero-search">
         <div>
           <h3>Nhập từ khóa, Asset ID hoặc triệu chứng</h3>
-          <p>Ví dụ demo: CityTouch node offline, CTN-1108, quantum relay mismatch.</p>
+          <p>Ví dụ: CityTouch node offline, CTN-1108, mất kết nối gateway.</p>
         </div>
         <form className="dashboard-search-form" onSubmit={(event) => { event.preventDefault(); runSearch(searchParams); }}>
           <Search size={20} />
@@ -1396,7 +1397,7 @@ function Dashboard({ searchParams, setSearchParams, runSearch, openItem, navigat
             onChange={(event) => setSearchParams({ ...searchParams, query: event.target.value })}
             placeholder="Nhập từ khóa, Asset ID hoặc triệu chứng"
           />
-          <button className="primary-btn" type="submit">Search Knowledge</button>
+          <button className="primary-btn" type="submit">Tìm kiếm tri thức</button>
         </form>
       </div>
       <div className="metric-grid">
@@ -1439,7 +1440,7 @@ function CardList({ title, items, openItem }) {
 function AdvancedSearch({ searchParams, setSearchParams, runSearch, validationError, recentSearches, taxonomySource }) {
   return (
     <section className="page">
-      <PageHeader title="Tìm kiếm nâng cao" description="Thu thập query và filter có cấu trúc trước khi render kết quả." />
+      <PageHeader title="Tìm kiếm nâng cao" description="Nhập từ khóa và bộ lọc có cấu trúc trước khi xem kết quả." />
       <SearchForm searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} taxonomySource={taxonomySource} />
       {recentSearches.length > 0 && (
         <article className="panel">
@@ -1544,7 +1545,7 @@ function SearchResults({ searchParams, setSearchParams, runSearch, validationErr
       <PageHeader
         eyebrow={roleLabels[currentRole]}
         title={isKnowledgeBase ? "Cơ sở tri thức" : "Kết quả tìm kiếm"}
-        description={`${results.length} nội dung cho ${searchContext}. Visibility được lọc theo vai trò trước khi render.`}
+        description={`${results.length} nội dung cho ${searchContext}. Quyền xem được kiểm tra theo vai trò trước khi hiển thị.`}
       />
       <SearchForm compact searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} taxonomySource={taxonomySource} />
       {results.length === 0 ? (
@@ -1577,16 +1578,16 @@ function KnowledgeCard({ item, openItem }) {
       <div className="card-badges">
         <Badge>{contentTypeLabels[item.contentType]}</Badge>
         <Badge tone={statusTone(item.status)} icon={item.status === "PUBLISHED" ? <CheckCircle2 size={13} /> : <AlertTriangle size={13} />}>{statusLabels[item.status]}</Badge>
-        {restricted && <Badge tone="danger" icon={<Lock size={13} />}>Restricted</Badge>}
+        {restricted && <Badge tone="danger" icon={<Lock size={13} />}>Hạn chế</Badge>}
         <Badge tone="neutral">{item.version}</Badge>
       </div>
       <h3>{item.title}</h3>
       <p>{item.summary}</p>
       <dl className="card-meta">
-        <div><dt>Owner</dt><dd>{item.knowledgeManagerName}</dd></div>
-        <div><dt>Updated</dt><dd>{item.updatedDate}</dd></div>
-        <div><dt>Helpful</dt><dd>{item.feedbackCount >= 5 ? `${item.helpfulRate}%` : "N/A"}</dd></div>
-        <div><dt>Match</dt><dd>{item.computedScore >= 70 ? "High match" : item.computedScore >= 35 ? "Medium match" : "Low match"}</dd></div>
+        <div><dt>Chủ sở hữu</dt><dd>{item.knowledgeManagerName}</dd></div>
+        <div><dt>Cập nhật</dt><dd>{item.updatedDate}</dd></div>
+        <div><dt>Hữu ích</dt><dd>{item.feedbackCount >= 5 ? `${item.helpfulRate}%` : "Chưa có"}</dd></div>
+        <div><dt>Độ khớp</dt><dd>{item.computedScore >= 70 ? "Cao" : item.computedScore >= 35 ? "Trung bình" : "Thấp"}</dd></div>
       </dl>
       <button className="primary-btn" type="button" onClick={() => openItem(item)}>Mở nội dung <ChevronRight size={16} /></button>
     </article>
@@ -1598,11 +1599,11 @@ function NoResult({ searchParams, createKnowledgeRequest }) {
     <article className="empty-state">
       <Search size={34} />
       <h3>Không tìm thấy kết quả phù hợp.</h3>
-      <p>Không khẳng định là chưa có tri thức; chỉ là không có kết quả theo query/filter hiện tại.</p>
+      <p>Không khẳng định là chưa có tri thức; chỉ là không có kết quả theo từ khóa/bộ lọc hiện tại.</p>
       <ul>
-        <li>Kiểm tra Asset ID hoặc bỏ bớt filter.</li>
+        <li>Kiểm tra Asset ID hoặc bỏ bớt bộ lọc.</li>
         <li>Dùng từ khóa liên quan như CityTouch, node offline, gateway.</li>
-        <li>Tạo Knowledge Request để ghi nhận khoảng trống tri thức.</li>
+        <li>Tạo yêu cầu bổ sung tri thức để ghi nhận khoảng trống.</li>
       </ul>
       <button className="primary-btn" type="button" onClick={() => createKnowledgeRequest({ ...searchParams, origin: "NEW_GAP", filters: searchParams, resultCount: 0 })}>Yêu cầu bổ sung tri thức</button>
     </article>
@@ -1617,14 +1618,14 @@ function KnowledgeDetail({ item, openItem, navigate, feedbackEvents, submitFeedb
       <StateBanner item={item} openItem={openItem} />
       <div className="detail-layout">
         <article className="panel article">
-          <Section title="Summary"><p>{item.summary}</p></Section>
-          <Section title="Context">
-            <InfoGrid rows={[["Asset ID", item.assetIds.join(", ")], ["Asset Type", item.assetTypes.join(", ")], ["Location", item.location], ["Incident Date", item.incidentDate], ["Symptom", item.symptom]]} />
+          <Section title="Tóm tắt"><p>{item.summary}</p></Section>
+          <Section title="Bối cảnh">
+            <InfoGrid rows={[["Asset ID", item.assetIds.join(", ")], ["Loại thiết bị", item.assetTypes.join(", ")], ["Vị trí", item.location], ["Ngày xảy ra", item.incidentDate], ["Triệu chứng", item.symptom]]} />
           </Section>
-          <Section title="Diagnosis"><p>{item.diagnosisMethod}</p><p><strong>Root cause:</strong> {item.rootCause}</p></Section>
-          <Section title="Resolution"><p>{item.repairAction}</p><p><strong>Outcome:</strong> {item.outcome}</p></Section>
-          <Section title="Lesson Learned"><div className="lesson-box">{item.lessonLearned}</div></Section>
-          <Section title="Evidence"><div className="evidence-grid">{[...(item.evidence || []), ...(item.telemetry || [])].map((entry) => <span key={entry}>{entry}</span>)}</div></Section>
+          <Section title="Chẩn đoán"><p>{item.diagnosisMethod}</p><p><strong>Nguyên nhân gốc:</strong> {item.rootCause}</p></Section>
+          <Section title="Cách xử lý"><p>{item.repairAction}</p><p><strong>Kết quả:</strong> {item.outcome}</p></Section>
+          <Section title="Bài học kinh nghiệm"><div className="lesson-box">{item.lessonLearned}</div></Section>
+          <Section title="Bằng chứng"><div className="evidence-grid">{[...(item.evidence || []), ...(item.telemetry || [])].map((entry) => <span key={entry}>{entry}</span>)}</div></Section>
         </article>
         <DetailAside item={item} openItem={openItem} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} navigate={navigate} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} />
       </div>
@@ -1642,12 +1643,12 @@ function SopDetail(props) {
       <StateBanner item={item} openItem={openItem} />
       <div className="detail-layout">
         <article className="panel article">
-          <Section title="Applicability">
-            <InfoGrid rows={[["Purpose", item.purpose], ["Scope", item.scope], ["Assets", item.applicableAssets.join(", ")], ["Intended roles", item.intendedRoles.join(", ")]]} />
+          <Section title="Phạm vi áp dụng">
+            <InfoGrid rows={[["Mục đích", item.purpose], ["Phạm vi", item.scope], ["Thiết bị áp dụng", item.applicableAssets.join(", ")], ["Vai trò áp dụng", item.intendedRoles.join(", ")]]} />
           </Section>
           <SafetyBanner item={item} />
-          <Section title="Preconditions"><Checklist items={[...(item.preconditions || []), ...(item.requiredTools || [])]} /></Section>
-          <Section title="Procedure Steps">
+          <Section title="Điều kiện trước khi thực hiện"><Checklist items={[...(item.preconditions || []), ...(item.requiredTools || [])]} /></Section>
+          <Section title="Các bước thực hiện">
             <ol className="procedure-list">
               {item.steps.map((step, index) => (
                 <li key={step.title}>
@@ -1661,8 +1662,8 @@ function SopDetail(props) {
               ))}
             </ol>
           </Section>
-          {item.decisionPoints.length > 0 && <Section title="Decision Points">{item.decisionPoints.map((point) => <div className="decision-card" key={point.condition}><strong>{point.condition}</strong><p>Có: {point.yesAction}</p><p>Không: {point.noAction}</p></div>)}</Section>}
-          <Section title="Completion"><Checklist items={item.completionCriteria} /></Section>
+          {item.decisionPoints.length > 0 && <Section title="Điểm quyết định">{item.decisionPoints.map((point) => <div className="decision-card" key={point.condition}><strong>{point.condition}</strong><p>Có: {point.yesAction}</p><p>Không: {point.noAction}</p></div>)}</Section>}
+          <Section title="Tiêu chí hoàn tất"><Checklist items={item.completionCriteria} /></Section>
         </article>
         <DetailAside {...props} />
       </div>
@@ -1681,13 +1682,13 @@ function DetailHeader({ item }) {
 
 function StateBanner({ item, openItem }) {
   if (item.status === "REVIEW_DUE") {
-    return <div className="warning-banner"><FileClock size={20} /><span>Nội dung đã đến hạn rà soát vòng đời. Có thể tiếp tục xem nhưng cần Knowledge Manager xác nhận lại.</span></div>;
+    return <div className="warning-banner"><FileClock size={20} /><span>Nội dung đã đến hạn rà soát vòng đời. Có thể tiếp tục xem nhưng cần quản lý tri thức xác nhận lại.</span></div>;
   }
   if (item.status === "FLAGGED") {
     return <div className="warning-banner"><ShieldAlert size={20} /><span>Nội dung đang bị gắn cờ do issue report hoặc feedback. Cần rà soát trước khi sử dụng cho tình huống rủi ro.</span></div>;
   }
   if (item.status === "UNDER_REVIEW" || item.status === "UPDATE_REQUIRED" || item.status === "UNDER_REVISION") {
-    return <div className="warning-banner neutral"><History size={20} /><span>{lifecycleStatusLabels[item.status]}. Nội dung đang trong quy trình FL-05.</span></div>;
+    return <div className="warning-banner neutral"><History size={20} /><span>{lifecycleStatusLabels[item.status]}. Nội dung đang trong quy trình rà soát vòng đời.</span></div>;
   }
   if (item.status === "SUSPENDED") {
     return <div className="warning-banner"><ShieldAlert size={20} /><span>Nội dung đã bị tạm ngừng. Không dùng cho tác nghiệp thông thường cho đến khi có bản cập nhật.</span>{item.lifecycle?.replacementKnowledgeId && <button onClick={() => openItem(knowledgeItems.find((x) => x.id === item.lifecycle.replacementKnowledgeId))}>Xem nội dung thay thế</button>}</div>;
@@ -1740,7 +1741,7 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
       <article className="panel action-panel">
         <h3>Áp dụng & phản hồi</h3>
         <button className="primary-btn wide" disabled={!canApply} onClick={() => setApplyItem(item)} type="button">Đánh dấu đã áp dụng</button>
-        {!canApply && <p className="hint">Không thể apply với trạng thái/role hiện tại.</p>}
+        {!canApply && <p className="hint">Không thể áp dụng với trạng thái hoặc vai trò hiện tại.</p>}
         {applied && <p className="success-note">Đã áp dụng: {applied.applicationOutcome}</p>}
         {applied && currentRole === "FIELD_TECHNICIAN" && <button className="secondary-btn wide" onClick={() => createFieldSubmission({ appliedItem: item })} type="button"><Plus size={16} />Ghi nhận tri thức hiện trường</button>}
         <div className="feedback-row">
@@ -1752,13 +1753,13 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
         <button className="ghost-btn wide" onClick={() => setIssueReportItem?.(item)}><ShieldAlert size={16} />Báo không an toàn</button>
       </article>
       <article className="panel governance">
-        <h3>Governance</h3>
-        <InfoGrid rows={[["Security", item.securityLevel], ["Effective", item.effectiveDate], ["Review", item.reviewDate], ["Views", String(item.viewCount)], ["Reuse", String(item.reuseCount + (applied ? 1 : 0))]]} />
+        <h3>Quản trị nội dung</h3>
+        <InfoGrid rows={[["Mức bảo mật", item.securityLevel], ["Hiệu lực", item.effectiveDate], ["Rà soát", item.reviewDate], ["Lượt xem", String(item.viewCount)], ["Tái sử dụng", String(item.reuseCount + (applied ? 1 : 0))]]} />
         {item.contentType === "SOP" && navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("sop-version-history", { id: item.id })}><History size={16} />Lịch sử phiên bản</button>}
-        {navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("lifecycle-history", { id: item.id })}><ShieldCheck size={16} />Lifecycle history</button>}
+        {navigate && <button className="secondary-btn wide" type="button" onClick={() => navigate("lifecycle-history", { id: item.id })}><ShieldCheck size={16} />Lịch sử vòng đời</button>}
       </article>
       <article className="panel">
-        <h3>Related</h3>
+        <h3>Nội dung liên quan</h3>
         <div className="compact-list">
           {(item.relatedItems || []).map((id) => {
             const related = knowledgeItems.find((entry) => entry.id === id);
@@ -1776,13 +1777,13 @@ function PublishedTraceability({ item, navigate, fieldSubmissions, sopRequests, 
   const relatedRequests = sopRequests.filter((request) => request.sourceKnowledgeId === item.id || request.sourceSubmissionId === item.sourceSubmissionId);
   return (
     <article className="panel traceability-panel">
-      <h3>Truy vết nguồn gốc FL-02</h3>
+      <h3>Truy vết nguồn gốc</h3>
       <InfoGrid rows={[
         ["Submission nguồn", item.sourceSubmissionId],
         ["Người gửi", source?.submittedBy],
         ["SOP đã dùng", item.appliedSopRefs?.map((ref) => `${ref.sopId} ${ref.version} (${ref.stepIds.join(", ")})`).join("; ")],
         ["SOP mục tiêu", item.targetSopId],
-        ["Yêu cầu FL-03", relatedRequests.map((request) => request.id).join(", ")]
+        ["Yêu cầu SOP", relatedRequests.map((request) => request.id).join(", ")]
       ]} />
       <div className="form-actions">
         {source && <button className="secondary-btn" type="button" onClick={() => navigate("submission-detail", { id: source.id })}>Xem submission nguồn</button>}
@@ -1801,7 +1802,7 @@ function SafetyBanner({ item }) {
     <section className={item.riskLevel === "Cao" ? "safety-banner danger" : "safety-banner"}>
       <ShieldAlert size={22} />
       <div>
-        <strong>Safety / PPE - Rủi ro {item.riskLevel}</strong>
+        <strong>An toàn / PPE - Rủi ro {item.riskLevel}</strong>
         <p>{item.warnings.join(" ")}</p>
         <div className="ppe-list">{item.ppe.map((ppe) => <span key={ppe}>{ppe}</span>)}</div>
       </div>
@@ -1829,8 +1830,8 @@ function AccessDenied({ navigate, currentRole }) {
         <h2>Bạn không có quyền xem nội dung này với vai trò hiện tại.</h2>
         <p>Role hiện tại: {roleLabels[currentRole]}. Prototype không render title/summary nhạy cảm từ resource bị giới hạn.</p>
         <div className="form-actions">
-          <button className="secondary-btn" onClick={() => navigate("search-results")} type="button">Back to Search</button>
-          <button className="primary-btn" onClick={() => navigate("dashboard")} type="button">Back to Dashboard</button>
+      <button className="secondary-btn" onClick={() => navigate("search-results")} type="button">Quay lại kết quả</button>
+      <button className="primary-btn" onClick={() => navigate("dashboard")} type="button">Về bảng điều khiển</button>
         </div>
       </article>
     </section>
@@ -1843,7 +1844,7 @@ function KnowledgeRequest({ draft, setDraft, setToast, navigate }) {
   const [description, setDescription] = useState(draft ? `Query: ${draft.query || "-"}\nFilter: ${JSON.stringify(draft.filters)}` : "");
   return (
     <section className="page">
-      <PageHeader title="Gửi yêu cầu bổ sung tri thức" description="Mock FL-04 entry: query/filter từ no-result được pre-fill." />
+      <PageHeader title="Gửi yêu cầu bổ sung tri thức" description="Form được điền sẵn từ từ khóa và bộ lọc không có kết quả phù hợp." />
       <form className="request-form" onSubmit={(event) => { event.preventDefault(); setDraft({ title, assetId, description, submittedAt: new Date().toISOString() }); setToast("Đã mô phỏng tạo Knowledge Request."); navigate("search"); }}>
         <label><span>Tiêu đề yêu cầu</span><input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
         <label><span>Asset ID</span><input value={assetId} onChange={(event) => setAssetId(event.target.value)} /></label>
@@ -1871,14 +1872,14 @@ function RequestHub({ tab, draft, setDraft, setToast, navigate, createFieldSubmi
           <article className="choice-card">
             <FileQuestion size={28} />
             <h3>Yêu cầu bổ sung tri thức</h3>
-            <p>Dùng khi FL-01 search không có kết quả phù hợp hoặc phát hiện khoảng trống tri thức.</p>
+            <p>Dùng khi tìm kiếm không có kết quả phù hợp hoặc phát hiện khoảng trống tri thức.</p>
             <button className="secondary-btn" onClick={() => navigate("request", { tab: "knowledge-request" })} type="button">Mở form yêu cầu</button>
           </article>
           <article className="choice-card">
             <ClipboardList size={28} />
             <h3>Gửi tri thức hiện trường</h3>
-            <p>Ghi nhận case thực tế, evidence, bài học và đề xuất cập nhật SOP để Knowledge Manager kiểm duyệt.</p>
-            <button className="primary-btn" onClick={() => navigate("request", { tab: "field-capture" })} type="button">Bắt đầu FL-02</button>
+            <p>Ghi nhận ca thực tế, bằng chứng, bài học và đề xuất cập nhật SOP để quản lý tri thức kiểm duyệt.</p>
+            <button className="primary-btn" onClick={() => navigate("request", { tab: "field-capture" })} type="button">Bắt đầu gửi</button>
           </article>
         </div>
       )}
@@ -2069,7 +2070,7 @@ function ResolutionStep({ submission, change, errors, searchRelated }) {
   return (
     <article className="panel form-panel">
       <h3>Bước 2/4 - Chẩn đoán và hành động sửa chữa</h3>
-      <button className="secondary-btn" type="button" onClick={searchRelated}><Search size={16} />Tìm tri thức liên quan trong FL-01</button>
+      <button className="secondary-btn" type="button" onClick={searchRelated}><Search size={16} />Tìm tri thức liên quan</button>
       <label><span>Triệu chứng quan sát được *</span><textarea value={resolution.symptomSummary} onChange={(event) => change("resolution.symptomSummary", event.target.value)} /><FieldError id="symptomSummary" errors={errors} /></label>
       <div className="form-main">
         <label><span>Mã lỗi / cảnh báo</span><input value={resolution.errorCode} onChange={(event) => change("resolution.errorCode", event.target.value)} /></label>
@@ -2234,11 +2235,11 @@ function SubmissionSuccess({ submission, navigate }) {
       <article className="success-screen">
         <CheckCircle2 size={46} />
         <h2>Đã gửi tri thức hiện trường để kiểm duyệt.</h2>
-        <p>Mã submission: <strong>{submission.id}</strong>. Knowledge Manager sẽ kiểm tra và có thể yêu cầu bổ sung.</p>
+        <p>Mã bản gửi: <strong>{submission.id}</strong>. Quản lý tri thức sẽ kiểm tra và có thể yêu cầu bổ sung.</p>
         <div className="form-actions">
           <button className="primary-btn" type="button" onClick={() => navigate("submission-detail", { id: submission.id })}>Xem submission</button>
           <button className="secondary-btn" type="button" onClick={() => navigate("my-submissions")}>Submission của tôi</button>
-          <button className="ghost-btn" type="button" onClick={() => navigate("dashboard")}>Về Dashboard</button>
+          <button className="ghost-btn" type="button" onClick={() => navigate("dashboard")}>Về bảng điều khiển</button>
         </div>
       </article>
     </section>
@@ -2346,9 +2347,9 @@ function ReviewQueue({ submissions, navigate, currentRole }) {
 
   return (
     <section className="page">
-      <PageHeader title="Hàng đợi xét duyệt FL-02" description="Knowledge Manager ưu tiên submission theo mức độ, safety flag và thời gian gửi." />
+      <PageHeader title="Hàng đợi xét duyệt" description="Quản lý tri thức ưu tiên bản gửi theo mức độ, cảnh báo an toàn và thời gian gửi." />
       <div className="queue-filters">
-        <span>Submitted / Resubmitted / In Review</span>
+        <span>Đã gửi / Gửi lại / Đang kiểm duyệt</span>
         <span>Ưu tiên Critical/Safety</span>
         <span>{queue.length} item chờ xử lý</span>
       </div>
@@ -2424,7 +2425,7 @@ function ReviewDetail({ submission, updateSubmission, currentUser, currentRole, 
       reviewHistory: [...(item.reviewHistory || []), { id: makeId("EVT"), action: "REQUEST_CHANGES", actorId: currentUser.id, comment: payload.comment, requestedFieldIds: payload.requestedFieldIds, createdAt: nowIso() }]
     }));
     setDecision(null);
-    setToast("Đã yêu cầu Field Technician bổ sung thông tin.");
+    setToast("Đã yêu cầu kỹ thuật viên hiện trường bổ sung thông tin.");
     navigate("review-queue");
   }
 
@@ -2464,7 +2465,7 @@ function ReviewDetail({ submission, updateSubmission, currentUser, currentRole, 
       reviewHistory: [...(item.reviewHistory || []), { id: makeId("EVT"), action: "APPROVE_PUBLISH", actorId: currentUser.id, comment: "Phê duyệt và xuất bản tri thức.", createdAt: nowIso() }]
     }));
     setDecision(null);
-    setToast(sopRequest ? "Đã publish tri thức và tạo handoff mock sang FL-03." : "Đã publish tri thức vào kho tri thức.");
+    setToast(sopRequest ? "Đã xuất bản tri thức và tạo nhiệm vụ SOP." : "Đã xuất bản tri thức vào kho tri thức.");
     navigate("knowledge-detail", { id: published.id });
   }
 
@@ -2636,7 +2637,7 @@ function PublishModal({ submission, close, confirm }) {
         </div>
         <label><span>Ngày review *</span><input type="date" value={form.reviewDate} onChange={(event) => setForm({ ...form, reviewDate: event.target.value })} /></label>
         <section className="nested-panel">
-          <h4>Đánh giá tiềm năng SOP / handoff FL-03</h4>
+          <h4>Đánh giá tiềm năng SOP</h4>
           <NativeSelect label="Tiềm năng SOP" value={form.sopPotential} onChange={(value) => setForm({ ...form, sopPotential: value })} options={[{ value: "NONE", label: "Không chuyển SOP" }, { value: "UPDATE_EXISTING", label: "Cập nhật SOP hiện có" }, { value: "NEW_SOP", label: "Đề xuất SOP mới" }]} />
           {needsSop && (
             <>
@@ -2667,7 +2668,7 @@ function SopLibrary({ openItem, knowledgeCatalog = knowledgeItems }) {
   const sops = knowledgeCatalog.filter((item) => item.contentType === "SOP");
   return (
     <section className="page">
-      <PageHeader title="Quy trình vận hành (SOP)" description="Danh sách SOP liên quan FL-01; dùng để mở SOP Detail và Mark as Applied." />
+      <PageHeader title="Quy trình vận hành (SOP)" description="Danh sách SOP liên quan; dùng để mở chi tiết SOP và đánh dấu đã áp dụng." />
       <div className="result-list">{sops.map((item) => <KnowledgeCard key={item.id} item={item} openItem={openItem} />)}</div>
     </section>
   );

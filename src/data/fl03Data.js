@@ -16,11 +16,11 @@ export const seedSopTasks = [
     sourceSubmissionId: "SUB-2026-0043",
     relatedAssetTypes: ["CITYTOUCH_NODE", "SMART_NODE"],
     relatedFaultType: "CONNECTIVITY_LOSS",
-    businessReason: "FL-02 xác nhận SOP hiện tại thiếu bước kiểm tra tuyến nguồn dùng chung trước khi reset hoặc thay từng node.",
+    businessReason: "Bản gửi hiện trường xác nhận SOP hiện tại thiếu bước kiểm tra tuyến nguồn dùng chung trước khi reset hoặc thay từng node.",
     requestedChanges: [
       "Bổ sung kiểm tra nguồn và tuyến cáp dùng chung khi nhiều node cùng offline.",
       "Thêm decision rule trước bước reset cụm node.",
-      "Liên kết case nguồn đã được Knowledge Manager phê duyệt."
+      "Liên kết ca nguồn đã được quản lý tri thức phê duyệt."
     ],
     dueDate: "2026-07-28",
     createdAt: "2026-07-21T18:05:00+07:00"
@@ -98,7 +98,7 @@ export const seedSopDrafts = [
       {
         id: "STEP-01",
         title: "Xác định phạm vi mất kết nối",
-        responsibleRole: "Field Technician",
+        responsibleRole: "Kỹ thuật viên hiện trường",
         instruction: "So sánh danh sách node offline với gateway, tuyến cấp nguồn và khu vực địa lý trên bản đồ vận hành.",
         expectedResult: "Biết lỗi tập trung theo gateway, theo tuyến điện hay theo từng node.",
         warning: ""
@@ -106,7 +106,7 @@ export const seedSopDrafts = [
       {
         id: "STEP-02",
         title: "Kiểm tra gateway và mesh channel",
-        responsibleRole: "Field Technician",
+        responsibleRole: "Kỹ thuật viên hiện trường",
         instruction: "Ping gateway, kiểm tra firmware, kênh mesh và độ trễ telemetry trong 15 phút gần nhất.",
         expectedResult: "Gateway phản hồi ổn định hoặc xác định được điểm nghẽn mạng.",
         warning: ""
@@ -114,7 +114,7 @@ export const seedSopDrafts = [
       {
         id: "STEP-03",
         title: "Kiểm tra nguồn và tuyến cáp dùng chung",
-        responsibleRole: "Field Technician",
+        responsibleRole: "Kỹ thuật viên hiện trường",
         instruction: "Đo điện áp tại tủ cấp nguồn, hộp cáp chung và điểm đầu tuyến trước khi thay từng node.",
         expectedResult: "Xác định được có hay không lỗi nguồn/cáp dùng chung gây mất kết nối hàng loạt.",
         warning: "Cô lập nguồn nếu mở hộp cáp hoặc phát hiện nước."
@@ -130,7 +130,7 @@ export const seedSopDrafts = [
       {
         id: "STEP-05",
         title: "Reset theo cụm và xác minh telemetry",
-        responsibleRole: "Field Technician",
+        responsibleRole: "Kỹ thuật viên hiện trường",
         instruction: "Reset từng cụm tối đa 20 node sau khi loại trừ lỗi nguồn dùng chung, theo dõi dữ liệu ít nhất 15 phút.",
         expectedResult: "Node online lại và telemetry cập nhật theo chu kỳ bình thường.",
         warning: ""
@@ -159,7 +159,7 @@ export const seedSopDrafts = [
       usableInField: false
     },
     history: [
-      { id: "SOPD-EVT-001", action: "DRAFT_CREATED", actorId: "KC-001", comment: "Tạo draft từ task FL-02.", createdAt: "2026-07-21T18:40:00+07:00" }
+      { id: "SOPD-EVT-001", action: "DRAFT_CREATED", actorId: "KC-001", comment: "Tạo bản nháp từ nhiệm vụ hiện trường.", createdAt: "2026-07-21T18:40:00+07:00" }
     ],
     createdAt: "2026-07-21T18:40:00+07:00",
     updatedAt: "2026-07-21T18:48:00+07:00"
@@ -197,8 +197,8 @@ export const seedSopDrafts = [
     riskLevel: "CRITICAL",
     stopConditions: ["Không xác minh được trạng thái cô lập nguồn"],
     procedureSteps: [
-      { id: "STEP-01", title: "Đánh giá bên ngoài", responsibleRole: "Field Technician", instruction: "Quan sát dấu vết nước và tình trạng khóa tủ.", expectedResult: "Biết có dấu hiệu nước xâm nhập hay không.", warning: "" },
-      { id: "STEP-02", title: "Cô lập nguồn", responsibleRole: "Field Technician", instruction: "Thực hiện LOTO trước khi mở tủ.", expectedResult: "Nguồn được cô lập và ghi nhận.", warning: "Không mở tủ khi chưa cô lập nguồn." }
+      { id: "STEP-01", title: "Đánh giá bên ngoài", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "Quan sát dấu vết nước và tình trạng khóa tủ.", expectedResult: "Biết có dấu hiệu nước xâm nhập hay không.", warning: "" },
+      { id: "STEP-02", title: "Cô lập nguồn", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "Thực hiện LOTO trước khi mở tủ.", expectedResult: "Nguồn được cô lập và ghi nhận.", warning: "Không mở tủ khi chưa cô lập nguồn." }
     ],
     decisionPoints: [],
     sourceKnowledgeIds: ["CASE-CABLE-042"],
@@ -263,10 +263,10 @@ export const seedSopDrafts = [
     riskLevel: "HIGH",
     stopConditions: ["Không xác minh được nguồn đã cô lập", "Gateway không phản hồi sau hai lần reset"],
     procedureSteps: [
-      { id: "STEP-01", title: "Xác định phạm vi mất kết nối", responsibleRole: "Field Technician", instruction: "Đối chiếu node offline với gateway và tuyến cấp nguồn.", expectedResult: "Khoanh vùng cụm ảnh hưởng.", warning: "" },
-      { id: "STEP-02", title: "Kiểm tra nguồn dùng chung", responsibleRole: "Field Technician", instruction: "Đo điện áp tại tủ nguồn và hộp cáp chung trước khi reset node.", expectedResult: "Loại trừ hoặc xác nhận lỗi nguồn chung.", warning: "Cô lập nguồn khi mở hộp cáp." },
+      { id: "STEP-01", title: "Xác định phạm vi mất kết nối", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "Đối chiếu node offline với gateway và tuyến cấp nguồn.", expectedResult: "Khoanh vùng cụm ảnh hưởng.", warning: "" },
+      { id: "STEP-02", title: "Kiểm tra nguồn dùng chung", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "Đo điện áp tại tủ nguồn và hộp cáp chung trước khi reset node.", expectedResult: "Loại trừ hoặc xác nhận lỗi nguồn chung.", warning: "Cô lập nguồn khi mở hộp cáp." },
       { id: "STEP-03", title: "Kiểm tra gateway và RF", responsibleRole: "Network Team", instruction: "Ping gateway, kiểm tra kênh mesh và đo RF.", expectedResult: "Có bằng chứng mạng ổn định hoặc bị nhiễu.", warning: "" },
-      { id: "STEP-04", title: "Reset theo cụm và xác minh", responsibleRole: "Field Technician", instruction: "Reset cụm sau khi hoàn tất kiểm tra nguồn, theo dõi telemetry 15 phút.", expectedResult: "Node online và dữ liệu ổn định.", warning: "" }
+      { id: "STEP-04", title: "Reset theo cụm và xác minh", responsibleRole: "Kỹ thuật viên hiện trường", instruction: "Reset cụm sau khi hoàn tất kiểm tra nguồn, theo dõi telemetry 15 phút.", expectedResult: "Node online và dữ liệu ổn định.", warning: "" }
     ],
     decisionPoints: [
       { id: "DEC-01", condition: "Nguồn dùng chung bất thường?", yesAction: "Cô lập và sửa tuyến cáp trước khi reset.", noAction: "Tiếp tục kiểm tra gateway/RF.", exception: "Nếu có nguy cơ điện, dừng quy trình." }
@@ -354,7 +354,7 @@ export const seedSopVersions = [
     authorId: "KC-001",
     approvedBy: "KM-001",
     sourceDraftId: "",
-    changeSummary: "Phiên bản hiện hành trước FL-03.",
+    changeSummary: "Phiên bản hiện hành trước khi cập nhật.",
     createdAt: "2026-06-01T09:00:00+07:00"
   },
   {

@@ -31,7 +31,7 @@ import {
 } from "../data/fl06Data.js";
 
 const adminTabs = [
-  { label: "Dashboard", screen: "admin-dashboard", icon: ShieldCheck },
+  { label: "Tổng quan", screen: "admin-dashboard", icon: ShieldCheck },
   { label: "Người dùng", screen: "admin-users", icon: Users },
   { label: "Quyền", screen: "admin-permissions", icon: KeyRound },
   { label: "Taxonomy", screen: "admin-taxonomy", icon: ListTree },
@@ -106,7 +106,7 @@ export function FL06Flow({
         draft.pendingChange = {
           ...draft.pendingChange,
           status: "INVALID",
-          errors: blockedBySod ? ["Không cho phép Contributor tự có quyền phê duyệt SOP trong prototype."] : errors
+          errors: blockedBySod ? ["Không cho phép người biên soạn tự có quyền phê duyệt SOP trong prototype."] : errors
         };
       });
       setToast("Change đang bị chặn bởi rule cấu hình.");
@@ -116,9 +116,9 @@ export function FL06Flow({
     const event = addAudit({
       action: config.pendingChange?.auditAction || "PUBLISH_CONFIG",
       objectType: config.pendingChange?.objectType || "ConfigurationChange",
-      objectId: config.pendingChange?.objectId || config.pendingChange?.changeId || "FL-06",
+      objectId: config.pendingChange?.objectId || config.pendingChange?.changeId || "ADMIN",
       result: "SUCCESS",
-      reason: config.pendingChange?.reason || "Publish cấu hình mock FL-06.",
+      reason: config.pendingChange?.reason || "Xuất bản cấu hình mẫu.",
       before: config.pendingChange?.before || config.publishedVersion,
       after: config.pendingChange?.after || `${config.publishedVersion}+1`
     });
@@ -221,11 +221,11 @@ function AdminDashboard({ config, auditEvents, navigate, adminSimulation }) {
   const deprecatedConcepts = config.taxonomyConcepts.filter((concept) => concept.status === "DEPRECATED").length;
   return (
     <>
-      <PageHeading eyebrow="FL-06" title="Quản trị hệ thống và phân loại tri thức" description="Admin Console mock để cấu hình role, permission, taxonomy, metadata, search behavior, lifecycle policy và seed data cho toàn bộ prototype.">
+      <PageHeading title="Quản trị hệ thống và phân loại tri thức" description="Bảng quản trị mẫu để cấu hình vai trò, quyền, phân loại, metadata, hành vi tìm kiếm, chính sách vòng đời và dữ liệu mẫu.">
         <button className="primary-btn" type="button" onClick={() => navigate("admin-role-simulator")}><ShieldCheck size={16} />Mô phỏng role</button>
         <button className="secondary-btn" type="button" onClick={() => navigate("admin-impact-preview")}><Eye size={16} />Impact preview</button>
       </PageHeading>
-      {adminSimulation && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Đang có simulation context. Nếu role hiện tại không còn là Admin, Admin Console sẽ bị chặn như direct URL thật.</span></div>}
+      {adminSimulation && <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Đang có ngữ cảnh mô phỏng. Nếu vai trò hiện tại không còn là quản trị viên, bảng quản trị sẽ bị chặn như truy cập URL trực tiếp.</span></div>}
       <div className="metric-grid">
         <Metric label="Demo users" value={activeUsers} note={`${config.demoUsers.length} user mock`} />
         <Metric label="Permission rules" value={config.permissionRules.length} note="Menu, route và action guard" />
@@ -262,7 +262,7 @@ function AdminUsers({ config, updateConfig, navigate, addAudit }) {
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.2" title="Quản lý demo users" description="Danh sách user mock dùng cho role switcher, role simulator và route/action preview." />
+      <PageHeading title="Quản lý người dùng mẫu" description="Danh sách người dùng mẫu dùng cho bộ chọn vai trò, mô phỏng vai trò và xem trước quyền thao tác." />
       <div className="submission-list">
         {config.demoUsers.map((user) => (
           <article className="submission-card" key={user.userId}>
@@ -329,7 +329,7 @@ function RoleSimulator({ config, currentRole, setCurrentRole, setAdminSimulation
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.1" title="Role simulator" description="Mô phỏng menu, route và CTA theo role. Đây không phải đăng nhập thật, chỉ là prototype guard." />
+      <PageHeading title="Mô phỏng vai trò" description="Mô phỏng menu, route và nút thao tác theo vai trò. Đây không phải đăng nhập thật, chỉ là guard mẫu." />
       <div className="admin-card-grid">
         {config.roles.map((role) => (
           <article className="panel admin-role-card" key={role.roleId}>
@@ -350,12 +350,12 @@ function PermissionMatrix({ config, updateConfig, createPendingChange, addAudit 
     if (roleId === "CONTRIBUTOR" && resource === "SOP" && action === "APPROVE") {
       createPendingChange({
         type: "PERMISSION_RISK",
-        title: "Cấp quyền Contributor phê duyệt SOP",
-        summary: "Rule SoD chặn Contributor tự biên soạn rồi tự phê duyệt SOP.",
+        title: "Cấp quyền người biên soạn phê duyệt SOP",
+        summary: "Quy tắc phân tách nhiệm vụ chặn người biên soạn tự biên soạn rồi tự phê duyệt SOP.",
         auditAction: "UPDATE_PERMISSION_BLOCKED",
         objectType: "PermissionRule",
         objectId: "CONTRIBUTOR:SOP:APPROVE",
-        reason: "Kiểm tra SoD theo FL-06."
+        reason: "Kiểm tra phân tách nhiệm vụ."
       });
       return;
     }
@@ -369,8 +369,8 @@ function PermissionMatrix({ config, updateConfig, createPendingChange, addAudit 
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.3" title="Permission Matrix" description="Một nguồn permission dùng cho preview menu, route và action. Rule SoD sẽ chặn quyền có rủi ro." />
-      <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Demo nhanh: bấm ô Contributor / SOP / Phê duyệt để thấy Impact Preview bị chặn bởi SoD.</span></div>
+      <PageHeading title="Ma trận phân quyền" description="Một nguồn quyền dùng cho xem trước menu, route và thao tác. Quy tắc phân tách nhiệm vụ sẽ chặn quyền có rủi ro." />
+      <div className="warning-banner neutral"><AlertTriangle size={18} /><span>Demo nhanh: bấm ô Người biên soạn / SOP / Phê duyệt để thấy xem trước tác động bị chặn bởi phân tách nhiệm vụ.</span></div>
       <div className="permission-table-wrap">
         <table className="permission-table">
           <thead>
@@ -406,7 +406,7 @@ function PermissionMatrix({ config, updateConfig, createPendingChange, addAudit 
 function TaxonomyHome({ config, navigate }) {
   return (
     <>
-      <PageHeading eyebrow="FL-06.4" title="Taxonomy Management" description="Quản lý domain, category, concept, preferred label, synonym, broader/narrower và deprecated term.">
+      <PageHeading title="Quản lý phân loại tri thức" description="Quản lý miền tri thức, danh mục, khái niệm, nhãn ưu tiên, từ đồng nghĩa, quan hệ rộng/hẹp và thuật ngữ không còn dùng.">
         <button className="primary-btn" type="button" onClick={() => navigate("admin-synonyms")}><Sparkles size={16} />Quản lý synonym</button>
       </PageHeading>
       <div className="admin-card-grid">
@@ -483,11 +483,11 @@ function ConceptEditor({ id, config, updateConfig, navigate, createPendingChange
     createPendingChange({
       type: "TAXONOMY",
       title: `Publish taxonomy concept: ${form.prefLabel}`,
-      summary: "Thay đổi concept sẽ ảnh hưởng filter FL-01, form FL-02/FL-03 và synonym expansion.",
+      summary: "Thay đổi khái niệm sẽ ảnh hưởng bộ lọc, form nhập liệu và mở rộng từ đồng nghĩa.",
       auditAction: "PUBLISH_TAXONOMY",
       objectType: "TaxonomyConcept",
       objectId: form.conceptId,
-      reason: "Cập nhật taxonomy theo FL-06.",
+      reason: "Cập nhật phân loại tri thức.",
       before: current?.prefLabel || "new concept",
       after: form.prefLabel
     });
@@ -524,7 +524,7 @@ function SynonymManager({ config, updateConfig, createPendingChange }) {
     createPendingChange({
       type: "TAXONOMY",
       title: `Thêm synonym "${term}"`,
-      summary: `Synonym mới sẽ map về concept "${concept.prefLabel}" và ảnh hưởng query expansion trong FL-01.`,
+      summary: `Từ đồng nghĩa mới sẽ ánh xạ về khái niệm "${concept.prefLabel}" và ảnh hưởng mở rộng truy vấn tìm kiếm.`,
       auditAction: "PUBLISH_SYNONYM",
       objectType: "TaxonomyConcept",
       objectId: conceptId,
@@ -535,7 +535,7 @@ function SynonymManager({ config, updateConfig, createPendingChange }) {
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.4" title="Quản lý synonym" description="Synonym sau khi publish sẽ được dùng bởi FL-01 Search và các form chọn taxonomy." />
+      <PageHeading title="Quản lý từ đồng nghĩa" description="Từ đồng nghĩa sau khi xuất bản sẽ được dùng bởi tìm kiếm và các form chọn phân loại." />
       <article className="panel form-panel">
         <div className="form-main">
           <label><span>Thuật ngữ người dùng nhập</span><input value={term} onChange={(event) => setTerm(event.target.value)} /></label>
@@ -558,7 +558,7 @@ function SynonymManager({ config, updateConfig, createPendingChange }) {
 function MetadataTemplates({ config, navigate }) {
   return (
     <>
-      <PageHeading eyebrow="FL-06.5" title="Metadata templates" description="Cấu hình field bắt buộc/hiển thị theo role cho từng loại nội dung.">
+      <PageHeading title="Mẫu metadata" description="Cấu hình trường bắt buộc/hiển thị theo vai trò cho từng loại nội dung.">
         <button className="secondary-btn" type="button" onClick={() => navigate("admin-content-types")}>Content types</button>
       </PageHeading>
       <div className="admin-card-grid">
@@ -594,7 +594,7 @@ function MetadataTemplateDetail({ id, config, updateConfig, createPendingChange 
             </div>
           ))}
         </div>
-        <div className="form-actions"><button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "METADATA", title: `Publish ${template.name}`, summary: "Thay đổi template ảnh hưởng form FL-02/FL-03/FL-04.", auditAction: "PUBLISH_METADATA_TEMPLATE", objectType: "MetadataTemplate", objectId: template.templateId, reason: "Cập nhật metadata template mock." })}>Xem impact</button></div>
+        <div className="form-actions"><button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "METADATA", title: `Xuất bản ${template.name}`, summary: "Thay đổi mẫu metadata ảnh hưởng các form nhập liệu.", auditAction: "PUBLISH_METADATA_TEMPLATE", objectType: "MetadataTemplate", objectId: template.templateId, reason: "Cập nhật mẫu metadata." })}>Xem tác động</button></div>
       </article>
     </>
   );
@@ -609,7 +609,7 @@ function ContentTypes({ config, updateConfig, createPendingChange }) {
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.5" title="Content type configuration" description="Quản lý mapping loại nội dung với workflow và metadata template." />
+      <PageHeading title="Cấu hình loại nội dung" description="Quản lý ánh xạ loại nội dung với quy trình và mẫu metadata." />
       <div className="submission-list">
         {config.contentTypes.map((type) => (
           <article className="submission-card" key={type.contentTypeId}>
@@ -630,7 +630,7 @@ function SearchConfig({ config, updateConfig, createPendingChange, verifySearch 
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.6" title="Cấu hình tìm kiếm và filter" description="Điều khiển synonym expansion, deprecated redirect, default sort và filter visible cho FL-01." />
+      <PageHeading title="Cấu hình tìm kiếm và bộ lọc" description="Điều khiển mở rộng từ đồng nghĩa, chuyển hướng thuật ngữ cũ, sắp xếp mặc định và bộ lọc hiển thị." />
       <article className="panel form-panel">
         <div className="checkbox-grid">
           <label className="check-row"><input type="checkbox" checked={search.synonymExpansion} onChange={(event) => change("synonymExpansion", event.target.checked)} />Bật synonym expansion</label>
@@ -641,8 +641,8 @@ function SearchConfig({ config, updateConfig, createPendingChange, verifySearch 
           <label><span>Min query length</span><input type="number" min="1" value={search.minQueryLength} onChange={(event) => change("minQueryLength", Number(event.target.value))} /></label>
         </div>
         <div className="form-actions">
-          <button className="secondary-btn" type="button" onClick={() => verifySearch("Mất điện")}>Thử FL-01 query</button>
-          <button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "SEARCH", title: "Publish search configuration", summary: "Thay đổi tác động trực tiếp đến FL-01 Search Results.", auditAction: "PUBLISH_SEARCH_CONFIG", objectType: "SearchConfig", objectId: "FL-01", reason: "Cập nhật search behavior." })}>Xem impact</button>
+          <button className="secondary-btn" type="button" onClick={() => verifySearch("Mất điện")}>Thử tìm kiếm</button>
+          <button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "SEARCH", title: "Xuất bản cấu hình tìm kiếm", summary: "Thay đổi tác động trực tiếp đến kết quả tìm kiếm.", auditAction: "PUBLISH_SEARCH_CONFIG", objectType: "SearchConfig", objectId: "SEARCH", reason: "Cập nhật hành vi tìm kiếm." })}>Xem tác động</button>
         </div>
       </article>
     </>
@@ -656,7 +656,7 @@ function LifecyclePolicy({ config, updateConfig, createPendingChange }) {
   }
   return (
     <>
-      <PageHeading eyebrow="FL-06.7" title="Lifecycle policy & notification" description="Cấu hình chu kỳ review và notification template cho FL-05." />
+      <PageHeading title="Chính sách vòng đời và thông báo" description="Cấu hình chu kỳ rà soát và mẫu thông báo cho vòng đời tri thức." />
       <article className="panel form-panel">
         <div className="form-main">
           <label><span>SOP review days</span><input type="number" value={policy.sopReviewDays} onChange={(event) => change("sopReviewDays", Number(event.target.value))} /></label>
@@ -665,7 +665,7 @@ function LifecyclePolicy({ config, updateConfig, createPendingChange }) {
           <label className="check-row"><input type="checkbox" checked={policy.autoCreateReviewTask} onChange={(event) => change("autoCreateReviewTask", event.target.checked)} />Tự tạo review task</label>
         </div>
         <label><span>Notification template</span><textarea value={policy.notificationTemplate} onChange={(event) => change("notificationTemplate", event.target.value)} /></label>
-        <div className="form-actions"><button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "LIFECYCLE_POLICY", title: "Publish lifecycle policy", summary: "Thay đổi ảnh hưởng FL-05 dashboard, review task và notification mock.", auditAction: "PUBLISH_LIFECYCLE_POLICY", objectType: "LifecyclePolicy", objectId: "FL-05", reason: "Cập nhật lifecycle policy." })}>Xem impact</button></div>
+        <div className="form-actions"><button className="primary-btn" type="button" onClick={() => createPendingChange({ type: "LIFECYCLE_POLICY", title: "Xuất bản chính sách vòng đời", summary: "Thay đổi ảnh hưởng bảng vòng đời, nhiệm vụ rà soát và thông báo mẫu.", auditAction: "PUBLISH_LIFECYCLE_POLICY", objectType: "LifecyclePolicy", objectId: "LIFECYCLE", reason: "Cập nhật chính sách vòng đời." })}>Xem tác động</button></div>
       </article>
     </>
   );
@@ -675,7 +675,7 @@ function AuditLog({ auditEvents, id }) {
   const selected = id ? auditEvents.find((event) => event.eventId === id) : null;
   return (
     <>
-      <PageHeading eyebrow="FL-06.8" title="Audit log & config history" description="Mỗi thay đổi cấu hình đều ghi actor, role, thời gian, object, before/after, reason và result." />
+      <PageHeading title="Nhật ký kiểm toán và lịch sử cấu hình" description="Mỗi thay đổi cấu hình đều ghi người thao tác, vai trò, thời gian, đối tượng, trước/sau, lý do và kết quả." />
       {selected && <AuditDetail event={selected} />}
       <div className="submission-list">
         {auditEvents.map((event) => <AuditRow event={event} key={event.eventId} />)}
@@ -689,7 +689,7 @@ function DemoData({ config, resetAdminSeed, navigate }) {
   const canReset = confirmText === "RESET FL06";
   return (
     <>
-      <PageHeading eyebrow="FL-06.9" title="Import, export và reset seed data" description="Prototype cho phép export JSON mock và reset seed. Reset Admin Console sẽ đưa role về Quản trị viên." />
+      <PageHeading title="Nhập, xuất và đặt lại dữ liệu mẫu" description="Prototype cho phép xuất JSON mẫu và đặt lại dữ liệu mẫu. Đặt lại bảng quản trị sẽ đưa vai trò về Quản trị viên." />
       <div className="two-column">
         <article className="panel">
           <div className="panel-head"><h3>Seed state</h3><Badge>{config.seedState.seedVersion}</Badge></div>
@@ -701,9 +701,9 @@ function DemoData({ config, resetAdminSeed, navigate }) {
         </article>
         <article className="panel form-panel">
           <div className="panel-head"><h3>Reset seed</h3></div>
-          <p className="hint">Nhập đúng <strong>RESET FL06</strong> để reset Admin Console và role về Quản trị viên.</p>
+          <p className="hint">Nhập đúng <strong>RESET FL06</strong> để đặt lại bảng quản trị và vai trò về Quản trị viên.</p>
           <input value={confirmText} onChange={(event) => setConfirmText(event.target.value)} placeholder="RESET FL06" />
-          <button className="primary-btn danger-btn" type="button" disabled={!canReset} onClick={resetAdminSeed}><RotateCcw size={16} />Reset FL-06 seed</button>
+          <button className="primary-btn danger-btn" type="button" disabled={!canReset} onClick={resetAdminSeed}><RotateCcw size={16} />Đặt lại dữ liệu quản trị</button>
         </article>
       </div>
     </>
@@ -713,7 +713,7 @@ function DemoData({ config, resetAdminSeed, navigate }) {
 function SystemSettings({ config }) {
   return (
     <>
-      <PageHeading eyebrow="FL-06" title="System settings" description="Trạng thái mock của Admin Console. Không có IAM/SSO/backend trong prototype." />
+      <PageHeading title="Cài đặt hệ thống" description="Trạng thái mẫu của bảng quản trị. Không có IAM/SSO/backend trong prototype." />
       <div className="metric-grid">
         <Metric label="Mode" value="Prototype" note="Front-end only" />
         <Metric label="Auth" value="Mock" note="Role switcher/role simulator" />
@@ -727,21 +727,21 @@ function SystemSettings({ config }) {
 function ImpactPreview({ config, publishPendingChange, navigate }) {
   const change = config.pendingChange;
   const taxonomyErrors = change?.type === "TAXONOMY" ? validateTaxonomyPublish(config) : [];
-  const errors = change?.type === "PERMISSION_RISK" ? ["Không cho phép Contributor có quyền phê duyệt SOP vì vi phạm Separation of Duties."] : taxonomyErrors;
+  const errors = change?.type === "PERMISSION_RISK" ? ["Không cho phép người biên soạn có quyền phê duyệt SOP vì vi phạm phân tách nhiệm vụ."] : taxonomyErrors;
   if (!change) {
     return (
       <>
-        <PageHeading eyebrow="Impact Preview" title="Chưa có change cần publish" description="Hãy tạo thay đổi ở Taxonomy, Permission, Metadata, Search hoặc Lifecycle policy trước." />
+        <PageHeading eyebrow="Xem trước tác động" title="Chưa có thay đổi cần xuất bản" description="Hãy tạo thay đổi ở phân loại, phân quyền, metadata, tìm kiếm hoặc chính sách vòng đời trước." />
         <div className="admin-card-grid">
           <ActionCard icon={Sparkles} title="Thêm synonym demo" text="Mở màn hình Synonym để thêm Mất điện -> Sụt áp." onClick={() => navigate("admin-synonyms")} />
-          <ActionCard icon={KeyRound} title="Thử SoD permission" text="Mở Permission Matrix và cấp Contributor Approve SOP." onClick={() => navigate("admin-permissions")} />
+          <ActionCard icon={KeyRound} title="Thử phân tách nhiệm vụ" text="Mở ma trận phân quyền và cấp quyền duyệt SOP cho người biên soạn." onClick={() => navigate("admin-permissions")} />
         </div>
       </>
     );
   }
   return (
     <>
-      <PageHeading eyebrow="Impact Preview" title={change.title} description={change.summary}>
+      <PageHeading eyebrow="Xem trước tác động" title={change.title} description={change.summary}>
         <Badge tone={errors.length ? "danger" : "good"}>{errors.length ? "INVALID" : "READY_TO_PUBLISH"}</Badge>
       </PageHeading>
       {errors.length > 0 && <div className="error-summary"><strong>Không thể publish</strong><ul>{errors.map((error) => <li key={error}>{error}</li>)}</ul></div>}
@@ -749,10 +749,10 @@ function ImpactPreview({ config, publishPendingChange, navigate }) {
         <article className="panel">
           <div className="panel-head"><h3>Màn hình bị ảnh hưởng</h3></div>
           <ul className="checklist impact-list">
-            <li><CheckCircle2 size={18} /><span>FL-01 Search: query expansion, filter loại lỗi/thiết bị/danh mục.</span></li>
-            <li><CheckCircle2 size={18} /><span>FL-02 Submit Form: dropdown taxonomy và metadata bắt buộc.</span></li>
-            <li><CheckCircle2 size={18} /><span>FL-03 SOP Editor: metadata template và content type mapping.</span></li>
-            <li><CheckCircle2 size={18} /><span>FL-05 Lifecycle: review policy, notification và audit history.</span></li>
+            <li><CheckCircle2 size={18} /><span>Tìm kiếm: mở rộng truy vấn, lọc loại lỗi/thiết bị/danh mục.</span></li>
+            <li><CheckCircle2 size={18} /><span>Form nhập liệu: dropdown phân loại và metadata bắt buộc.</span></li>
+            <li><CheckCircle2 size={18} /><span>Trình soạn SOP: mẫu metadata và ánh xạ loại nội dung.</span></li>
+            <li><CheckCircle2 size={18} /><span>Vòng đời tri thức: chính sách rà soát, thông báo và lịch sử kiểm toán.</span></li>
           </ul>
         </article>
         <article className="panel">
@@ -778,8 +778,8 @@ function OperationResult({ id, auditEvents, navigate, verifySearch }) {
       {event && <AuditDetail event={event} />}
       <div className="submission-actions">
         <button className="primary-btn" type="button" onClick={() => navigate("admin-audit-log", { id: event?.eventId })}>Xem audit detail</button>
-        <button className="secondary-btn" type="button" onClick={() => verifySearch("Mất điện")}>Verify ở FL-01</button>
-        <button className="ghost-btn" type="button" onClick={() => navigate("admin-dashboard")}>Về Admin Dashboard</button>
+        <button className="secondary-btn" type="button" onClick={() => verifySearch("Mất điện")}>Kiểm tra ở tìm kiếm</button>
+        <button className="ghost-btn" type="button" onClick={() => navigate("admin-dashboard")}>Về bảng quản trị</button>
       </div>
     </div>
   );
@@ -790,10 +790,10 @@ function AdminAccessDenied({ currentRole, adminSimulation, navigate }) {
     <section className="page">
       <div className="access-denied">
         <Lock size={42} />
-        <h2>Không có quyền truy cập Admin Console</h2>
-        <p>Role hiện tại: {adminRoleLabels[currentRole] || currentRole}. Route guard FL-06 chặn cả truy cập trực tiếp qua URL.</p>
-        {adminSimulation && <p>Đang mô phỏng role từ Admin. Dùng nút "Thoát mô phỏng" trên topbar để quay lại Quản trị viên.</p>}
-        <button className="primary-btn" type="button" onClick={() => navigate("dashboard")}>Về Dashboard</button>
+        <h2>Không có quyền truy cập bảng quản trị</h2>
+        <p>Vai trò hiện tại: {adminRoleLabels[currentRole] || currentRole}. Route guard chặn cả truy cập trực tiếp qua URL.</p>
+        {adminSimulation && <p>Đang mô phỏng vai trò từ bảng quản trị. Dùng nút "Thoát mô phỏng" trên thanh trên để quay lại Quản trị viên.</p>}
+        <button className="primary-btn" type="button" onClick={() => navigate("dashboard")}>Về bảng điều khiển</button>
       </div>
     </section>
   );
@@ -824,10 +824,11 @@ function ActionCard({ icon: Icon, title, text, onClick }) {
 }
 
 function PageHeading({ eyebrow, title, description, children }) {
+  const visibleEyebrow = eyebrow && !/^FL-\d/i.test(String(eyebrow)) ? eyebrow : "";
   return (
     <div className="page-header">
       <div>
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        {visibleEyebrow && <p className="eyebrow">{visibleEyebrow}</p>}
         <h2>{title}</h2>
         {description && <p>{description}</p>}
       </div>

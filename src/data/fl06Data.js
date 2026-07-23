@@ -156,10 +156,10 @@ export const seedAdminConfig = {
     }
   ],
   contentTypes: [
-    { contentTypeId: "SOP", label: "SOP", workflowCode: "FL-03", templateId: "TPL-SOP", status: "ACTIVE" },
-    { contentTypeId: "REPAIR_CASE", label: "Ca sửa chữa", workflowCode: "FL-02", templateId: "TPL-CASE", status: "ACTIVE" },
-    { contentTypeId: "LESSON_LEARNED", label: "Bài học kinh nghiệm", workflowCode: "FL-02", templateId: "TPL-CASE", status: "ACTIVE" },
-    { contentTypeId: "ARTICLE", label: "Bài viết tri thức", workflowCode: "FL-04", templateId: "TPL-CASE", status: "ACTIVE" }
+    { contentTypeId: "SOP", label: "SOP", workflowCode: "Quy trình SOP", templateId: "TPL-SOP", status: "ACTIVE" },
+    { contentTypeId: "REPAIR_CASE", label: "Ca sửa chữa", workflowCode: "Gửi tri thức hiện trường", templateId: "TPL-CASE", status: "ACTIVE" },
+    { contentTypeId: "LESSON_LEARNED", label: "Bài học kinh nghiệm", workflowCode: "Gửi tri thức hiện trường", templateId: "TPL-CASE", status: "ACTIVE" },
+    { contentTypeId: "ARTICLE", label: "Bài viết tri thức", workflowCode: "Yêu cầu tri thức", templateId: "TPL-CASE", status: "ACTIVE" }
   ],
   searchConfig: {
     synonymExpansion: true,
@@ -176,7 +176,7 @@ export const seedAdminConfig = {
     autoCreateReviewTask: true
   },
   seedState: {
-    seedVersion: "Seed FL-06 v2",
+    seedVersion: "Seed Admin v2",
     lastImportedAt: "2026-07-20T15:00:00.000Z",
     lastResetAt: "",
     checksum: "KMS-FL06-20260720"
@@ -184,9 +184,9 @@ export const seedAdminConfig = {
 };
 
 export const seedAdminAuditEvents = [
-  { eventId: "ADM-EVT-020", actorId: "AD-001", actorRole: "ADMINISTRATOR", action: "PUBLISH_TAXONOMY", objectType: "TaxonomyScheme", objectId: "FAULT_TYPE", result: "SUCCESS", reason: "Chuẩn hóa thuật ngữ loại lỗi cho FL-01.", before: "TAX-v2.3", after: "TAX-v2.4", createdAt: "2026-07-20T10:15:00.000Z" },
+  { eventId: "ADM-EVT-020", actorId: "AD-001", actorRole: "ADMINISTRATOR", action: "PUBLISH_TAXONOMY", objectType: "TaxonomyScheme", objectId: "FAULT_TYPE", result: "SUCCESS", reason: "Chuẩn hóa thuật ngữ loại lỗi cho tìm kiếm.", before: "TAX-v2.3", after: "TAX-v2.4", createdAt: "2026-07-20T10:15:00.000Z" },
   { eventId: "ADM-EVT-019", actorId: "AD-001", actorRole: "ADMINISTRATOR", action: "UPDATE_PERMISSION", objectType: "PermissionRule", objectId: "KNOWLEDGE_MANAGER:SOP:APPROVE", result: "SUCCESS", reason: "Bổ sung quyền duyệt SOP cho KM.", before: "blocked", after: "allowed", createdAt: "2026-07-19T09:30:00.000Z" },
-  { eventId: "ADM-EVT-018", actorId: "AD-001", actorRole: "ADMINISTRATOR", action: "RESET_SEED", objectType: "DemoSeedState", objectId: "Seed FL-06 v1", result: "SUCCESS", reason: "Reset trước buổi demo tích hợp.", before: "dirty mock state", after: "clean seed", createdAt: "2026-07-18T08:00:00.000Z" }
+  { eventId: "ADM-EVT-018", actorId: "AD-001", actorRole: "ADMINISTRATOR", action: "RESET_SEED", objectType: "DemoSeedState", objectId: "Seed Admin v1", result: "SUCCESS", reason: "Đặt lại trước buổi demo tích hợp.", before: "dirty mock state", after: "clean seed", createdAt: "2026-07-18T08:00:00.000Z" }
 ];
 
 export function cloneAdminConfig() {

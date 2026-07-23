@@ -150,7 +150,7 @@ export function FL04Flow({
       targetRequest,
       currentUser.id,
       form.deliverableType === "SOP" ? "TRIAGING" : "ASSIGNED",
-      form.deliverableType === "SOP" ? "Chọn hướng xử lý SOP, chờ chuyển FL-03." : `Giao cho ${personName(users, form.assigneeId)} biên soạn.`,
+      form.deliverableType === "SOP" ? "Chọn hướng xử lý SOP, chờ tạo nhiệm vụ biên soạn." : `Giao cho ${personName(users, form.assigneeId)} biên soạn.`,
       {
         deliverableType: form.deliverableType,
         assigneeId: form.assigneeId,
@@ -207,7 +207,7 @@ export function FL04Flow({
 
   function startContributorWork(targetRequest) {
     const draft = ensureArticleDraft(targetRequest);
-    patchRequest(targetRequest.id, (item) => updateRequestStatus(item, currentUser.id, "IN_PROGRESS", "Contributor bắt đầu biên soạn bài viết tri thức."));
+    patchRequest(targetRequest.id, (item) => updateRequestStatus(item, currentUser.id, "IN_PROGRESS", "Người biên soạn bắt đầu biên soạn bài viết tri thức."));
     setToast("Đã mở workspace biên soạn.");
     navigate("knowledge-article-editor", { id: targetRequest.id });
     return draft;
@@ -215,7 +215,7 @@ export function FL04Flow({
 
   function submitArticleDraft(targetDraft) {
     patchArticleDraft(targetDraft.id, (item) => ({ ...item, status: "SUBMITTED" }));
-    patchRequest(targetDraft.requestId, (item) => updateRequestStatus(item, currentUser.id, "IN_REVIEW", "Contributor gửi bài viết tri thức để Knowledge Manager duyệt."));
+    patchRequest(targetDraft.requestId, (item) => updateRequestStatus(item, currentUser.id, "IN_REVIEW", "Người biên soạn gửi bài viết tri thức để quản lý tri thức duyệt."));
     setToast("Đã gửi bài viết tri thức để duyệt.");
     navigate("knowledge-request-review-detail", { id: targetDraft.requestId });
   }
@@ -240,13 +240,13 @@ export function FL04Flow({
       resultKnowledgeId: published.id,
       resolutionNote: `Đã xuất bản bài viết tri thức ${published.id}.`
     }));
-    setToast("Đã xuất bản bài viết tri thức và đưa vào FL-01.");
+    setToast("Đã xuất bản bài viết tri thức và đưa vào kho tri thức.");
     navigate("resolved-request", { id: targetRequest.id });
   }
 
   function transferToSop(targetRequest) {
     const task = transferKnowledgeRequestToSop(targetRequest);
-    patchRequest(targetRequest.id, (item) => updateRequestStatus(item, currentUser.id, "TRANSFERRED_FL03", "Chuyển thành nhiệm vụ SOP (FL-03).", {
+    patchRequest(targetRequest.id, (item) => updateRequestStatus(item, currentUser.id, "TRANSFERRED_FL03", "Chuyển thành nhiệm vụ SOP.", {
       deliverableType: "SOP",
       sopTaskId: task.id,
       resolutionNote: `Đã tạo nhiệm vụ SOP ${task.id}.`
@@ -324,7 +324,7 @@ function KnowledgeRequestHub({ tab, requestDraft, setRequestDraft, currentUser, 
 
   return (
     <section className="page">
-      <PageHeading title="Gửi yêu cầu" description="Một điểm vào chung cho yêu cầu bổ sung tri thức, gửi tri thức hiện trường và theo dõi xử lý FL-04." />
+      <PageHeading title="Gửi yêu cầu" description="Một điểm vào chung cho yêu cầu bổ sung tri thức, gửi tri thức hiện trường và theo dõi xử lý." />
       <div className="subtab-row" role="tablist" aria-label="Nhánh gửi yêu cầu">
         <TabButton active={activeTab === "hub"} onClick={() => navigate("request")}>Tổng quan</TabButton>
         <TabButton active={activeTab === "knowledge-request"} onClick={() => navigate("request", { tab: "knowledge-request" })}>Tạo yêu cầu tri thức</TabButton>
@@ -353,26 +353,26 @@ function KnowledgeRequestHub({ tab, requestDraft, setRequestDraft, currentUser, 
           <article className="choice-card">
             <FileQuestion size={28} />
             <h3>Yêu cầu bổ sung tri thức</h3>
-            <p>Tạo request khi FL-01 không có kết quả, nội dung hiện có chưa đủ dùng, hoặc cần tri thức mới cho tình huống lặp lại.</p>
+            <p>Tạo yêu cầu khi tìm kiếm không có kết quả, nội dung hiện có chưa đủ dùng, hoặc cần tri thức mới cho tình huống lặp lại.</p>
             <button className="primary-btn" type="button" onClick={() => navigate("request", { tab: "knowledge-request" })}><Plus size={17} />Tạo yêu cầu tri thức</button>
           </article>
           <article className="choice-card">
             <UserCheck size={28} />
             <h3>Manager phân loại</h3>
-            <p>Kiểm tra trùng lặp, yêu cầu bổ sung thông tin, giao Contributor hoặc chuyển nhiệm vụ sang FL-03 nếu cần SOP.</p>
+            <p>Kiểm tra trùng lặp, yêu cầu bổ sung thông tin, giao người biên soạn hoặc tạo nhiệm vụ SOP khi cần.</p>
             <button className="secondary-btn" type="button" onClick={() => navigate("knowledge-request-queue")}>Mở hàng đợi phân loại</button>
           </article>
           <article className="choice-card">
             <FileText size={28} />
-            <h3>Contributor biên soạn</h3>
-            <p>Nhận task từ Knowledge Manager, soạn bài viết tri thức và gửi duyệt trước khi publish vào FL-01.</p>
+            <h3>Người biên soạn</h3>
+            <p>Nhận công việc từ quản lý tri thức, soạn bài viết tri thức và gửi duyệt trước khi xuất bản vào kho tri thức.</p>
             <button className="secondary-btn" type="button" onClick={() => navigate("contributor-request-queue")}>Mở công việc biên soạn</button>
           </article>
           <article className="choice-card">
             <ClipboardList size={28} />
             <h3>Gửi tri thức hiện trường</h3>
-            <p>Đi tiếp FL-02 khi request cần ảnh, bằng chứng thực tế hoặc case field để Knowledge Manager kiểm chứng.</p>
-            <button className="secondary-btn" type="button" onClick={() => navigate("request", { tab: "field-capture" })}>Mở FL-02</button>
+            <p>Đi tiếp phần gửi tri thức hiện trường khi yêu cầu cần ảnh, bằng chứng thực tế hoặc ca thực tế để quản lý tri thức kiểm chứng.</p>
+            <button className="secondary-btn" type="button" onClick={() => navigate("request", { tab: "field-capture" })}>Mở gửi tri thức hiện trường</button>
           </article>
         </div>
       )}
@@ -429,7 +429,7 @@ function KnowledgeRequestForm({ draft, setDraft, currentUser, taxonomy, submitKn
 
   return (
     <form className="request-form fl04-form" onSubmit={submit}>
-      <PageHeading eyebrow="FL-04" title="Tạo yêu cầu tri thức" description="Form được pre-fill nếu đi từ no-result hoặc feedback của FL-01." />
+      <PageHeading title="Tạo yêu cầu tri thức" description="Form được điền sẵn nếu đi từ kết quả rỗng hoặc phản hồi nội dung." />
       <div className="status-tabs">
         <span>Nguồn <strong>{knowledgeRequestOriginLabels[form.origin] || form.origin}</strong></span>
         <span>Người gửi <strong>{currentUser.name}</strong></span>
@@ -437,7 +437,7 @@ function KnowledgeRequestForm({ draft, setDraft, currentUser, taxonomy, submitKn
       </div>
       {form.sourceContext?.query && (
         <div className="trace-note">
-          <strong>Snapshot từ FL-01:</strong> query "{form.sourceContext.query}", Asset ID {form.sourceContext.assetId || "-"}, resultCount {form.sourceContext.resultCount ?? "-"}, thời điểm {displayDateTime(form.sourceContext.searchedAt)}.
+          <strong>Ngữ cảnh tìm kiếm:</strong> từ khóa "{form.sourceContext.query}", Asset ID {form.sourceContext.assetId || "-"}, số kết quả {form.sourceContext.resultCount ?? "-"}, thời điểm {displayDateTime(form.sourceContext.searchedAt)}.
         </div>
       )}
       {showErrors && Object.keys(errors).length > 0 && <ErrorBox errors={errors} />}
@@ -456,7 +456,7 @@ function KnowledgeRequestForm({ draft, setDraft, currentUser, taxonomy, submitKn
       </div>
       <label><span>Đã thử xử lý gì?</span><textarea value={form.attemptedActions} onChange={(event) => change("attemptedActions", event.target.value)} placeholder="Reset node, kiểm tra nguồn, đo telemetry..." /></label>
       <label><span>File/bằng chứng mẫu</span><input value={(form.attachments || []).join(", ")} onChange={(event) => change("attachments", event.target.value.split(",").map((item) => item.trim()).filter(Boolean))} placeholder="telemetry.png, photo.jpg" /></label>
-      <label className="check-row"><input type="checkbox" checked={form.confirmation} onChange={(event) => change("confirmation", event.target.checked)} />Tôi xác nhận thông tin này dùng cho prototype và có thể được Knowledge Manager xử lý.</label>
+      <label className="check-row"><input type="checkbox" checked={form.confirmation} onChange={(event) => change("confirmation", event.target.checked)} />Tôi xác nhận thông tin này dùng cho prototype và có thể được quản lý tri thức xử lý.</label>
       <div className="sticky-actions">
         <button className="ghost-btn" type="button" onClick={() => navigate("request")}>Hủy</button>
         <button className="secondary-btn" type="button" onClick={() => { setDraft(form); navigate("request", { tab: "my-requests" }); }}><Save size={16} />Lưu nháp</button>
@@ -481,7 +481,7 @@ function MyKnowledgeRequests({ requests, currentUser, navigate, embedded = false
     ["Đang xử lý", mine.filter((item) => !resolvedStatuses.includes(item.status)).length],
     ["Cần bổ sung", mine.filter((item) => item.status === "NEEDS_INFORMATION").length],
     ["Hoàn tất", mine.filter((item) => item.status === "RESOLVED").length],
-    ["Chuyển FL-03", mine.filter((item) => item.status === "TRANSFERRED_FL03").length]
+    ["Chuyển SOP", mine.filter((item) => item.status === "TRANSFERRED_FL03").length]
   ];
 
   return (
@@ -499,8 +499,8 @@ function KnowledgeRequestQueue({ requests, users, currentRole, navigate, embedde
   const queue = requests.filter((item) => managerStatuses.includes(item.status));
   return (
     <section className={embedded ? "embedded-section" : "page"}>
-      {!embedded && <PageHeading title="Hàng đợi phân loại FL-04" description="Knowledge Manager kiểm tra request, gắn hướng xử lý và quyết định bài viết/SOP/duplicate." />}
-      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner"><AlertTriangle size={18} /><span>Prototype vẫn cho xem, nhưng thao tác phân loại thuộc vai trò Knowledge Manager.</span></div>}
+      {!embedded && <PageHeading title="Hàng đợi phân loại" description="Quản lý tri thức kiểm tra yêu cầu, gắn hướng xử lý và quyết định bài viết/SOP/trùng lặp." />}
+      {currentRole !== "KNOWLEDGE_MANAGER" && currentRole !== "ADMINISTRATOR" && <div className="warning-banner"><AlertTriangle size={18} /><span>Prototype vẫn cho xem, nhưng thao tác phân loại thuộc vai trò quản lý tri thức.</span></div>}
       <div className="queue-filters">
         <span>Chờ phân loại <strong>{queue.filter((item) => ["SUBMITTED", "TRIAGING"].includes(item.status)).length}</strong></span>
         <span>Đã giao <strong>{queue.filter((item) => ["ASSIGNED", "IN_PROGRESS"].includes(item.status)).length}</strong></span>
@@ -535,7 +535,7 @@ function ContributorRequestQueue({ requests, articleDrafts, currentUser, users, 
   const active = queue.filter((item) => ["ASSIGNED", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(item.status));
   return (
     <section className={embedded ? "embedded-section" : "page"}>
-      {!embedded && <PageHeading title="Công việc biên soạn" description="Contributor nhận request đã được phân loại để soạn Bài viết tri thức." />}
+      {!embedded && <PageHeading title="Công việc biên soạn" description="Người biên soạn nhận yêu cầu đã được phân loại để soạn bài viết tri thức." />}
       <div className="submission-list">
         {active.map((request) => {
           const draft = articleDrafts.find((item) => item.requestId === request.id);
@@ -560,7 +560,7 @@ function ContributorRequestQueue({ requests, articleDrafts, currentUser, users, 
             </article>
           );
         })}
-        {active.length === 0 && <EmptyPanel title="Chưa có công việc biên soạn" description="Chuyển sang vai trò Contributor hoặc nhờ Knowledge Manager giao request." />}
+        {active.length === 0 && <EmptyPanel title="Chưa có công việc biên soạn" description="Chuyển sang vai trò người biên soạn hoặc nhờ quản lý tri thức giao yêu cầu." />}
       </div>
     </section>
   );
@@ -578,7 +578,7 @@ function KnowledgeRequestDetail({ request, currentUser, users, knowledgeCatalog,
   return (
     <section className="page detail-page">
       <BackButton onClick={() => navigate("request", { tab: "my-requests" })} label="Quay lại yêu cầu của tôi" />
-      <PageHeading eyebrow={`FL-04 - ${request.id}`} title={request.title} description={`${knowledgeRequestOriginLabels[request.origin]} - ${personName(users, request.requesterId)}`}>
+      <PageHeading eyebrow={request.id} title={request.title} description={`${knowledgeRequestOriginLabels[request.origin]} - ${personName(users, request.requesterId)}`}>
         <StatusBadge status={request.status} />
       </PageHeading>
       <div className="detail-layout">
@@ -593,7 +593,7 @@ function KnowledgeRequestDetail({ request, currentUser, users, knowledgeCatalog,
             <p>{request.description}</p>
             <div className="lesson-box">{request.expectedOutcome}</div>
           </Section>
-          <Section title="Bối cảnh FL-01">
+          <Section title="Bối cảnh tìm kiếm">
             <InfoGrid rows={[
               ["Query", request.sourceContext?.query],
               ["Asset ID", request.assetId],
@@ -621,8 +621,8 @@ function KnowledgeRequestDetail({ request, currentUser, users, knowledgeCatalog,
             {["SUBMITTED", "TRIAGING", "NEEDS_INFORMATION"].includes(request.status) && <button className="primary-btn wide" type="button" onClick={() => navigate("knowledge-request-triage", { id: request.id })}>Mở phân loại</button>}
             {["ASSIGNED", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(request.status) && <button className="primary-btn wide" type="button" onClick={() => navigate("knowledge-article-editor", { id: request.id })}>Mở bài viết tri thức</button>}
             {request.status === "IN_REVIEW" && <button className="primary-btn wide" type="button" onClick={() => navigate("knowledge-request-review-detail", { id: request.id })}>Mở màn hình duyệt</button>}
-            {result && <button className="secondary-btn wide" type="button" onClick={() => openItem(result)}><Library size={16} />Mở kết quả trong FL-01</button>}
-            {request.sopTaskId && <button className="secondary-btn wide" type="button" onClick={() => navigate("sop-task-detail", { id: request.sopTaskId })}><BookOpen size={16} />Mở task SOP FL-03</button>}
+            {result && <button className="secondary-btn wide" type="button" onClick={() => openItem(result)}><Library size={16} />Mở kết quả trong kho tri thức</button>}
+            {request.sopTaskId && <button className="secondary-btn wide" type="button" onClick={() => navigate("sop-task-detail", { id: request.sopTaskId })}><BookOpen size={16} />Mở nhiệm vụ SOP</button>}
           </article>
           <article className="panel">
             <h3>Traceability</h3>
@@ -655,7 +655,7 @@ function KnowledgeRequestTriage({ request, users, taxonomy, knowledgeCatalog, na
   return (
     <section className="page detail-page">
       <BackButton onClick={() => navigate("knowledge-request-queue")} label="Quay lại hàng đợi phân loại" />
-      <PageHeading eyebrow={`Phân loại FL-04 - ${request.id}`} title={request.title} description="Knowledge Manager quyết định hướng xử lý request.">
+      <PageHeading eyebrow={`Phân loại - ${request.id}`} title={request.title} description="Quản lý tri thức quyết định hướng xử lý yêu cầu.">
         <StatusBadge status={request.status} />
       </PageHeading>
       <div className="detail-layout">
@@ -663,7 +663,7 @@ function KnowledgeRequestTriage({ request, users, taxonomy, knowledgeCatalog, na
           <Section title="Snapshot yêu cầu">
             <InfoGrid rows={[
               ["Nguồn", knowledgeRequestOriginLabels[request.origin]],
-              ["Query FL-01", request.sourceContext?.query],
+              ["Từ khóa tìm kiếm", request.sourceContext?.query],
               ["Asset", request.assetId],
               ["Thiết bị", taxonomyLabel(taxonomy, "assetTypes", request.assetType)],
               ["Loại lỗi", taxonomyLabel(taxonomy, "faultTypes", request.faultType)],
@@ -683,7 +683,7 @@ function KnowledgeRequestTriage({ request, users, taxonomy, knowledgeCatalog, na
             <div className="form-actions">
               <button className="secondary-btn" type="button" onClick={() => requestMoreInfo(request, form.note || "Cần bổ sung ảnh, bối cảnh hoặc thao tác đã thử.")}>Yêu cầu bổ sung</button>
               <button className="primary-btn" type="button" onClick={() => form.deliverableType === "SOP" ? transferToSop(request) : assignRequest(request, form)}>
-                {form.deliverableType === "SOP" ? "Chuyển thành nhiệm vụ SOP (FL-03)" : "Giao biên soạn bài viết"}
+                {form.deliverableType === "SOP" ? "Chuyển thành nhiệm vụ SOP" : "Giao biên soạn bài viết"}
               </button>
             </div>
           </Section>
@@ -698,7 +698,7 @@ function KnowledgeRequestTriage({ request, users, taxonomy, knowledgeCatalog, na
         <aside className="detail-aside">
           <article className="panel action-panel decision-panel">
             <h3>Nhánh đặc biệt</h3>
-            <button className="secondary-btn wide" type="button" onClick={() => createFieldSubmission({ assetId: request.assetId, assetType: request.assetType, faultType: request.faultType, symptom: request.description })}>Tạo submission FL-02 lấy bằng chứng</button>
+            <button className="secondary-btn wide" type="button" onClick={() => createFieldSubmission({ assetId: request.assetId, assetType: request.assetType, faultType: request.faultType, symptom: request.description })}>Tạo bản gửi hiện trường lấy bằng chứng</button>
             <label><span>Lý do từ chối</span><textarea value={rejectReason} onChange={(event) => setRejectReason(event.target.value)} /></label>
             <button className="primary-btn danger-btn wide" type="button" onClick={() => rejectRequest(request, rejectReason || "Ngoài phạm vi xử lý của KMS prototype.")}>Từ chối request</button>
           </article>
@@ -832,7 +832,7 @@ function KnowledgeRequestReviewDetail({ request, draft, users, navigate, approve
   return (
     <section className="page detail-page">
       <BackButton onClick={() => navigate("knowledge-request-queue")} label="Quay lại hàng đợi phân loại" />
-      <PageHeading eyebrow={`Duyệt bài viết - ${request.id}`} title={draft.title} description={`Contributor: ${personName(users, draft.authorId)}`}>
+      <PageHeading eyebrow={`Duyệt bài viết - ${request.id}`} title={draft.title} description={`Người biên soạn: ${personName(users, draft.authorId)}`}>
         <StatusBadge status={request.status} />
       </PageHeading>
       <div className="detail-layout">
@@ -880,7 +880,7 @@ function KnowledgeRequestSuccess({ request, navigate }) {
       <div className="success-screen">
         <CheckCircle2 size={48} />
         <h2>Đã gửi yêu cầu bổ sung tri thức</h2>
-        <p>{request ? `${request.id} đã được đưa vào hàng đợi phân loại của Knowledge Manager.` : "Request đã được gửi trong mock data."}</p>
+        <p>{request ? `${request.id} đã được đưa vào hàng đợi phân loại của quản lý tri thức.` : "Yêu cầu đã được gửi trong dữ liệu mẫu."}</p>
         <div className="form-actions">
           <button className="secondary-btn" type="button" onClick={() => navigate("my-knowledge-requests")}>Xem yêu cầu của tôi</button>
           {request && <button className="primary-btn" type="button" onClick={() => navigate("knowledge-request-detail", { id: request.id })}>Mở chi tiết request</button>}
@@ -895,15 +895,15 @@ function FieldCaptureBridge({ createFieldSubmission, navigate }) {
     <div className="choice-grid">
       <article className="choice-card">
         <ClipboardList size={28} />
-        <h3>Bắt đầu FL-02</h3>
-        <p>Tạo submission hiện trường khi FL-04 cần thêm bằng chứng, ảnh, telemetry hoặc case thực tế.</p>
-        <button className="primary-btn" type="button" onClick={() => createFieldSubmission({})}>Tạo submission FL-02</button>
+        <h3>Bắt đầu gửi tri thức hiện trường</h3>
+        <p>Tạo bản gửi hiện trường khi yêu cầu cần thêm bằng chứng, ảnh, telemetry hoặc ca thực tế.</p>
+        <button className="primary-btn" type="button" onClick={() => createFieldSubmission({})}>Tạo bản gửi hiện trường</button>
       </article>
       <article className="choice-card">
         <GitBranch size={28} />
-        <h3>Quay lại FL-04</h3>
-        <p>Sau khi có bằng chứng, Knowledge Manager tiếp tục phân loại và giao xử lý request tri thức.</p>
-        <button className="secondary-btn" type="button" onClick={() => navigate("knowledge-request-queue")}>Mở hàng đợi FL-04</button>
+        <h3>Quay lại yêu cầu tri thức</h3>
+        <p>Sau khi có bằng chứng, quản lý tri thức tiếp tục phân loại và giao xử lý yêu cầu tri thức.</p>
+        <button className="secondary-btn" type="button" onClick={() => navigate("knowledge-request-queue")}>Mở hàng đợi phân loại</button>
       </article>
     </div>
   );
@@ -924,17 +924,18 @@ function RequestCard({ request, navigate, actionLabel }) {
       </div>
       <div className="submission-actions">
         <button className="primary-btn" type="button" onClick={() => navigate("knowledge-request-detail", { id: request.id })}>{actionLabel}</button>
-        {request.status === "TRANSFERRED_FL03" && request.sopTaskId && <button className="secondary-btn" type="button" onClick={() => navigate("sop-task-detail", { id: request.sopTaskId })}>Mở FL-03</button>}
+        {request.status === "TRANSFERRED_FL03" && request.sopTaskId && <button className="secondary-btn" type="button" onClick={() => navigate("sop-task-detail", { id: request.sopTaskId })}>Mở nhiệm vụ SOP</button>}
       </div>
     </article>
   );
 }
 
 function PageHeading({ eyebrow, title, description, children }) {
+  const visibleEyebrow = eyebrow && !/^FL-\d/i.test(String(eyebrow)) ? eyebrow : "";
   return (
     <div className="page-header">
       <div>
-        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        {visibleEyebrow && <p className="eyebrow">{visibleEyebrow}</p>}
         <h2>{title}</h2>
         {description && <p>{description}</p>}
       </div>
