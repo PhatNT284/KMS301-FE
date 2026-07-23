@@ -73,12 +73,14 @@ export const seedFieldSubmissions = [
       verificationMethod: "8 node online ổn định 15 phút và telemetry cập nhật dưới 5 phút.",
       nextAction: "",
       downtimeMinutes: 95,
+      completionTimeMinutes: 72,
       relatedKnowledgeIds: ["SOP-NET-007"],
       sopUsage: {
         status: "USED",
         appliedSopId: "SOP-NET-007",
         appliedSopVersion: "v2.1",
         appliedSopStepIds: ["STEP-03", "STEP-04"],
+        actualDurationMinutes: 72,
         feedback: "INCOMPLETE",
         deviationFlag: true,
         deviationReason: "SOP chưa có bước kiểm tra nguồn dùng chung trước khi thay từng node."
@@ -133,12 +135,14 @@ export const seedFieldSubmissions = [
       verificationMethod: "Tất cả node online ổn định trong 15 phút.",
       nextAction: "",
       downtimeMinutes: 95,
+      completionTimeMinutes: 68,
       relatedKnowledgeIds: ["SOP-NET-007"],
       sopUsage: {
         status: "USED",
         appliedSopId: "SOP-NET-007",
         appliedSopVersion: "v2.1",
         appliedSopStepIds: ["STEP-03", "STEP-04"],
+        actualDurationMinutes: 68,
         feedback: "INCOMPLETE",
         deviationFlag: true,
         deviationReason: "Phải kiểm tra cáp nguồn dùng chung trước khi thực hiện reset."
@@ -198,12 +202,14 @@ export const seedFieldSubmissions = [
       verificationMethod: "Telemetry giảm trễ nhưng vẫn cần theo dõi qua đêm.",
       nextAction: "Bổ sung đo RF sau 24 giờ.",
       downtimeMinutes: 40,
+      completionTimeMinutes: 38,
       relatedKnowledgeIds: ["SOP-NET-007"],
       sopUsage: {
         status: "USED",
         appliedSopId: "SOP-NET-007",
         appliedSopVersion: "v2.1",
         appliedSopStepIds: ["STEP-02", "STEP-03"],
+        actualDurationMinutes: 38,
         feedback: "HELPFUL",
         deviationFlag: false,
         deviationReason: ""
@@ -262,12 +268,14 @@ export const seedFieldSubmissions = [
       verificationMethod: "Điện áp trở lại ổn định và đèn không nhấp nháy sau 20 phút.",
       nextAction: "",
       downtimeMinutes: 55,
+      completionTimeMinutes: 55,
       relatedKnowledgeIds: ["CASE-CABLE-042"],
       sopUsage: {
         status: "NOT_FOUND",
         appliedSopId: "",
         appliedSopVersion: "",
         appliedSopStepIds: [],
+        actualDurationMinutes: 0,
         feedback: "",
         deviationFlag: false,
         deviationReason: ""
@@ -328,12 +336,14 @@ export const seedFieldSubmissions = [
       verificationMethod: "Chưa có xác minh.",
       nextAction: "Tạo work order kiểm tra lại.",
       downtimeMinutes: 0,
+      completionTimeMinutes: 30,
       relatedKnowledgeIds: [],
       sopUsage: {
         status: "NOT_APPLICABLE",
         appliedSopId: "",
         appliedSopVersion: "",
         appliedSopStepIds: [],
+        actualDurationMinutes: 0,
         feedback: "",
         deviationFlag: false,
         deviationReason: ""

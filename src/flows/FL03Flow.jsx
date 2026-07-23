@@ -138,6 +138,7 @@ export function buildDraftFromTask(task, currentUser, baseSop) {
     summary: updateMode
       ? `Cập nhật từ ${baseSop?.version || task.currentVersion || "phiên bản hiện hành"}: ${task.businessReason}`
       : task.businessReason,
+    estimatedDurationMinutes: baseSop?.estimatedDurationMinutes || 60,
     categoryId: baseSop?.categoryId || "TROUBLESHOOTING",
     securityLevel: baseSop?.securityLevel || "INTERNAL",
     domain: "Smart Street Lighting",
@@ -219,6 +220,7 @@ export function createPublishedSopFromDraft(draft, publishForm, manager, baseSop
     reuseCount: baseSop?.reuseCount || 0,
     viewCount: baseSop?.viewCount || 1,
     relevanceScore: 0.94,
+    estimatedDurationMinutes: draft.estimatedDurationMinutes,
     purpose: draft.purpose,
     scope: draft.scope,
     applicableAssets: draft.assetTypes,
@@ -592,6 +594,7 @@ function MetadataStep({ draft, change, errors, taxonomy }) {
       </div>
       <label><span>Tiêu đề SOP *</span><input value={draft.title} onChange={(event) => change("title", event.target.value)} /><FieldError id="title" errors={errors} /></label>
       <label><span>Tóm tắt *</span><textarea value={draft.summary} onChange={(event) => change("summary", event.target.value)} /><FieldError id="summary" errors={errors} /></label>
+      <label><span>Thời gian ước tính hoàn thành (phút) *</span><input type="number" min="1" value={draft.estimatedDurationMinutes || ""} onChange={(event) => change("estimatedDurationMinutes", Number(event.target.value))} /><FieldError id="estimatedDurationMinutes" errors={errors} /></label>
       <div className="filter-grid">
         <NativeSelect label="Danh mục *" value={draft.categoryId} onChange={(value) => change("categoryId", value)} options={taxonomy.categories.filter((item) => item.value !== "ALL")} error={errors.categoryId} />
         <NativeSelect label="Loại lỗi *" value={draft.faultType} onChange={(value) => change("faultType", value)} options={taxonomy.faultTypes.filter((item) => item.value !== "ALL")} error={errors.faultType} />
@@ -966,6 +969,7 @@ function SopPreview({ draft }) {
         ["Mục đích", draft.purpose],
         ["Phạm vi", draft.scope],
         ["Role áp dụng", draft.intendedRoles.join(", ")],
+        ["Thời gian ước tính", `${draft.estimatedDurationMinutes || 0} phút`],
         ["Trigger", draft.trigger]
       ]} />
       <Section title="Safety">
@@ -1007,6 +1011,7 @@ function validateSopDraft(draft, step = "review", all = false) {
     if ((draft.proposedVersion || "").trim().length < 3) errors.proposedVersion = "Nhập version đề xuất.";
     if ((draft.title || "").trim().length < 10) errors.title = "Tiêu đề SOP tối thiểu 10 ký tự.";
     if ((draft.summary || "").trim().length < 30) errors.summary = "Tóm tắt tối thiểu 30 ký tự.";
+    if (!Number.isFinite(Number(draft.estimatedDurationMinutes)) || Number(draft.estimatedDurationMinutes) <= 0) errors.estimatedDurationMinutes = "Nhập thời gian ước tính lớn hơn 0 phút.";
     if (!draft.categoryId) errors.categoryId = "Chọn danh mục.";
     if (!draft.faultType) errors.faultType = "Chọn loại lỗi.";
     if (!draft.assetTypes?.length) errors.assetTypes = "Chọn ít nhất một loại tài sản.";

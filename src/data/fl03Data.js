@@ -65,6 +65,7 @@ export const seedSopDrafts = [
     changeLevel: "MAJOR",
     title: "Chẩn đoán nhiều Smart Node mất kết nối đồng thời",
     summary: "Phiên bản cập nhật bổ sung kiểm tra nguồn dùng chung, tuyến cáp và decision rule trước khi reset cụm node.",
+    estimatedDurationMinutes: 60,
     categoryId: "TROUBLESHOOTING",
     securityLevel: "INTERNAL",
     domain: "Smart Street Lighting",
@@ -243,6 +244,7 @@ export const seedSopDrafts = [
     changeLevel: "MAJOR",
     title: "Chẩn đoán nhiều Smart Node mất kết nối đồng thời",
     summary: "Bản đã chỉnh sửa sau phản hồi, nhấn mạnh kiểm tra nguồn dùng chung trước khi reset.",
+    estimatedDurationMinutes: 55,
     categoryId: "TROUBLESHOOTING",
     securityLevel: "INTERNAL",
     domain: "Smart Street Lighting",
@@ -353,6 +355,7 @@ export const seedSopVersions = [
     reviewDate: "2027-06-01",
     authorId: "KC-001",
     approvedBy: "KM-001",
+    estimatedDurationMinutes: 60,
     sourceDraftId: "",
     changeSummary: "Phiên bản hiện hành trước khi cập nhật.",
     createdAt: "2026-06-01T09:00:00+07:00"

@@ -364,12 +364,14 @@ function emptySubmission(currentUser, prefill = {}) {
       verificationMethod: "",
       nextAction: "",
       downtimeMinutes: 0,
+      completionTimeMinutes: Number(prefill.completionTimeMinutes || 0),
       relatedKnowledgeIds: applied && applied.contentType !== "SOP" ? [applied.id] : [],
       sopUsage: {
         status: appliedSop ? "USED" : "NOT_FOUND",
         appliedSopId: appliedSop?.sopId || "",
         appliedSopVersion: appliedSop?.version || "",
         appliedSopStepIds: appliedSop?.steps?.slice(0, 2).map((step) => step.id) || [],
+        actualDurationMinutes: Number(prefill.actualDurationMinutes || prefill.completionTimeMinutes || 0),
         feedback: appliedSop ? "HELPFUL" : "",
         deviationFlag: false,
         deviationReason: ""
@@ -456,12 +458,13 @@ function makePublishedKnowledge(submission, publishForm, manager) {
     rootCause: submission.resolution.rootCause,
     repairAction: submission.resolution.repairAction,
     outcome: submission.resolution.outcome,
+    completionTimeMinutes: submission.resolution.completionTimeMinutes,
     lessonLearned: submission.knowledge.lessonLearned,
     telemetry: ["Mock telemetry từ submission hiện trường"],
     evidence: submission.attachments.map((attachment) => attachment.name),
     submittedBy: submission.submittedBy,
     publishedAt: nowIso(),
-    appliedSopRefs: applied.status === "USED" ? [{ sopId: applied.appliedSopId, version: applied.appliedSopVersion, stepIds: applied.appliedSopStepIds }] : [],
+    appliedSopRefs: applied.status === "USED" ? [{ sopId: applied.appliedSopId, version: applied.appliedSopVersion, stepIds: applied.appliedSopStepIds, actualDurationMinutes: applied.actualDurationMinutes }] : [],
     sopPotential: publishForm.sopPotential,
     targetSopId: publishForm.targetSopId || proposal.targetSopId,
     affectedSopStepIds: publishForm.affectedSopStepIds || proposal.affectedStepIds,
@@ -501,11 +504,13 @@ function validateSubmission(submission, step = "review", all = false) {
     if (!resolution.outcome) errors.outcome = "Chọn kết quả xử lý.";
     if ((resolution.verificationMethod || "").trim().length < 10) errors.verificationMethod = "Cần nêu cách xác minh kết quả.";
     if (resolution.outcome !== "RESOLVED" && (resolution.nextAction || "").trim().length < 10) errors.nextAction = "Outcome chưa resolved cần hành động tiếp theo.";
+    if (!Number.isFinite(Number(resolution.completionTimeMinutes)) || Number(resolution.completionTimeMinutes) <= 0) errors.completionTimeMinutes = "Nhập thời gian hoàn thành lớn hơn 0 phút.";
     if (!sopUsage.status) errors.sopUsage = "Chọn tình trạng sử dụng SOP.";
     if (sopUsage.status === "USED") {
       if (!sopUsage.appliedSopId) errors.appliedSopId = "Chọn SOP chuẩn đã sử dụng.";
       if (!sopUsage.appliedSopVersion) errors.appliedSopVersion = "Cần lưu snapshot phiên bản SOP.";
       if (!sopUsage.appliedSopStepIds?.length) errors.appliedSopStepIds = "Chọn ít nhất một bước SOP đã áp dụng/liên quan.";
+      if (!Number.isFinite(Number(sopUsage.actualDurationMinutes)) || Number(sopUsage.actualDurationMinutes) <= 0) errors.actualDurationMinutes = "Nhập thời gian thực hiện SOP lớn hơn 0 phút.";
       if (!sopUsage.feedback) errors.sopFeedback = "Đánh giá SOP đã dùng.";
       if (sopUsage.deviationFlag && (sopUsage.deviationReason || "").trim().length < 20) errors.deviationReason = "Giải thích sai khác tối thiểu 20 ký tự.";
     }
@@ -692,6 +697,7 @@ function App() {
   const [applyItem, setApplyItem] = useState(null);
   const [issueReportItem, setIssueReportItem] = useState(null);
   const [applyOutcome, setApplyOutcome] = useState("RESOLVED_FULLY");
+  const [applyDurationMinutes, setApplyDurationMinutes] = useState(0);
   const [applyComment, setApplyComment] = useState("");
   const [validationError, setValidationError] = useState("");
 
@@ -1083,18 +1089,25 @@ function App() {
 
   function submitApply() {
     if (!applyItem) return;
+    if (!Number.isFinite(Number(applyDurationMinutes)) || Number(applyDurationMinutes) <= 0) {
+      setToast("Nhập thời gian thực hiện lớn hơn 0 phút.");
+      return;
+    }
     const nextEvents = {
       ...applicationEvents,
       [applyItem.id]: {
         contentId: applyItem.id,
         version: applyItem.version,
         applicationOutcome: applyOutcome,
+        estimatedDurationMinutes: applyItem.estimatedDurationMinutes || 0,
+        actualDurationMinutes: Number(applyDurationMinutes),
         comment: applyComment,
         appliedAt: new Date().toISOString()
       }
     };
     setApplicationEvents(nextEvents);
     setApplyItem(null);
+    setApplyDurationMinutes(0);
     setApplyComment("");
     setToast("Đã ghi nhận việc áp dụng tri thức.");
   }
@@ -1276,9 +1289,11 @@ function App() {
           item={applyItem}
           outcome={applyOutcome}
           setOutcome={setApplyOutcome}
+          durationMinutes={applyDurationMinutes}
+          setDurationMinutes={setApplyDurationMinutes}
           comment={applyComment}
           setComment={setApplyComment}
-          close={() => setApplyItem(null)}
+          close={() => { setApplyItem(null); setApplyDurationMinutes(0); }}
           confirm={submitApply}
         />
       )}
@@ -1650,7 +1665,7 @@ function KnowledgeCard({ item, openItem }) {
         <div><dt>Chủ sở hữu</dt><dd>{item.knowledgeManagerName}</dd></div>
         <div><dt>Cập nhật</dt><dd>{item.updatedDate}</dd></div>
         <div><dt>Hữu ích</dt><dd>{item.feedbackCount >= 5 ? `${item.helpfulRate}%` : "Chưa có"}</dd></div>
-        <div><dt>Độ khớp</dt><dd>{item.computedScore >= 70 ? "Cao" : item.computedScore >= 35 ? "Trung bình" : "Thấp"}</dd></div>
+        <div><dt>{item.contentType === "SOP" ? "Ước tính" : "Độ khớp"}</dt><dd>{item.contentType === "SOP" && item.estimatedDurationMinutes ? `${item.estimatedDurationMinutes} phút` : item.computedScore >= 70 ? "Cao" : item.computedScore >= 35 ? "Trung bình" : "Thấp"}</dd></div>
       </dl>
       <button className="primary-btn" type="button" onClick={() => openItem(item)}>Mở nội dung <ChevronRight size={16} /></button>
     </article>
@@ -1707,7 +1722,7 @@ function SopDetail(props) {
       <div className="detail-layout">
         <article className="panel article">
           <Section title="Phạm vi áp dụng">
-            <InfoGrid rows={[["Mục đích", item.purpose], ["Phạm vi", item.scope], ["Thiết bị áp dụng", item.applicableAssets.join(", ")], ["Vai trò áp dụng", item.intendedRoles.join(", ")]]} />
+            <InfoGrid rows={[["Mục đích", item.purpose], ["Phạm vi", item.scope], ["Thiết bị áp dụng", item.applicableAssets.join(", ")], ["Vai trò áp dụng", item.intendedRoles.join(", ")], ["Thời gian ước tính", item.estimatedDurationMinutes ? `${item.estimatedDurationMinutes} phút` : "Chưa cấu hình"]]} />
           </Section>
           <SafetyBanner item={item} />
           <Section title="Điều kiện trước khi thực hiện"><Checklist items={[...(item.preconditions || []), ...(item.requiredTools || [])]} /></Section>
@@ -1805,8 +1820,9 @@ function DetailAside({ item, openItem, feedbackEvents, submitFeedback, reportIte
         <h3>Áp dụng & phản hồi</h3>
         <button className="primary-btn wide" disabled={!canApply} onClick={() => setApplyItem(item)} type="button">Đánh dấu đã áp dụng</button>
         {!canApply && <p className="hint">Không thể áp dụng với trạng thái hoặc vai trò hiện tại.</p>}
-        {applied && <p className="success-note">Đã áp dụng: {applied.applicationOutcome}</p>}
-        {applied && currentRole === "FIELD_TECHNICIAN" && <button className="secondary-btn wide" onClick={() => createFieldSubmission({ appliedItem: item })} type="button"><Plus size={16} />Ghi nhận tri thức hiện trường</button>}
+        {applied && <p className="success-note">Đã áp dụng: {applied.applicationOutcome}{applied.actualDurationMinutes ? ` - ${applied.actualDurationMinutes} phút` : ""}</p>}
+        {applied && item.estimatedDurationMinutes && applied.actualDurationMinutes && <p className="hint">So với ước tính SOP: {applied.actualDurationMinutes - item.estimatedDurationMinutes > 0 ? `chậm hơn ${applied.actualDurationMinutes - item.estimatedDurationMinutes} phút` : applied.actualDurationMinutes - item.estimatedDurationMinutes < 0 ? `nhanh hơn ${Math.abs(applied.actualDurationMinutes - item.estimatedDurationMinutes)} phút` : "đúng bằng thời gian ước tính"}.</p>}
+        {applied && currentRole === "FIELD_TECHNICIAN" && <button className="secondary-btn wide" onClick={() => createFieldSubmission({ appliedItem: item, actualDurationMinutes: applied.actualDurationMinutes, completionTimeMinutes: applied.actualDurationMinutes })} type="button"><Plus size={16} />Ghi nhận tri thức hiện trường</button>}
         <div className="feedback-row">
           <button className={feedback === "HELPFUL" ? "feedback active" : "feedback"} onClick={() => submitFeedback(item, "HELPFUL")}><ThumbsUp size={16} />Hữu ích</button>
           <button className={feedback === "NOT_HELPFUL" ? "feedback active" : "feedback"} onClick={() => { submitFeedback(item, "NOT_HELPFUL"); requestImprovement("NOT_HELPFUL", "Không hữu ích"); }}><ThumbsDown size={16} />Không hữu ích</button>
@@ -2139,6 +2155,7 @@ function ResolutionStep({ submission, change, errors, searchRelated }) {
         <label><span>Mã lỗi / cảnh báo</span><input value={resolution.errorCode} onChange={(event) => change("resolution.errorCode", event.target.value)} /></label>
         <label><span>Thời gian gián đoạn (phút)</span><input type="number" min="0" value={resolution.downtimeMinutes} onChange={(event) => change("resolution.downtimeMinutes", Number(event.target.value))} /></label>
       </div>
+      <label><span>Thời gian hoàn thành xử lý (phút) *</span><input type="number" min="1" value={resolution.completionTimeMinutes || ""} onChange={(event) => change("resolution.completionTimeMinutes", Number(event.target.value))} placeholder="Tổng thời gian từ bắt đầu chẩn đoán đến xác minh xong" /><FieldError id="completionTimeMinutes" errors={errors} /></label>
       <RepeatableTextarea label="Các bước chẩn đoán đã thực hiện *" values={resolution.diagnosisSteps} onChange={(values) => change("resolution.diagnosisSteps", values)} error={errors.diagnosisSteps} />
       <label><span>Nguyên nhân gốc rễ *</span><textarea value={resolution.rootCause} onChange={(event) => change("resolution.rootCause", event.target.value)} /><FieldError id="rootCause" errors={errors} /></label>
       <label><span>Hành động sửa chữa *</span><textarea value={resolution.repairAction} onChange={(event) => change("resolution.repairAction", event.target.value)} /><FieldError id="repairAction" errors={errors} /></label>
@@ -2156,6 +2173,7 @@ function ResolutionStep({ submission, change, errors, searchRelated }) {
             }} options={sopCatalog.map((sop) => ({ value: sop.sopId, label: `${sop.sopId} - ${sop.title}` }))} error={errors.appliedSopId} />
             <label><span>Phiên bản SOP đã sử dụng *</span><input value={usage.appliedSopVersion} readOnly /><FieldError id="appliedSopVersion" errors={errors} /></label>
             {selectedSop && <CheckboxGroup label="Bước SOP đã áp dụng/liên quan *" options={selectedSop.steps.map((step) => ({ value: step.id, label: `${step.id} - ${step.label}` }))} values={usage.appliedSopStepIds} onChange={(values) => change("resolution.sopUsage.appliedSopStepIds", values)} error={errors.appliedSopStepIds} />}
+            <label><span>Thời gian thực hiện SOP (phút) *</span><input type="number" min="1" value={usage.actualDurationMinutes || ""} onChange={(event) => change("resolution.sopUsage.actualDurationMinutes", Number(event.target.value))} placeholder={selectedSop?.estimatedDurationMinutes ? `Ước tính SOP: ${selectedSop.estimatedDurationMinutes} phút` : "Ví dụ: 55"} /><FieldError id="actualDurationMinutes" errors={errors} /></label>
             <NativeSelect label="Đánh giá SOP đã dùng *" value={usage.feedback} onChange={(value) => change("resolution.sopUsage.feedback", value)} options={selectOptions.sopFeedback} error={errors.sopFeedback} />
             <label className="check-row"><input type="checkbox" checked={usage.deviationFlag} onChange={(event) => change("resolution.sopUsage.deviationFlag", event.target.checked)} />Có thực hiện khác SOP không?</label>
             {usage.deviationFlag && <label><span>Lý do sai khác với SOP *</span><textarea value={usage.deviationReason} onChange={(event) => change("resolution.sopUsage.deviationReason", event.target.value)} /><FieldError id="deviationReason" errors={errors} /></label>}
@@ -2227,6 +2245,7 @@ function ReviewStep({ submission, change, navigate, errors }) {
         ["Triệu chứng", submission.resolution.symptomSummary],
         ["Nguyên nhân", submission.resolution.rootCause],
         ["Kết quả", optionLabel(selectOptions.outcome, submission.resolution.outcome)],
+        ["Thời gian hoàn thành", `${submission.resolution.completionTimeMinutes || 0} phút`],
         ["SOP đã dùng", submission.resolution.sopUsage.appliedSopId ? `${submission.resolution.sopUsage.appliedSopId} ${submission.resolution.sopUsage.appliedSopVersion}` : optionLabel(selectOptions.sopUsage, submission.resolution.sopUsage.status)]
       ]} />
       <SummaryBlock title="Bằng chứng & bài học" edit={() => navigate("field-submission", { id: submission.id, step: "evidence" })} rows={[
@@ -2370,6 +2389,7 @@ function SubmissionDetail({ submission, navigate, currentUser, knowledgeCatalog,
               ["Loại lỗi", taxonomyLabel("faultTypes", submission.context.faultType)],
               ["Nguyên nhân", submission.resolution.rootCause],
               ["Hành động sửa chữa", submission.resolution.repairAction],
+              ["Thời gian hoàn thành", `${submission.resolution.completionTimeMinutes || 0} phút`],
               ["Bài học", submission.knowledge.lessonLearned]
             ]} />
           </Section>
@@ -2377,6 +2397,7 @@ function SubmissionDetail({ submission, navigate, currentUser, knowledgeCatalog,
             <InfoGrid rows={[
               ["SOP đã dùng", submission.resolution.sopUsage.appliedSopId ? `${submission.resolution.sopUsage.appliedSopId} ${submission.resolution.sopUsage.appliedSopVersion}` : optionLabel(selectOptions.sopUsage, submission.resolution.sopUsage.status)],
               ["Bước đã dùng", sopStepLabels(submission.resolution.sopUsage.appliedSopId, submission.resolution.sopUsage.appliedSopStepIds)],
+              ["Thời gian thực hiện SOP", submission.resolution.sopUsage.actualDurationMinutes ? `${submission.resolution.sopUsage.actualDurationMinutes} phút` : "-"],
               ["SOP mục tiêu", submission.knowledge.sopProposal.targetSopId],
               ["Khoảng trống", submission.knowledge.sopProposal.gapSummary],
               ["Đề xuất", submission.knowledge.sopProposal.proposedChange]
@@ -2564,6 +2585,7 @@ function ReviewDetail({ submission, updateSubmission, currentUser, currentRole, 
             <Checklist items={submission.resolution.diagnosisSteps} />
             <p><strong>Nguyên nhân:</strong> {submission.resolution.rootCause}</p>
             <p><strong>Hành động:</strong> {submission.resolution.repairAction}</p>
+            <p><strong>Thời gian hoàn thành:</strong> {submission.resolution.completionTimeMinutes || 0} phút</p>
             <p><strong>Xác minh:</strong> {submission.resolution.verificationMethod}</p>
           </Section>
           <Section title="Bằng chứng và bài học">
@@ -2576,6 +2598,7 @@ function ReviewDetail({ submission, updateSubmission, currentUser, currentRole, 
               ["SOP đã dùng", submission.resolution.sopUsage.appliedSopId ? `${submission.resolution.sopUsage.appliedSopId} ${submission.resolution.sopUsage.appliedSopVersion}` : optionLabel(selectOptions.sopUsage, submission.resolution.sopUsage.status)],
               ["Bước SOP đã dùng", sopStepLabels(submission.resolution.sopUsage.appliedSopId, submission.resolution.sopUsage.appliedSopStepIds)],
               ["Đánh giá SOP", optionLabel(selectOptions.sopFeedback, submission.resolution.sopUsage.feedback)],
+              ["Thời gian thực hiện SOP", submission.resolution.sopUsage.actualDurationMinutes ? `${submission.resolution.sopUsage.actualDurationMinutes} phút` : "-"],
               ["SOP mục tiêu", submission.knowledge.sopProposal.targetSopId],
               ["Bước bị ảnh hưởng", sopStepLabels(submission.knowledge.sopProposal.targetSopId, submission.knowledge.sopProposal.affectedStepIds)],
               ["Khoảng trống", submission.knowledge.sopProposal.gapSummary],
@@ -2741,13 +2764,15 @@ function Placeholder({ title, description }) {
   return <section className="page"><PageHeader title={title} description={description} /></section>;
 }
 
-function ApplyModal({ item, outcome, setOutcome, comment, setComment, close, confirm }) {
+function ApplyModal({ item, outcome, setOutcome, durationMinutes, setDurationMinutes, comment, setComment, close, confirm }) {
   return (
     <div className="modal-backdrop" role="presentation">
       <section className="modal" role="dialog" aria-modal="true" aria-labelledby="apply-title">
         <h2 id="apply-title">Mark as Applied</h2>
         <p>{item.title}</p>
+        {item.estimatedDurationMinutes && <p className="hint">Thời gian ước tính của SOP: {item.estimatedDurationMinutes} phút.</p>}
         <label><span>Application outcome</span><select value={outcome} onChange={(event) => setOutcome(event.target.value)}><option value="RESOLVED_FULLY">Resolved Fully</option><option value="HELPED_PARTIALLY">Helped Partially</option><option value="DID_NOT_RESOLVE">Did Not Resolve</option><option value="REFERENCE_ONLY">Reference Only</option></select></label>
+        <label><span>Thời gian thực hiện (phút) *</span><input type="number" min="1" value={durationMinutes || ""} onChange={(event) => setDurationMinutes(Number(event.target.value))} placeholder="Ví dụ: 55" /></label>
         <label><span>Comment</span><textarea maxLength={500} value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Ghi chú work order hoặc kết quả áp dụng..." /></label>
         <div className="form-actions"><button className="ghost-btn" onClick={close} type="button">Hủy</button><button className="primary-btn" onClick={confirm} type="button">Confirm Apply</button></div>
       </section>

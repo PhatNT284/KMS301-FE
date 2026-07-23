@@ -139,6 +139,7 @@ export const seedAdminConfig = {
       fields: [
         { fieldId: "assetType", label: "Loại tài sản", type: "taxonomy", required: true, visibleRoleIds: ["CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"] },
         { fieldId: "faultType", label: "Loại lỗi", type: "taxonomy", required: true, visibleRoleIds: ["CONTRIBUTOR", "KNOWLEDGE_MANAGER", "ADMINISTRATOR"] },
+        { fieldId: "estimatedDurationMinutes", label: "Thời gian ước tính hoàn thành", type: "number", required: true, visibleRoleIds: ["CONTRIBUTOR", "KNOWLEDGE_MANAGER"] },
         { fieldId: "ppe", label: "PPE bắt buộc", type: "text", required: true, visibleRoleIds: ["CONTRIBUTOR", "KNOWLEDGE_MANAGER"] },
         { fieldId: "reviewCycle", label: "Chu kỳ rà soát", type: "number", required: true, visibleRoleIds: ["KNOWLEDGE_MANAGER", "ADMINISTRATOR"] }
       ]
@@ -151,6 +152,7 @@ export const seedAdminConfig = {
       fields: [
         { fieldId: "assetId", label: "Asset ID", type: "text", required: true, visibleRoleIds: ["FIELD_TECHNICIAN", "KNOWLEDGE_MANAGER"] },
         { fieldId: "district", label: "Khu vực", type: "text", required: true, visibleRoleIds: ["FIELD_TECHNICIAN", "KNOWLEDGE_MANAGER"] },
+        { fieldId: "completionTimeMinutes", label: "Thời gian hoàn thành", type: "number", required: true, visibleRoleIds: ["FIELD_TECHNICIAN", "KNOWLEDGE_MANAGER"] },
         { fieldId: "evidence", label: "Bằng chứng", type: "attachment", required: true, visibleRoleIds: ["FIELD_TECHNICIAN", "KNOWLEDGE_MANAGER"] }
       ]
     }
