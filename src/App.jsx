@@ -917,6 +917,42 @@ function App() {
     navigate("sop-editor", { id: draft.id, step: "metadata" });
   }
 
+  function startNewSop() {
+    if (!["CONTRIBUTOR", "KNOWLEDGE_MANAGER"].includes(currentRole)) {
+      setToast("Chỉ Contributor hoặc Knowledge Manager được khởi tạo SOP mới.");
+      return;
+    }
+    const task = {
+      id: makeId("SOPTASK"),
+      sourceRequestId: makeId("SOPREQ"),
+      type: "NEW_SOP",
+      status: "OPEN",
+      priority: "MEDIUM",
+      title: "Đề xuất SOP mới từ FL-03",
+      proposedTitle: "SOP mới cần chuẩn hóa",
+      existingSopId: "",
+      currentVersion: "",
+      requestedVersionIntent: "MAJOR",
+      assignedTo: currentRole === "KNOWLEDGE_MANAGER" ? "KC-001" : currentUser.id,
+      createdBy: currentUser.id,
+      sourceKnowledgeIds: [],
+      sourceSubmissionId: "",
+      relatedAssetTypes: ["CITYTOUCH_NODE"],
+      relatedFaultType: "CONNECTIVITY_LOSS",
+      businessReason: "Khởi tạo từ CTA Tạo SOP mới theo đặc tả FL-03 v1.1. Người biên soạn cần bổ sung nguồn traceability trước khi gửi duyệt.",
+      requestedChanges: [
+        "Mô tả business reason và phạm vi áp dụng của SOP mới.",
+        "Bổ sung source knowledge, source submission hoặc nguồn ngoài trước khi submit.",
+        "Hoàn thiện metadata, safety, procedure và review checklist theo quy trình FL-03."
+      ],
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      createdAt: nowIso()
+    };
+    setSopTasks((items) => [task, ...items]);
+    setToast("Đã tạo task SOP mới. Hoàn thiện nguồn trước khi gửi duyệt.");
+    navigate("sop-task-detail", { id: task.id });
+  }
+
   function ensureSopTaskFromRequest(request) {
     const existingTask = sopTasks.find((task) => task.sourceRequestId === request.id);
     if (existingTask) {
@@ -1197,12 +1233,12 @@ function App() {
   else if (screen === "submission-detail") content = selectedSubmission ? <SubmissionDetail submission={selectedSubmission} navigate={navigate} currentUser={currentUser} knowledgeCatalog={knowledgeCatalog} openItem={openItem} /> : <Placeholder title="Không tìm thấy submission" description="Không có submission tương ứng." />;
   else if (screen === "review" || screen === "review-queue") content = <ReviewQueue submissions={fieldSubmissions} navigate={navigate} currentRole={currentRole} />;
   else if (screen === "review-detail") content = selectedSubmission ? <ReviewDetail submission={selectedSubmission} updateSubmission={updateSubmission} currentUser={currentUser} currentRole={currentRole} navigate={navigate} setToast={setToast} setPublishedOutputs={setPublishedOutputs} setSopRequests={setSopRequests} openItem={openItem} knowledgeCatalog={knowledgeCatalog} /> : <Placeholder title="Không tìm thấy submission" description="Không có item trong hàng đợi." />;
-  else if (screen === "sops") content = <SopWorkspace tab={sopTab} navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
+  else if (screen === "sops") content = <SopWorkspace tab={sopTab} navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} startNewSop={startNewSop} />;
   else if (screen === "sop-task-detail") content = <SopTaskDetail task={selectedSopTask} drafts={sopDrafts} navigate={navigate} knowledgeCatalog={knowledgeCatalog} startAuthoringFromTask={startAuthoringFromTask} />;
   else if (screen === "sop-editor") content = <SopEditor draft={selectedSopDraft} step={params.get("step") || "metadata"} updateDraft={updateSopDraft} navigate={navigate} setToast={setToast} taxonomy={runtimeTaxonomy} />;
   else if (screen === "sop-submit-success") content = <SopSubmitSuccess draft={selectedSopDraft} navigate={navigate} />;
-  else if (screen === "my-sop-drafts") content = <SopWorkspace tab="drafts" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
-  else if (screen === "sop-review-queue") content = <SopWorkspace tab="review" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} />;
+  else if (screen === "my-sop-drafts") content = <SopWorkspace tab="drafts" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} startNewSop={startNewSop} />;
+  else if (screen === "sop-review-queue") content = <SopWorkspace tab="review" navigate={navigate} openItem={openItem} knowledgeCatalog={knowledgeCatalog} sopTasks={sopTasks} sopDrafts={sopDrafts} sopVersions={sopVersions} currentUser={currentUser} currentRole={currentRole} startAuthoringFromTask={startAuthoringFromTask} startVersionFromSop={startVersionFromSop} startNewSop={startNewSop} />;
   else if (screen === "sop-review-detail") content = <SopReviewDetail draft={selectedSopDraft} updateDraft={updateSopDraft} navigate={navigate} currentUser={currentUser} currentRole={currentRole} setToast={setToast} publishDraft={publishSopDraft} />;
   else if (screen === "sop-version-compare") content = <SopVersionCompare draft={selectedSopDraft} baseSop={selectedSopDraft ? knowledgeCatalog.find((item) => item.id === selectedSopDraft.sopId) : null} navigate={navigate} />;
   else if (screen === "sop-version-history") content = <SopVersionHistory sopId={selectedId} versions={sopVersions} knowledgeCatalog={knowledgeCatalog} navigate={navigate} openItem={openItem} />;

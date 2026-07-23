@@ -266,15 +266,18 @@ export function SopWorkspace({
   currentUser,
   currentRole,
   startAuthoringFromTask,
-  startVersionFromSop
+  startVersionFromSop,
+  startNewSop
 }) {
   const activeTab = ["library", "tasks", "drafts", "review", "versions"].includes(tab) ? tab : "library";
   const publishedSops = knowledgeCatalog.filter((item) => item.contentType === "SOP");
   const myDrafts = sopDrafts.filter((draft) => draft.authorId === currentUser.id || currentRole === "KNOWLEDGE_MANAGER");
   const reviewDrafts = sopDrafts.filter((draft) => reviewerStatuses.includes(draft.status));
+  const canAuthor = ["CONTRIBUTOR", "KNOWLEDGE_MANAGER"].includes(currentRole);
   return (
     <section className="page">
       <PageHeader eyebrow="FL-03" title="Quy trình vận hành (SOP)" description="Không gian chung cho thư viện SOP, nhiệm vụ biên soạn, bản nháp, duyệt SOP và lịch sử phiên bản.">
+        {canAuthor && <button className="primary-btn" type="button" onClick={startNewSop}><Plus size={16} />Tạo SOP mới</button>}
         <button className="secondary-btn" type="button" onClick={() => navigate("sops", { tab: "tasks" })}><FileClock size={16} />Nhiệm vụ SOP</button>
       </PageHeader>
       <div className="subtab-row" role="tablist" aria-label="Không gian SOP">
