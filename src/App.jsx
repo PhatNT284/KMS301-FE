@@ -14,7 +14,6 @@ import {
   FileQuestion,
   FileText,
   Gauge,
-  HelpCircle,
   History,
   Home,
   Library,
@@ -1239,7 +1238,7 @@ function App() {
   const fl05Screens = ["lifecycle-entry", "lifecycle-dashboard", "lifecycle-review-queue", "lifecycle-review-detail", "lifecycle-checklist", "lifecycle-reconfirm", "lifecycle-create-revision", "my-revision-tasks", "lifecycle-revision-workspace", "lifecycle-version-compare", "lifecycle-rereview", "lifecycle-suspend", "lifecycle-supersede", "lifecycle-archive", "lifecycle-success", "lifecycle-history", "lifecycle-policy-settings"];
   const fl06Screens = adminScreenIds;
   let content;
-  if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} />;
+  if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} currentUser={currentUser} sopTasks={sopTasks} sopDrafts={sopDrafts} knowledgeRequests={knowledgeRequests} lifecycleReviewTasks={lifecycleReviewTasks} />;
   else if (screen === "search") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} isKnowledgeBase />;
   else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} />;
   else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
@@ -1317,9 +1316,6 @@ function Sidebar({ activeNav, navigate, currentRole }) {
           );
         })}
       </nav>
-      <div className="sidebar-footer">
-        <button className="nav-item" type="button"><HelpCircle size={18} /><span>Trung tâm Trợ giúp</span></button>
-      </div>
     </aside>
   );
 }
@@ -1360,29 +1356,96 @@ function PageHeader({ eyebrow, title, description, children }) {
   );
 }
 
-function Dashboard({ searchParams, setSearchParams, runSearch, openItem, navigate, createFieldSubmission, fieldSubmissions, currentRole }) {
+function Dashboard({ searchParams, setSearchParams, runSearch, openItem, navigate, createFieldSubmission, fieldSubmissions, currentRole, currentUser, sopTasks, sopDrafts, knowledgeRequests, lifecycleReviewTasks }) {
   const recentItems = knowledgeItems.filter((item) => item.status === "PUBLISHED").slice(0, 3);
   const recommendedItems = knowledgeItems.filter((item) => item.contentType === "SOP").slice(0, 3);
-  const draftCount = fieldSubmissions.filter((item) => item.status === "DRAFT").length;
-  const changesCount = fieldSubmissions.filter((item) => item.status === "CHANGES_REQUESTED").length;
+  const fieldDraftCount = fieldSubmissions.filter((item) => item.submittedBy === currentUser.id && item.status === "DRAFT").length;
+  const fieldChangesCount = fieldSubmissions.filter((item) => item.submittedBy === currentUser.id && item.status === "CHANGES_REQUESTED").length;
+  const assignedSopTaskCount = sopTasks.filter((item) => item.assignedTo === currentUser.id && ["OPEN", "ACCEPTED", "IN_PROGRESS"].includes(item.status)).length;
+  const contributorDraftCount = sopDrafts.filter((item) => item.authorId === currentUser.id && ["DRAFT", "CHANGES_REQUESTED"].includes(item.status)).length;
+  const contributorRequestCount = knowledgeRequests.filter((item) => item.assigneeId === currentUser.id && ["ASSIGNED", "IN_PROGRESS", "CHANGES_REQUESTED"].includes(item.status)).length;
+  const fieldReviewCount = fieldSubmissions.filter((item) => ["SUBMITTED", "RESUBMITTED", "IN_REVIEW"].includes(item.status)).length;
+  const requestReviewCount = knowledgeRequests.filter((item) => ["SUBMITTED", "TRIAGING", "NEEDS_INFORMATION", "ASSIGNED", "IN_PROGRESS", "IN_REVIEW", "CHANGES_REQUESTED"].includes(item.status)).length;
+  const sopReviewCount = sopDrafts.filter((item) => ["SUBMITTED", "RESUBMITTED", "IN_REVIEW"].includes(item.status)).length;
+  const lifecycleReviewCount = lifecycleReviewTasks.filter((item) => ["OPEN", "IN_PROGRESS"].includes(item.status)).length;
+  const quickPanelByRole = {
+    FIELD_TECHNICIAN: {
+      eyebrow: "Ghi nhận hiện trường",
+      title: "Gửi tri thức hiện trường",
+      description: "Ghi lại ca vừa xử lý, SOP đã dùng, bằng chứng và bài học để quản lý tri thức kiểm duyệt.",
+      actions: [
+        { label: "Gửi tri thức hiện trường", icon: Plus, className: "primary-btn", onClick: () => createFieldSubmission({}) },
+        { label: "Bản gửi của tôi", icon: ClipboardList, className: "secondary-btn", onClick: () => navigate("my-submissions") }
+      ],
+      metrics: [
+        { label: `${fieldDraftCount} bản nháp`, onClick: () => navigate("my-submissions") },
+        { label: `${fieldChangesCount} cần bổ sung`, onClick: () => navigate("my-submissions") }
+      ]
+    },
+    CONTRIBUTOR: {
+      eyebrow: "Biên soạn tri thức",
+      title: "Công việc được giao",
+      description: "Theo dõi yêu cầu tri thức và bản nháp SOP cần biên soạn, chỉnh sửa hoặc gửi duyệt.",
+      actions: [
+        { label: "Nhiệm vụ SOP", icon: ClipboardCheck, className: "primary-btn", onClick: () => navigate("sops", { tab: "tasks" }) },
+        { label: "Bản nháp SOP", icon: FileClock, className: "secondary-btn", onClick: () => navigate("sops", { tab: "drafts" }) }
+      ],
+      metrics: [
+        { label: `${assignedSopTaskCount} nhiệm vụ SOP`, onClick: () => navigate("sops", { tab: "tasks" }) },
+        { label: `${contributorDraftCount} bản nháp`, onClick: () => navigate("sops", { tab: "drafts" }) },
+        { label: `${contributorRequestCount} yêu cầu được giao`, onClick: () => navigate("request", { tab: "contributor-queue" }) }
+      ]
+    },
+    KNOWLEDGE_MANAGER: {
+      eyebrow: "Kiểm duyệt tri thức",
+      title: "Hàng đợi quản lý tri thức",
+      description: "Phân loại yêu cầu, duyệt tri thức hiện trường, kiểm duyệt SOP và xử lý rà soát vòng đời.",
+      actions: [
+        { label: "Hàng đợi xét duyệt", icon: ClipboardCheck, className: "primary-btn", onClick: () => navigate("review-queue") },
+        { label: "Phân loại yêu cầu", icon: FileQuestion, className: "secondary-btn", onClick: () => navigate("request", { tab: "triage-queue" }) },
+        { label: "Duyệt SOP", icon: BookOpen, className: "ghost-btn", onClick: () => navigate("sops", { tab: "review" }) }
+      ],
+      metrics: [
+        { label: `${fieldReviewCount} bản chờ duyệt`, onClick: () => navigate("review-queue") },
+        { label: `${requestReviewCount} yêu cầu tri thức`, onClick: () => navigate("request", { tab: "triage-queue" }) },
+        { label: `${sopReviewCount} SOP chờ duyệt`, onClick: () => navigate("sops", { tab: "review" }) },
+        { label: `${lifecycleReviewCount} rà soát vòng đời`, onClick: () => navigate("lifecycle-review-queue") }
+      ]
+    },
+    ADMINISTRATOR: {
+      eyebrow: "Quản trị hệ thống",
+      title: "Cấu hình và kiểm soát",
+      description: "Quản lý người dùng, quyền, taxonomy, cấu hình tìm kiếm và nhật ký audit của hệ thống.",
+      actions: [
+        { label: "Bảng quản trị", icon: ShieldCheck, className: "primary-btn", onClick: () => navigate("admin-dashboard") },
+        { label: "Ma trận quyền", icon: UserCog, className: "secondary-btn", onClick: () => navigate("admin-permissions") },
+        { label: "Taxonomy", icon: Library, className: "ghost-btn", onClick: () => navigate("admin-taxonomy") }
+      ],
+      metrics: [
+        { label: "Nhật ký audit", onClick: () => navigate("admin-audit-log") },
+        { label: "Cấu hình tìm kiếm", onClick: () => navigate("admin-search-config") }
+      ]
+    }
+  };
+  const quickPanel = quickPanelByRole[currentRole] || quickPanelByRole.FIELD_TECHNICIAN;
 
   return (
     <section className="page">
-      <PageHeader title="Tìm kiếm tri thức" description="Điểm vào nhanh cho kỹ thuật viên tìm SOP, ca sửa chữa và bài học đã kiểm chứng." />
+      <PageHeader title="Bảng điều khiển tri thức" description="Điểm vào nhanh theo vai trò để tìm kiếm, gửi, biên soạn, kiểm duyệt hoặc quản trị tri thức." />
       <div className="capture-strip">
         <article>
-          <span>Ghi nhận hiện trường</span>
-          <h3>Gửi tri thức hiện trường</h3>
-          <p>Ghi lại ca vừa xử lý, SOP đã dùng, bằng chứng và bài học để quản lý tri thức kiểm duyệt.</p>
+          <span>{quickPanel.eyebrow}</span>
+          <h3>{quickPanel.title}</h3>
+          <p>{quickPanel.description}</p>
         </article>
         <div className="capture-actions">
-          <button className="primary-btn" type="button" onClick={() => createFieldSubmission({})}><Plus size={17} />Gửi tri thức hiện trường</button>
-          <button className="secondary-btn" type="button" onClick={() => navigate("my-submissions")}><ClipboardList size={17} />Bản gửi của tôi</button>
-          {currentRole === "KNOWLEDGE_MANAGER" && <button className="ghost-btn" type="button" onClick={() => navigate("review-queue")}>Mở hàng đợi xét duyệt</button>}
+          {quickPanel.actions.map((action) => {
+            const Icon = action.icon;
+            return <button key={action.label} className={action.className} type="button" onClick={action.onClick}><Icon size={17} />{action.label}</button>;
+          })}
         </div>
         <div className="mini-metrics">
-          <span>{draftCount} bản nháp</span>
-          <span>{changesCount} cần bổ sung</span>
+          {quickPanel.metrics.map((metric) => <button key={metric.label} type="button" onClick={metric.onClick}>{metric.label}</button>)}
         </div>
       </div>
       <div className="hero-search">

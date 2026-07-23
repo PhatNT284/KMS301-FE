@@ -1060,6 +1060,30 @@ dd {
   margin-top: 5px;
 }
 
+.capture-strip .primary-btn {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: #003f7f;
+  box-shadow: 0 8px 18px rgba(0, 25, 64, 0.18);
+}
+
+.capture-strip .secondary-btn {
+  color: #003366;
+  border-color: rgba(255, 255, 255, 0.72);
+  background: white;
+}
+
+.capture-strip .ghost-btn {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.capture-strip .ghost-btn:hover,
+.capture-strip .ghost-btn:focus-visible {
+  border-color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.2);
+}
+
 .capture-actions,
 .mini-metrics,
 .subtab-row,
@@ -1079,6 +1103,7 @@ dd {
 }
 
 .mini-metrics span,
+.mini-metrics button,
 .status-tabs span,
 .queue-filters span {
   display: inline-flex;
@@ -1092,10 +1117,29 @@ dd {
   font-weight: 850;
 }
 
-.capture-strip .mini-metrics span {
+.mini-metrics button {
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.mini-metrics button:hover,
+.mini-metrics button:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--brand);
+}
+
+.capture-strip .mini-metrics span,
+.capture-strip .mini-metrics button {
   color: white;
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.14);
+}
+
+.capture-strip .mini-metrics button:hover,
+.capture-strip .mini-metrics button:focus-visible {
+  border-color: rgba(255, 255, 255, 0.66);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .choice-grid,
