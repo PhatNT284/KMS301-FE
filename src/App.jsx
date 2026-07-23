@@ -112,10 +112,22 @@ const DEFAULT_SEARCH = {
   assetType: "ALL",
   faultType: "ALL",
   categoryId: "ALL",
-  status: "PUBLISHED",
+  status: "ALL",
   updatedRange: "ALL",
   sortBy: "RELEVANCE"
 };
+
+const searchStatusOptions = [
+  { value: "ALL", label: "Tất cả trạng thái" },
+  { value: "PUBLISHED", label: "Đang hiệu lực" },
+  { value: "REVIEW_DUE", label: "Đến hạn rà soát" },
+  { value: "FLAGGED", label: "Bị gắn cờ" },
+  { value: "UNDER_REVIEW", label: "Đang rà soát" },
+  { value: "SUSPENDED", label: "Tạm ngừng" },
+  { value: "SUPERSEDED", label: "Đã thay thế" },
+  { value: "ARCHIVED", label: "Đã lưu trữ" },
+  { value: "OUTDATED", label: "Outdated" }
+];
 
 const navItems = [
   { id: "dashboard", label: "Bảng điều khiển", icon: Home },
@@ -533,7 +545,7 @@ function paramsFromSearch(searchParams) {
   const params = new URLSearchParams();
   params.set("screen", "search-results");
   Object.entries(searchParams).forEach(([key, value]) => {
-    if (value && value !== "ALL" && !(key === "status" && value === "PUBLISHED")) {
+    if (value && value !== "ALL" && value !== DEFAULT_SEARCH[key]) {
       params.set(key, value);
     }
   });
@@ -550,13 +562,13 @@ function searchFromUrl() {
     assetType: params.get("assetType") || "ALL",
     faultType: params.get("faultType") || "ALL",
     categoryId: params.get("categoryId") || "ALL",
-    status: params.get("status") || "PUBLISHED",
+    status: params.get("status") || DEFAULT_SEARCH.status,
     updatedRange: params.get("updatedRange") || "ALL",
     sortBy: params.get("sortBy") || "RELEVANCE"
   };
 }
 
-function isSearchValid(params) {
+function hasSearchCriteria(params) {
   return Boolean(
     params.query.trim() ||
       params.assetId.trim() ||
@@ -564,9 +576,16 @@ function isSearchValid(params) {
       params.assetType !== "ALL" ||
       params.faultType !== "ALL" ||
       params.categoryId !== "ALL" ||
-      params.status !== "PUBLISHED" ||
+      params.status !== DEFAULT_SEARCH.status ||
       params.updatedRange !== "ALL"
   );
+}
+
+function describeSearchContext(searchParams) {
+  const terms = [];
+  if (searchParams.query.trim()) terms.push(`"${searchParams.query.trim()}"`);
+  if (searchParams.assetId.trim()) terms.push(`Asset ${searchParams.assetId.trim()}`);
+  return terms.length ? terms.join(" + ") : "tất cả tri thức có thể xem";
 }
 
 function canViewItem(item, role) {
@@ -828,17 +847,19 @@ function App() {
     window.history.pushState(null, "", nextSearch);
     setLocationSearch(nextSearch);
     setScreen(nextScreen);
+    if (nextScreen === "search") {
+      setSearchParams(DEFAULT_SEARCH);
+      setValidationError("");
+    }
   }
 
   function runSearch(nextParams = searchParams) {
-    if (!isSearchValid(nextParams)) {
-      setValidationError("Nhập từ khóa, Asset ID hoặc chọn ít nhất một bộ lọc.");
-      return;
-    }
     setValidationError("");
     setSearchParams(nextParams);
-    const label = nextParams.query || nextParams.assetId || "Bộ lọc nâng cao";
-    setRecentSearches((items) => [label, ...items.filter((item) => item !== label)].slice(0, 5));
+    if (hasSearchCriteria(nextParams)) {
+      const label = nextParams.query || nextParams.assetId || "Bộ lọc nâng cao";
+      setRecentSearches((items) => [label, ...items.filter((item) => item !== label)].slice(0, 5));
+    }
     const url = paramsFromSearch(nextParams);
     window.history.pushState(null, "", url);
     setLocationSearch(url);
@@ -1219,8 +1240,8 @@ function App() {
   const fl06Screens = adminScreenIds;
   let content;
   if (screen === "dashboard") content = <Dashboard searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} openItem={openItem} navigate={navigate} createFieldSubmission={createFieldSubmission} fieldSubmissions={fieldSubmissions} currentRole={currentRole} />;
-  else if (screen === "search") content = <AdvancedSearch searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} recentSearches={recentSearches} taxonomySource={runtimeTaxonomy} />;
-  else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} />;
+  else if (screen === "search") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} isKnowledgeBase />;
+  else if (screen === "search-results") content = <SearchResults searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} results={results} openItem={openItem} createKnowledgeRequest={createKnowledgeRequest} currentRole={currentRole} taxonomySource={runtimeTaxonomy} />;
   else if (screen === "knowledge-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <KnowledgeDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "sop-detail") content = selectedItem && canViewItem(selectedItem, currentRole) ? <SopDetail item={selectedItem} openItem={openItem} navigate={navigate} feedbackEvents={feedbackEvents} submitFeedback={submitFeedback} reportItem={reportItem} setApplyItem={setApplyItem} applicationEvents={applicationEvents} currentRole={currentRole} createFieldSubmission={createFieldSubmission} knowledgeCatalog={knowledgeCatalog} fieldSubmissions={fieldSubmissions} sopRequests={sopRequests} ensureSopTaskFromRequest={ensureSopTaskFromRequest} createKnowledgeRequest={createKnowledgeRequest} setIssueReportItem={setIssueReportItem} /> : <AccessDenied navigate={navigate} currentRole={currentRole} />;
   else if (screen === "access-denied") content = <AccessDenied navigate={navigate} currentRole={currentRole} />;
@@ -1433,6 +1454,39 @@ function AdvancedSearch({ searchParams, setSearchParams, runSearch, validationEr
 }
 
 function SearchForm({ searchParams, setSearchParams, runSearch, validationError, compact = false, taxonomySource = baseTaxonomy }) {
+  if (compact) {
+    return (
+      <form className="search-form compact" onSubmit={(event) => { event.preventDefault(); runSearch(searchParams); }}>
+        <div className="compact-search-row">
+          <label>
+            <span>Từ khóa</span>
+            <input value={searchParams.query} onChange={(event) => setSearchParams({ ...searchParams, query: event.target.value })} maxLength={200} placeholder="CityTouch node offline" />
+          </label>
+          <label>
+            <span>Asset ID</span>
+            <input value={searchParams.assetId} onChange={(event) => setSearchParams({ ...searchParams, assetId: event.target.value.toUpperCase() })} placeholder="CTN-1108" />
+          </label>
+          <SelectField label="Loại nội dung" value={searchParams.contentType} field="contentType" options={taxonomySource.contentTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+          <SelectField label="Trạng thái" value={searchParams.status} field="status" options={searchStatusOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
+          <div className="compact-search-actions">
+            <button className="ghost-btn" type="button" onClick={() => setSearchParams(DEFAULT_SEARCH)}>Xóa</button>
+            <button className="primary-btn" type="submit"><Search size={17} />Tìm</button>
+          </div>
+        </div>
+        <details className="advanced-filter-drawer">
+          <summary>Bộ lọc nâng cao</summary>
+          <div className="filter-grid">
+            <SelectField label="Loại thiết bị" value={searchParams.assetType} field="assetType" options={taxonomySource.assetTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+            <SelectField label="Loại lỗi" value={searchParams.faultType} field="faultType" options={taxonomySource.faultTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
+            <SelectField label="Danh mục" value={searchParams.categoryId} field="categoryId" options={taxonomySource.categories} setSearchParams={setSearchParams} searchParams={searchParams} />
+            <SelectField label="Sắp xếp" value={searchParams.sortBy} field="sortBy" options={taxonomySource.sortOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
+          </div>
+        </details>
+        {validationError && <div className="validation-error">{validationError}</div>}
+      </form>
+    );
+  }
+
   return (
     <form className={compact ? "search-form compact" : "search-form"} onSubmit={(event) => { event.preventDefault(); runSearch(searchParams); }}>
       <div className="form-main">
@@ -1450,17 +1504,7 @@ function SearchForm({ searchParams, setSearchParams, runSearch, validationError,
         <SelectField label="Loại thiết bị" value={searchParams.assetType} field="assetType" options={taxonomySource.assetTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
         <SelectField label="Loại lỗi" value={searchParams.faultType} field="faultType" options={taxonomySource.faultTypes} setSearchParams={setSearchParams} searchParams={searchParams} />
         <SelectField label="Danh mục" value={searchParams.categoryId} field="categoryId" options={taxonomySource.categories} setSearchParams={setSearchParams} searchParams={searchParams} />
-        <SelectField label="Trạng thái" value={searchParams.status} field="status" options={[
-          { value: "PUBLISHED", label: "Đang hiệu lực" },
-          { value: "REVIEW_DUE", label: "Đến hạn rà soát" },
-          { value: "FLAGGED", label: "Bị gắn cờ" },
-          { value: "UNDER_REVIEW", label: "Đang rà soát" },
-          { value: "SUSPENDED", label: "Tạm ngừng" },
-          { value: "SUPERSEDED", label: "Đã thay thế" },
-          { value: "ARCHIVED", label: "Đã lưu trữ" },
-          { value: "OUTDATED", label: "Outdated" },
-          { value: "ALL", label: "Tất cả trạng thái" }
-        ]} setSearchParams={setSearchParams} searchParams={searchParams} />
+        <SelectField label="Trạng thái" value={searchParams.status} field="status" options={searchStatusOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
         <SelectField label="Sắp xếp" value={searchParams.sortBy} field="sortBy" options={taxonomySource.sortOptions} setSearchParams={setSearchParams} searchParams={searchParams} />
       </div>
       {validationError && <div className="validation-error">{validationError}</div>}
@@ -1483,26 +1527,39 @@ function SelectField({ label, value, field, options, searchParams, setSearchPara
   );
 }
 
-function SearchResults({ searchParams, setSearchParams, runSearch, results, openItem, createKnowledgeRequest, currentRole, taxonomySource }) {
+function SearchResults({ searchParams, setSearchParams, runSearch, validationError, results, openItem, createKnowledgeRequest, currentRole, taxonomySource, isKnowledgeBase = false }) {
+  const searchContext = describeSearchContext(searchParams);
+  const filterRows = [
+    ["Từ khóa", searchParams.query.trim() || "Tất cả"],
+    ["Asset ID", searchParams.assetId.trim() || "Tất cả"],
+    ["Nội dung", optionLabel(taxonomySource.contentTypes, searchParams.contentType)],
+    ["Thiết bị", optionLabel(taxonomySource.assetTypes, searchParams.assetType)],
+    ["Loại lỗi", optionLabel(taxonomySource.faultTypes, searchParams.faultType)],
+    ["Danh mục", optionLabel(taxonomySource.categories, searchParams.categoryId)],
+    ["Trạng thái", optionLabel(searchStatusOptions, searchParams.status)]
+  ];
+
   return (
     <section className="page">
       <PageHeader
         eyebrow={roleLabels[currentRole]}
-        title="Kết quả tìm kiếm"
-        description={`${results.length} kết quả cho ${searchParams.query || searchParams.assetId || "bộ lọc hiện tại"}. Visibility được lọc trước khi render.`}
+        title={isKnowledgeBase ? "Cơ sở tri thức" : "Kết quả tìm kiếm"}
+        description={`${results.length} nội dung cho ${searchContext}. Visibility được lọc theo vai trò trước khi render.`}
       />
-      <SearchForm compact searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} taxonomySource={taxonomySource} />
+      <SearchForm compact searchParams={searchParams} setSearchParams={setSearchParams} runSearch={runSearch} validationError={validationError} taxonomySource={taxonomySource} />
       {results.length === 0 ? (
         <NoResult searchParams={searchParams} createKnowledgeRequest={createKnowledgeRequest} />
       ) : (
         <div className="results-layout">
           <aside className="facet-panel">
             <SlidersHorizontal size={20} />
-            <strong>Bộ lọc đang dùng</strong>
-            <p>Content: {searchParams.contentType}</p>
-            <p>Asset: {searchParams.assetType}</p>
-            <p>Fault: {searchParams.faultType}</p>
-            <p>Status: {searchParams.status}</p>
+            <strong>Thông tin tìm kiếm</strong>
+            {filterRows.map(([label, value]) => (
+              <p key={label}>
+                <span>{label}</span>
+                <b>{value}</b>
+              </p>
+            ))}
           </aside>
           <div className="result-list">
             {results.map((item) => <KnowledgeCard key={item.id} item={item} openItem={openItem} />)}

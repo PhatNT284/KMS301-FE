@@ -409,7 +409,44 @@ button:disabled {
 }
 
 .search-form.compact {
-  padding: 16px;
+  padding: 12px;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.compact-search-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(160px, 0.7fr) minmax(170px, 0.78fr) minmax(170px, 0.78fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.compact-search-actions {
+  display: flex;
+  gap: 8px;
+  align-items: end;
+  justify-content: flex-end;
+}
+
+.advanced-filter-drawer {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.advanced-filter-drawer summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.advanced-filter-drawer .filter-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .form-main {
@@ -548,14 +585,34 @@ textarea:focus {
   background: white;
 }
 
+.results-layout {
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  align-items: start;
+}
+
 .facet-panel svg {
   color: var(--primary);
 }
 
 .facet-panel p {
+  display: grid;
+  gap: 3px;
   margin: 0;
   color: var(--muted);
   font-size: 13px;
+}
+
+.facet-panel p span {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.facet-panel p b {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .result-list {
@@ -1663,6 +1720,16 @@ dd {
 }
 
 @media (max-width: 1180px) {
+  .compact-search-row,
+  .advanced-filter-drawer .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compact-search-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
   .metric-grid,
   .filter-grid,
   .card-meta,
@@ -1700,6 +1767,20 @@ dd {
 
   .workspace {
     margin-left: 0;
+  }
+
+  .compact-search-row,
+  .advanced-filter-drawer .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .compact-search-actions {
+    justify-content: stretch;
+  }
+
+  .compact-search-actions .ghost-btn,
+  .compact-search-actions .primary-btn {
+    flex: 1;
   }
 
   .topbar,
